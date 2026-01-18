@@ -1,6 +1,6 @@
 
 import { Copyrights } from "../components/Footer"
-import "../css/Login.css"
+import styles from "../css/Login.module.scss"
 import favicon from "../assets/favicon.svg"
 import bg_obj_1 from "../assets/auth_bg_1.png"
 import bg_obj_2 from "../assets/auth_bg_2.png"
@@ -42,47 +42,59 @@ function Login() {
 
 
     return (
-        <div className="login">
-            <div className="content">
+        <div className={styles.login}>
+            <div className={styles.content}>
                 <h2>Welcome back!</h2>
-                <p>Don't have an account? <Link to={"/signup"} className="highlight">Create one</Link></p>
-                <form className="login-form" onSubmit={handleSubmit}>
+
+                <p>Don't have an account? <Link to={"/signup"} className={styles.highlight}>Create one</Link></p>
+
+                <form className={styles.loginForm} onSubmit={handleSubmit}>
                     <input
                         type="email"
                         placeholder="Email address"
-                        className="input-field"
+                        className={styles.inputField}
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)} />
-                    <div className="password-wrapper">
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+
+                    <div className={styles.passwordWrapper}>
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
-                            className="input-field"
+                            className={styles.inputField}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)} />
                         <span
-                            className="eye-icon"
+                            className={styles.eyeIcon}
                             onClick={() => setShowPassword((prev) => !prev)}
                             role="button"
                             aria-label={showPassword ? "Hide password" : "Show password"} >
-                            <img
-                                src={showPassword ? hide_password : show_password}
-                                alt={showPassword ? "Hide password" : "Show password"} />
+                            <img src={showPassword ? hide_password : show_password} alt={showPassword ? "Hide password" : "Show password"} />
                         </span>
                     </div>
-                    <div className="misc">
-                        <label className="checkbox-container">
+
+                    <div className={styles.misc}>
+                        <label className={styles.checkboxContainer}>
                             <input type="checkbox" />
-                            <span className="checkmark">Remember me</span>
+                            <span className={styles.checkmark}>Remember me</span>
                         </label>
-                        <a className="highlight">Forgot Password?</a>
+
+                        <a className={styles.highlight}>Forgot Password?</a>
                     </div>
-                    <button type="submit" className="login-btn">Login</button>
+
+                    <button type="submit" className={styles.loginButton}>
+                        Login
+                    </button>
                 </form>
             </div>
-            <img src={bg_obj_1} className="bg-img-1" />
-            <img src={bg_obj_2} className="bg-img-2" />
-            <Link to={"/"}><img src={favicon} className="back-btn" /></Link>
+
+            <img src={bg_obj_1} className={styles.bgImg1} />
+            <img src={bg_obj_2} className={styles.bgImg2} />
+
+            <Link to="/">
+                <img src={favicon} className={styles.backButton} />
+            </Link>
+
             <Copyrights />
         </div>
     )

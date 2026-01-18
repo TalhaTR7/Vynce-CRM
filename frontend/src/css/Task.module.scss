@@ -1,0 +1,431 @@
+.container {
+    display: flex;
+    height: calc(100vh - 60px);
+    overflow-y: hidden;
+
+    .task {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        height: 100%;
+        padding: 40px;
+        overflow-y: hidden;
+
+        .projectPane {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px;
+
+            .backButton {
+                border: none;
+                background-color: transparent;
+                cursor: pointer;
+                opacity: 0.7;
+                user-select: none;
+
+                img {
+                    width: 20px;
+                }
+
+                &:hover {
+                    opacity: 1;
+                }
+            }
+
+            .projectImage {
+                width: 60px;
+                height: 60px;
+                border-radius: 20%;
+                overflow: hidden;
+                user-select: none;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                }
+            }
+
+            h1 {
+                font: 28px Google;
+                color: #ccc;
+            }
+        }
+
+        .titlePane {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            cursor: default;
+
+            .title {
+                font: 28px Google;
+                color: #ccc;
+                margin: 5px;
+                width: 75%;
+                cursor: text;
+                line-height: 1.5;
+                padding: 5px;
+                border-radius: 7px;
+                border: 1px solid transparent;
+                box-sizing: border-box;
+                display: block;
+            }
+
+            .editable {
+                background: transparent;
+                color: #ddd;
+                border: 1px solid #555;
+                outline: none;
+                resize: none;
+                overflow: hidden;
+                cursor: text;
+            }
+
+            img {
+                width: 18px;
+                margin: auto 50px;
+                padding: 20px;
+                cursor: pointer;
+                opacity: 0.7;
+                user-select: none;
+
+                &:hover {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .taskDetails {
+            display: flex;
+            flex-direction: row;
+            gap: 50px;
+            margin: 0 10px;
+
+            .left,
+            .right {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+
+                .pair {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 0;
+                    align-items: center;
+
+                    .key {
+                        font: 16px Google;
+                        color: #999;
+                        width: 150px;
+                        margin: 0;
+                        cursor: default;
+                    }
+
+                    .value {
+                        font: 18px Google;
+                        color: #ccc;
+                        display: flex;
+                        flex-direction: row;
+                        gap: 10px;
+                        align-items: center;
+                        width: 200px;
+                        margin: 0;
+                        padding: 5px;
+                        border-radius: 7px;
+
+                        .profileImage {
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 50%;
+                            overflow: hidden;
+                            margin: 0;
+                            user-select: none;
+
+                            img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: block;
+                            }
+                        }
+
+                        .color {
+                            width: 15px;
+                            height: 15px;
+                            border-radius: 50%;
+                            display: inline-block;
+                        }
+
+
+                        p {
+                            margin: 0;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            cursor: default;
+                        }
+
+                        img {
+                            height: 20px;
+                            user-select: none;
+                        }
+
+                        button {
+                            background: none;
+                            border: none;
+                            cursor: pointer;
+                            padding: 0;
+                        }
+                    }
+
+                    .editable {
+                        cursor: pointer;
+                        border: none;
+
+                        p {
+                            cursor: pointer;
+                        }
+
+                        &:hover {
+                            background-color: #181818;
+                        }
+                    }
+                }
+            }
+        }
+
+        .description {
+            color: #ccc;
+            cursor: text;
+            font: 18px Google;
+            line-height: 1.5;
+            width: 85%;
+            padding: 5px;
+            border-radius: 7px;
+            border: 1px solid transparent;
+            box-sizing: border-box;
+            margin: 30px 5px;
+            display: block;
+        }
+
+        .editable {
+            background: transparent;
+            color: #ccc;
+            border: 1px solid #555;
+            outline: none;
+            resize: none;
+            overflow: hidden;
+            cursor: text;
+
+            &::placeholder {
+                opacity: 0.5;
+            }
+        }
+    }
+
+    .activityContainer {
+        display: flex;
+        flex-direction: column;
+        width: 500px;
+        height: 100%;
+        border-left: 1px solid #555;
+
+        .activityPane {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: center;
+            border-bottom: 1px solid #555;
+            padding: 5px 15px;
+
+            h1 {
+                font: 21px Google;
+                color: #ccc;
+            }
+
+            .comments {
+                display: flex;
+                flex-direction: row;
+                gap: 5px;
+                align-items: center;
+                opacity: 0.7;
+
+                img {
+                    width: 18px;
+                    user-select: none;
+                }
+
+                p {
+                    font: 16px Google;
+                    color: #ccc;
+                }
+            }
+        }
+
+        .activityWindow {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 15px;
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            &::-webkit-scrollbar {
+                width: 3px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background: #555;
+                border-radius: 10px;
+            }
+
+            .action {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                gap: 20px;
+                cursor: default;
+                margin: 0 25px;
+
+                .content {
+                    font: 14px Google;
+                    color: #777;
+                    margin: 0;
+                    line-height: 1.5;
+                    width: 65%;
+                }
+
+                .timestamp {
+                    font: 14px Google;
+                    color: #777;
+                    margin: 0;
+                    width: 40%;
+                    text-align: right;
+                }
+            }
+
+            .comment {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                border: 1px solid #333;
+                background-color: #181818;
+                border-radius: 10px;
+                padding: 10px;
+                margin: 0 15px;
+
+                .commentInfo {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    .commenter {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        gap: 10px;
+                        max-width: 65%;
+                        cursor: pointer;
+
+                        .profileImage {
+                            width: 25px;
+                            height: 25px;
+                            border-radius: 50%;
+                            overflow: hidden;
+                            user-select: none;
+
+                            img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: block;
+                            }
+                        }
+
+                        p {
+                            font: 16px Google;
+                            color: #999;
+                            margin: 0;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                    }
+
+                    .timestamp {
+                        font: 14px Google;
+                        color: #777;
+                        margin: 0;
+                        width: 40%;
+                        text-align: right;
+                        cursor: default;
+                    }
+                }
+
+                .content {
+                    font: 18px Google;
+                    color: #ccc;
+                    margin: 5px 0;
+                }
+            }
+        }
+
+        .commentInput {
+            display: flex;
+            align-items: center;
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 8px 15px;
+            margin: 15px;
+            box-sizing: border-box;
+
+            &:focus-within {
+                border-color: #555;
+            }
+
+            .inputField {
+                flex-grow: 1;
+                background: transparent;
+                border: none;
+                outline: none;
+                color: #ccc;
+                font: 16px Google;
+                padding: 5px 0;
+
+                &::placeholder {
+                    color: #555;
+                }
+            }
+
+            .sendButton {
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--green);
+                padding: 5px 10px;
+                opacity: 0.7;
+                transition: opacity 0.2s, transform 0.1s;
+
+                img {
+                    width: 20px;
+                    height: 20px;
+                }
+
+                &:hover {
+                    opacity: 1;
+                    transform: scale(1.05);
+                }
+            }
+        }
+    }
+}

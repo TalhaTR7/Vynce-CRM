@@ -1,7 +1,7 @@
 
-import "../css/Header.css";
-import ethsvg from "../assets/ETH.svg";
-import mpsvg from "../assets/MPLevel.svg";
+import styles from "../css/Header.module.scss";
+import eth_svg from "../assets/eth.svg";
+import mp_svg from "../assets/MPLevel.svg";
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -37,7 +37,7 @@ function Header() {
         const fetchUser = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const res = await axios.get("http://localhost:5000/api/users/me", {
+                const res = await axios.get("http://localhost:5000/api/users/user", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUser(res.data);
@@ -64,31 +64,33 @@ function Header() {
         const interval = setInterval(updateTime, 1000 * 60);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [user]);
 
     if (!user) return <p>Loading...</p>;
 
     return (
-        <header className="Header">
-            <div className="current-time">{dateTime}</div>
-            <div className="current-mood">
+        <header className={styles.Header}>
+            <div className={styles.currentTime}>{dateTime}</div>
+            <div className={styles.currentMood}>
                 <p>I am feeling</p>
                 <img src={mood[user.currentMood]} />
                 <p>right now</p>
             </div>
-            <div className="user-elements">
-                <div className="etherium">
-                    <img src={ethsvg} />
+            <div className={styles.userElements}>
+                <div className={styles.etherium}>
+                    <img src={eth_svg} />
                     <p>{user.etherium}</p>
                 </div>
-                <div className="motivation">
-                    <div className="wrapper">
-                        <img src={mpsvg} />
+                <div className={styles.motivation}>
+                    <div className={styles.wrapper}>
+                        <img src={mp_svg} />
                         <span>{user.motivationLevel}</span>
                     </div>
                     <p>{user.motivationScore.toLocaleString()}</p>
                 </div>
-                <img src={user.profileImage.url} />
+                <div className={styles.profileImage}>
+                    <img src={user.profileImage.url} />
+                </div>
             </div>
         </header>
     )

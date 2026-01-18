@@ -1,0 +1,456 @@
+import express from "express";
+import authMiddleware from "../middleware/auth.js";
+import User from "../models/User.js";
+import Project from "../models/Project.js";
+import Membership from "../models/Membership.js";
+import Board from "../models/Board.js";
+import Task from "../models/Task.js";
+
+const router = express.Router();
+
+// create a task
+router.post("/", authMiddleware, async (req, res) => {
+    const {
+        projectId,
+        boardId,
+        title,
+        description = "",
+        assigneeId,
+        dueDate = null,
+        ethereum = 1
+    } = req.body;
+
+    try {
+
+        if (!projectId || !boardId || !title || !assigneeId)
+            return res.status(400).json({ msg: "projectId, boardId, title, and assigneeId are required" });
+
+        const projectExists = await Project.exists({ _id: projectId });
+        if (!projectExists) return res.status(404).json({ msg: "Project not found" });
+
+        const boardExists = await Board.exists({ _id: boardId, projectId });
+        if (!boardExists) return res.status(404).json({ msg: "Board does not exist" });
+
+        let membership = await Membership.findOne({
+            projectId,
+            userId: req.user.id,
+        }).select("role");
+
+        if (!membership) return res.status(403).json({ msg: "Creator is not a member of this project" });
+
+        if (!["OWNER", "ADMIN"].includes(membership.role))
+            return res.status(403).json({ msg: "Creator is not an OWNER or ADMIN" });
+
+        const creator = await User.findById(req.user.id)
+            .select("firstname lastname");
+        const creatorId = req.user.id;
+
+        const assignee = await User.findById(assigneeId)
+            .select("_id currentMood");
+
+        if (!assignee) return res.status(404).json({ msg: "Assignee not found" });
+
+        membership = await Membership.findOne({
+            projectId,
+            userId: assignee._id,
+        }).select("role");
+
+        if (!membership) return res.status(403).json({ msg: "Assignee is not a member of this project" });
+
+        const setReward = Math.max(1, Number(ethereum) || 1);
+        const multiplier = {
+            ANGRY: 2,
+            EXHAUSTED: 1.8,
+            SICK: 1.6,
+            SAD: 1.5,
+            NORMAL: 1.5,
+            OKAY: 1.5,
+            VIBING: 1.4,
+            HAPPY: 1.2,
+            CHILLING: 1
+        }[assignee.currentMood] || 1;
+        const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
+
+        const task = await Task.create({
+            projectId,
+            boardId,
+            title,
+            description,
+            creatorId,
+            assigneeId,
+            dueDate: dueDate,
+            ethereum: {
+                assigned: setReward,
+                calculated: calculatedReward
+            },
+            worktime: 0,
+            motivation: 0,
+            activity: [{
+                type: "ACTION",
+                userId: creatorId,
+                action: "CREATED_TASK",
+                content: `${creator.firstname} ${creator.lastname} created this task`
+            }]
+        });
+
+        res.status(201).json(task);
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+})
+
+
+// get tasks of a board
+router.get("/board/:boardId", authMiddleware, async (req, res) => {
+    const { boardId } = req.params;
+
+    try {
+        const board = await Board.findById(boardId).select("projectId");
+        if (!board) return res.status(404).json({ msg: "Board does not exist" });
+
+        const membership = await Membership.findOne({
+            projectId: board.projectId,
+            userId: req.user.id,
+        });
+
+        if (!membership) return res.status(403).json({ msg: "Not a member of this project" });
+
+        let tasks = await Task
+            .find({ boardId })
+            .sort({ createdAt: 1 })
+            .populate("projectId", "_id projectImage name")
+            .populate("assigneeId", "profileImage firstname lastname");
+
+        tasks = tasks.map(task => {
+            task = task.toObject();
+            if (task.projectId?.projectImage?.url)
+                task.projectId.projectImage.url = task.projectId.projectImage.url.startsWith("/assets")
+                    ? task.projectId.projectImage.url
+                    : `http://localhost:${process.env.PORT}/api${task.projectId.projectImage.url}`;
+            if (task.assigneeId?.profileImage?.url)
+                task.assigneeId.profileImage.url = task.assigneeId.profileImage.url.startsWith("/assets")
+                    ? task.assigneeId.profileImage.url
+                    : `http://localhost:${process.env.PORT}/api${task.assigneeId.profileImage.url}`;
+            return {
+                ...task,
+                project: task.projectId,
+                assignee: task.assigneeId,
+                projectId: undefined,
+                assigneeId: undefined
+            };
+        });
+
+        res.status(200).json(tasks);
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+})
+
+
+// get tasks for dashboard
+router.get("/dashboard/:boardId", authMiddleware, async (req, res) => {
+    const { boardId } = req.params;
+
+    try {
+        const tasks = await Task
+            .find({
+                boardId: boardId,
+                assigneeId: req.user.id
+            })
+            .select("projectId title ethereum activity createdAt dueDate worktime")
+            .populate("projectId", "projectImage")
+            .sort({ dueDate: 1 })
+            .limit(3);
+
+
+        const response = tasks.map(task => {
+
+            const raw = task.projectId?.projectImage?.url;
+            const image = raw?.startsWith("/assets") ? raw
+                : `http://localhost:${process.env.PORT}/api${raw}`;
+
+            return ({
+                _id: task._id,
+                projectImage: {
+                    url: image
+                },
+                title: task.title,
+                ethereum: task.ethereum.calculated,
+                comments: task.activity.filter(a => a.type === "COMMENT").length,
+                createdAt: task.createdAt,
+                dueDate: task.dueDate,
+                worktime: task.worktime
+            })
+        });
+
+        res.status(200).json(response);
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// get task by id
+router.get("/task/:taskId", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+
+    try {
+        let task = await Task
+            .findById(taskId)
+            .populate("boardId", "_id projectId name color")
+            .populate("projectId", "_id projectImage name")
+            .populate("creatorId", "_id profileImage firstname lastname")
+            .populate("assigneeId", "_id profileImage firstname lastname currentMood");
+        if (!task) return res.status(404).json({ msg: "Task does not exist" });
+
+        const membership = await Membership.findOne({
+            userId: req.user.id,
+            projectId: task.projectId
+        });
+
+        if (!membership) return res.status(403).json({ msg: "Not a member of this project" });
+
+        task = task.toObject();
+
+        task.projectId.projectImage.url = task.projectId.projectImage.url.startsWith("/assets")
+            ? task.projectId.projectImage.url
+            : `http://localhost:${process.env.PORT}/api${task.projectId.projectImage.url}`;
+        task.assigneeId.profileImage.url = task.assigneeId.profileImage.url.startsWith("/assets")
+            ? task.assigneeId.profileImage.url
+            : `http://localhost:${process.env.PORT}/api${task.assigneeId.profileImage.url}`;
+
+        task = {
+            ...task,
+            board: task.boardId,
+            creator: task.creatorId,
+            project: task.projectId,
+            assignee: task.assigneeId,
+            fetcher: {
+                _id: req.user.id,
+                role: membership.role
+            },
+            boardId: undefined,
+            creatorId: undefined,
+            projectId: undefined,
+            assigneeId: undefined
+        };
+
+        task.activity = await Promise.all(
+            task.activity.map(async object => {
+                if (!object.userId) return object;
+
+                const user = await User.findById(object.userId)
+                    .select("_id firstname lastname profileImage");
+
+                return {
+                    ...object,
+                    user: user ? {
+                        ...user.toObject(),
+                        profileImage: {
+                            url: user.profileImage?.url?.startsWith("/assets")
+                                ? user.profileImage.url
+                                : `http://localhost:${process.env.PORT}/api${user.profileImage.url}`
+                        }
+                    } : null,
+                    userId: undefined
+                };
+            })
+        );
+
+        res.status(200).json(task);
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// start timer
+router.patch("/task/:taskId/startTimer", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+
+    try {
+        const task = await Task
+            .findById(taskId)
+            .populate("assigneeId", "_id firstname lastname");
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+        if (task.isTimerRunning)
+            return res.status(400).json({ msg: "Timer is already running" });
+
+        task.isTimerRunning = true;
+        task.timerStartedAt = new Date();
+
+        const assignee = task.assigneeId;
+
+        task.activity.push({
+            type: "ACTION",
+            userId: assignee._id,
+            action: "STARTED_TIMER",
+            content: `${assignee.firstname} ${assignee.lastname} started the timer`
+        })
+
+        await task.save();
+        res.status(200).json({
+            task: task.toObject(),
+            msg: "timer started",
+            timerStartedAt: task.timerStartedAt
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// stop timer
+router.patch("/task/:taskId/stopTimer", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+
+    try {
+        const task = await Task
+            .findById(taskId)
+            .populate("assigneeId", "_id firstname lastname");
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+        if (!task.isTimerRunning || !task.timerStartedAt)
+            return res.status(400).json({ msg: "Timer is not running" });
+
+        const workedMinutes = Math.floor((Date.now() - task.timerStartedAt.getTime()) / 60000);
+        task.worktime += workedMinutes;
+        task.isTimerRunning = false;
+        task.timerStartedAt = null;
+
+        const hours = Math.floor(workedMinutes / 60);
+        const minutes = workedMinutes % 60;
+        const worktime = `${hours > 0 ? `${hours}h ` : ""}${minutes}m`;
+        const assignee = task.assigneeId;
+
+        task.activity.push({
+            type: "ACTION",
+            userId: assignee._id,
+            action: "STOPPED_TIMER",
+            content: `${assignee.firstname} ${assignee.lastname} stopped the timer after ${worktime}`
+        })
+
+        await task.save();
+        res.status(200).json({
+            msg: "timer stopped",
+            addedMinutes: workedMinutes,
+            totalWorktime: task.worktime
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// edit title
+router.patch("/task/:taskId/editTitle", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { title } = req.body;
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        task.title = title;
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "CHANGED_TITLE",
+            content: `${user.firstname} ${user.lastname} changed the title`,
+            time: new Date()
+        });
+
+        await task.save();
+        res.status(200).json({
+            title: task.title,
+            activity: task.activity[task.activity.length - 1]
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// edit description
+router.patch("/task/:taskId/editDescription", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { description } = req.body;
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        task.description = description;
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "CHANGED_DESCRIPTION",
+            content: `${user.firstname} ${user.lastname} made changes to the description`,
+            time: new Date()
+        });
+
+        await task.save();
+        res.status(200).json({
+            description: task.description,
+            activity: task.activity[task.activity.length - 1]
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// put a comment
+router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { comment } = req.body;
+
+    if (!comment || comment.trim() === "")
+        return res.status(400).json({ msg: "Comment cannot be empty" });
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        const membership = await Membership.findOne({
+            userId: req.user.id,
+            projectId: task.projectId
+        });
+
+        if (!membership) return res.status(403).json({ msg: "Not a member of this project" });
+
+        task.activity.push({
+            type: "COMMENT",
+            userId: req.user.id,
+            content: comment,
+            time: new Date()
+        });
+
+        await task.save();
+
+        await task.populate({
+            path: 'activity.userId',
+            select: 'firstname lastname profileImage'
+        });
+
+        const response = task.activity[task.activity.length - 1].toObject();
+        response.user = response.userId;
+        response.userId = undefined;
+        response.user.profileImage.url = response.user.profileImage.url.startsWith("/assets")
+            ? response.user.profileImage.url
+            : `http://localhost:${process.env.PORT}/api${response.user.profileImage.url}`;
+
+        res.status(200).json({
+            comment,
+            activity: response
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+export default router;

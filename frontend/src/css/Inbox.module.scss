@@ -1,0 +1,149 @@
+.container {
+    display: flex;
+    height: calc(100vh - 60px);
+    overflow-y: hidden;
+
+    .inbox {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 25px 40px;
+        overflow-y: hidden;
+
+        .inboxPane {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+
+            .selectAll {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 0;
+                user-select: none;
+                cursor: pointer;
+
+                input[type="checkbox"] {
+                    appearance: none;
+                    width: 15px;
+                    height: 15px;
+                    border: 1px solid #555;
+                    border-radius: 25%;
+                    background-color: transparent;
+                    cursor: pointer;
+                    display: grid;
+                    place-content: center;
+
+                    &:checked {
+                        background-color: var(--green);
+                        border-color: var(--green);
+
+                        &::before {
+                            content: "";
+                            width: 10px;
+                            height: 10px;
+                            background-image: url("../assets/tick.svg");
+                            background-size: contain;
+                            background-repeat: no-repeat;
+                            background-position: center;
+                        }
+                    }
+                }
+
+                label {
+                    color: #999;
+                    font: 16px Google;
+                    cursor: pointer;
+                }
+            }
+
+            .buttons {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 24px;
+                width: 52px;
+                border-radius: 5px;
+                background-color: transparent;
+                border: 1px solid #777;
+                opacity: 0.5;
+                cursor: pointer;
+                user-select: none;
+
+                &:hover {
+                    opacity: 0.7;
+                }
+
+                &:active {
+                    opacity: 0.8;
+                }
+            }
+
+            .search {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                width: 72%;
+                height: 35px;
+                background-color: #212121;
+                border-radius: 10px;
+
+                img {
+                    height: 15px;
+                    margin: 1px 15px;
+                    user-select: none;
+                }
+
+                input[type="text"] {
+                    background-color: transparent;
+                    border: none;
+                    margin-right: 20px;
+                    width: 100%;
+                    font: 18px Google;
+                    color: #ccc;
+
+                    &::placeholder {
+                        color: #ccc;
+                        opacity: 0.5;
+                        user-select: none;
+                    }
+
+                    &:focus {
+                        outline: none;
+                    }
+                }
+            }
+
+            p {
+                font: 16px Google;
+                color: #999;
+                margin: 0;
+            }
+
+            .arrows {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 15px;
+                user-select: none;
+
+                img {
+                    width: 7px;
+                    opacity: 0.5;
+                    padding: 15px;
+                    cursor: pointer;
+
+                    &:hover {
+                        opacity: 0.7;
+                    }
+                }
+
+            }
+
+
+        }
+    }
+}

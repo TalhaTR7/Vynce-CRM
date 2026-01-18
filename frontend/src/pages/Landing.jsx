@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import "../css/Landing.css"
+import styles from "../css/Landing.module.scss"
 import Footer from "../components/Footer"
 import favicon from "../assets/favicon.svg"
 import logo from "../assets/logo.png"
@@ -17,20 +17,20 @@ function Landing() {
 
 
     return (
-        <div className="landing">
+        <div className={styles.landing}>
             <header>
                 <Link to={"/"}><img src={logo} /></Link>
-                <div className="buttons">
+                <div className={styles.buttons}>
                     <Link to={"/login"}><button>Login</button></Link>
                     <Link to={"/signup"}><button>Signup</button></Link>
                 </div>
             </header>
-            <div className="front-content">
+            <div className={styles.frontContent}>
                 <h1>Productivity that Rewards You</h1>
                 <Link to={"/signup"}><button>Get started for free!</button></Link>
                 <p>A modern next-gen project management software that understands tasks, teams, and emotions – turning everyday work into a motivating experience</p>
             </div>
-            <img src={object} className="object" />
+            <img src={object} className={styles.object} />
             <Footer />
         </div>
     )

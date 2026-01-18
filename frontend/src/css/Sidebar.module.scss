@@ -1,0 +1,218 @@
+.sidebar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid #555;
+    color: #ccc;
+    width: 260px;
+    height: 940px;
+    overflow-y: auto;
+
+    h1 {
+        margin: 30px 20px;
+        font: 24px Google;
+    }
+
+    .homePages {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 0;
+        margin: 0 10px;
+        gap: 5px;
+
+        .homeElements {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: center;
+            text-decoration: none;
+            height: 30px;
+            border-radius: 7px;
+            padding: 0 10px;
+            border: 1px solid transparent;
+
+            img {
+                height: 18px;
+                width: 20px;
+                user-select: none;
+            }
+
+            p {
+                font: 18px Google;
+            }
+
+            &:hover {
+                background-color: #222;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .divider {
+        margin: 35px 15px 20px 15px;
+        border: 1px solid #222;
+    }
+
+    .chats,
+    .projects {
+        display: flex;
+        flex-direction: column;
+        margin: 0 15px;
+        color: #999;
+
+        .listContainer {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+
+            &::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background-color: #333;
+                border-radius: 3px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background-color: #151515;
+            }
+        }
+
+        span {
+            font: 14px Google;
+            margin: 0 0 15px 0;
+        }
+
+        .chat,
+        .project {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: center;
+            height: 30px;
+            padding: 0 5px;
+            text-decoration: none;
+            color: #999;
+            border: 1px solid transparent;
+            border-radius: 7px;
+            cursor: pointer;
+
+            .name {
+                font: 18px Google;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .more {
+                position: absolute;
+                width: 10px;
+                right: 5%;
+                opacity: 0;
+                padding: 10px;
+                user-select: none;
+            }
+
+            &:hover {
+                background-color: #181818;
+                color: #ccc;
+
+                .more {
+                    opacity: 0.7;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+            }
+
+            .profileImage,
+            .projectImage {
+                width: 25px;
+                height: 25px;
+                overflow: hidden;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                    user-select: none;
+                }
+            }
+
+            .profileImage {
+                border-radius: 50%;
+            }
+
+            .projectImage {
+                border-radius: 20%;
+            }
+        }
+
+        .create {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 7px;
+            margin: 10px 0 auto;
+            opacity: 0.7;
+
+            p {
+                font: 14px Google;
+                color: #ccc;
+                margin: 0;
+            }
+
+            img {
+                width: 10px;
+                user-select: none;
+            }
+
+            &:hover {
+                background-color: #181818;
+                cursor: pointer;
+                opacity: 1;
+            }
+        }
+    }
+
+    .askAI {
+        position: absolute;
+        bottom: 2%;
+        width: 60%;
+        left: 20%;
+        height: 35px;
+        border-radius: 7px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        font: 18px Google;
+        color: #999;
+        background-color: transparent;
+        border: 1px solid #444;
+        gap: 7px;
+            user-select: none;
+
+        img {
+            width: 15px;
+        }
+
+        &:hover {
+            border: 1px solid #888;
+            color: #ccc;
+            cursor: pointer;
+        }
+    }
+}

@@ -1,0 +1,125 @@
+.card {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background-color: #181818;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #202020;
+    }
+
+    .projectInfo {
+        all: unset;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+
+        .projectImage {
+            width: 30px;
+            height: 30px;
+            border-radius: 20%;
+            overflow: hidden;
+            user-select: none;
+
+            img {
+                all: unset;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        p {
+            font: 16px Google;
+            color: #999;
+            margin: 0;
+        }
+    }
+
+    .title {
+        font: 18px Google;
+        color: #ccc;
+        margin: 5px 0;
+        line-height: 1.5;
+    }
+
+    .taskDetails {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        .left {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 15px;
+
+            .assignee {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                overflow: hidden;
+                user-select: none;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                }
+            }
+
+            .ethereum {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+
+                img {
+                    width: 15px;
+                    user-select: none;
+                }
+
+                p {
+                    font: 16px Google;
+                    color: #999;
+                    margin: 0;
+                }
+            }
+        }
+
+        .right {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px;
+
+            .daysleft,
+            .comments {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                gap: 5px;
+                opacity: 0.7;
+
+                img {
+                    width: 15px;
+                    user-select: none;
+                }
+
+                p {
+                    font: 16px Google;
+                    color: #999;
+                    margin: 0;
+                }
+            }
+        }
+    }
+}

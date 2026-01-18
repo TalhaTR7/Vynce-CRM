@@ -1,0 +1,87 @@
+.Header {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #555;
+    color: #ccc;
+    justify-content: space-between;
+    align-items: center;
+    font: 16px Google;
+    cursor: default;
+
+    .currentTime {
+        margin: auto 20px;
+        user-select: none;
+    }
+
+    .currentMood {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+
+        img {
+            height: 20px;
+            user-select: none;
+        }
+    }
+
+    .userElements {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 50px;
+        margin: auto 20px;
+        user-select: none;
+
+        .etherium,
+        .motivation {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+
+            img {
+                height: 30px;
+            }
+
+            p {
+                font: 16px Timun;
+            }
+
+            .wrapper {
+                position: relative;
+
+                span {
+                    position: absolute;
+                    top: 45%;
+                    left: 50%;
+                    transform: translate(-50%, -55%);
+                    font: 16px Georgia;
+                    font-weight: bold;
+                    color: #111;
+                    pointer-events: none;
+                }
+            }
+        }
+
+        .profileImage {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+    }
+}

@@ -33,3 +33,8 @@ body {
   box-shadow: 0 10px 30px #00000055;
   display: flex;
 }
+
+p {
+  font: 16px Google;
+  color: #ccc;
+}

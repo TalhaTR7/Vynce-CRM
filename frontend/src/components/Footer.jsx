@@ -1,16 +1,16 @@
-import "../css/Footer.css"
+import styles   from "../css/Footer.module.scss"
 import sponsor1 from "../assets/sponsor-1.png"
 import sponsor2 from "../assets/sponsor-2.png"
 import sponsor3 from "../assets/sponsor-3.png"
 import sponsor4 from "../assets/sponsor-4.png"
 import sponsor5 from "../assets/sponsor-5.png"
 import favicon  from "../assets/favicon.svg"
-import globe    from "../assets/language.png"
+import globe    from "../assets/language.svg"
 
 
 export function Sponsors() {
     return (
-        <div className="sponsors">
+        <div className={styles.sponsors}>
             <img src={sponsor1} />
             <img src={sponsor2} />
             <img src={sponsor3} />
@@ -22,17 +22,17 @@ export function Sponsors() {
 
 export function Copyrights() {
     return (
-        <div className="copyrights">
-            <div className="documents">
+        <div className={styles.copyrights}>
+            <div className={styles.documents}>
                 <p>© 2024 Vynce Productions, Inc.</p>
                 <span>·</span>
-                <p className="document">No Privacy</p>
+                <p className={styles.document}>No Privacy</p>
                 <span>·</span>
-                <p className="document">No Policy</p>
+                <p className={styles.document}>No Policy</p>
                 <span>·</span>
-                <p className="document">No T&Cs</p>
+                <p className={styles.document}>No T&Cs</p>
             </div>
-            <div className="language">
+            <div className={styles.language}>
                 <img src={globe} />
                 <p>English (US)</p>
             </div>
@@ -43,10 +43,10 @@ export function Copyrights() {
 
 export function Weblinks() {
     return (
-        <div className="weblinks">
+        <div className={styles.weblinks}>
             <h5>Inspiring future gateways</h5>
-            <div className="links">
-                <div className="columns">
+            <div className={styles.links}>
+                <div className={styles.columns}>
                     <h6>Product</h6>
                     <ul>
                         <li><a>Atomations</a></li>
@@ -58,7 +58,7 @@ export function Weblinks() {
                         <li><a>Docs and Wikis</a></li>
                     </ul>
                 </div>
-                <div className="columns">
+                <div className={styles.columns}>
                     <h6>Community</h6>
                     <ul>
                         <li><a>About Us</a></li>
@@ -68,7 +68,7 @@ export function Weblinks() {
                         <li><a>Events</a></li>
                     </ul>
                 </div>
-                <div className="columns">
+                <div className={styles.columns}>
                     <h6>Help</h6>
                     <ul>
                         <li><a>Support</a></li>
@@ -80,7 +80,7 @@ export function Weblinks() {
                         <li><a>Walkthrough</a></li>
                     </ul>
                 </div>
-                <div className="columns">
+                <div className={styles.columns}>
                     <h6>Resources</h6>
                     <ul>
                         <li><a>Webinars</a></li>

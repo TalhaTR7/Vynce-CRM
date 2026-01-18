@@ -1,5 +1,5 @@
 
-import "../css/Signup.css"
+import styles from "../css/Signup.module.scss"
 import favicon from "../assets/favicon.svg"
 import bg_obj_1 from "../assets/auth_bg_1.png"
 import bg_obj_2 from "../assets/auth_bg_2.png"
@@ -56,40 +56,40 @@ function Signup() {
 
 
     return (
-        <div className="signup">
-            <div className="content">
+        <div className={styles.signup}>
+            <div className={styles.content}>
                 <h2>Welcome!</h2>
-                <p>Already have an account? <Link to={"/login"} className="highlight">Sign in</Link></p>
-                <form className="signup-form" onSubmit={handleSubmit}>
-                    <div className="full-name">
+                <p>Already have an account? <Link to={"/login"} className={styles.highlight}>Sign in</Link></p>
+                <form className={styles.signupForm} onSubmit={handleSubmit}>
+                    <div className={styles.fullName}>
                         <input
                             type="text"
                             placeholder="First name"
-                            className="input-field"
+                            className={styles.inputField}
                             value={firstname}
                             onChange={(e) => setFirstname(e.target.value)} />
                         <input
                             type="text"
                             placeholder="Last name"
-                            className="input-field"
+                            className={styles.inputField}
                             value={lastname}
                             onChange={(e) => setLastname(e.target.value)} />
                     </div>
                     <input
                         type="email"
                         placeholder="Email address"
-                        className="input-field"
+                        className={styles.inputField}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)} />
-                    <div className="password-wrapper">
+                    <div className={styles.passwordWrapper}>
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Create password"
-                            className="input-field"
+                            className={styles.inputField}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)} />
                         <span
-                            className="eye-icon"
+                            className={styles.eyeIcon}
                             onClick={() => setShowPassword((prev) => !prev)}
                             role="button"
                             aria-label={showPassword ? "Hide password" : "Show password"} >
@@ -98,15 +98,15 @@ function Signup() {
                                 alt={showPassword ? "Hide password" : "Show password"} />
                         </span>
                     </div>
-                    <div className="password-wrapper">
+                    <div className={styles.passwordWrapper}>
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Confirm password"
-                            className="input-field"
+                            className={styles.inputField}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)} />
                         <span
-                            className="eye-icon"
+                            className={styles.eyeIcon}
                             onClick={() => setShowPassword((prev) => !prev)}
                             role="button"
                             aria-label={showPassword ? "Hide password" : "Show password"} >
@@ -115,13 +115,13 @@ function Signup() {
                                 alt={showPassword ? "Hide password" : "Show password"} />
                         </span>
                     </div>
-                    <p className="message">By clicking “Create account” you agree to our <span>Terms & Conditions</span> and <span>Privacy Policy</span></p>
-                    <button type="submit" className="signup-btn">Create account</button>
+                    <p className={styles.message}>By clicking “Create account” you agree to our <span>Terms & Conditions</span> and <span>Privacy Policy</span></p>
+                    <button type="submit" className={styles.signupButton}>Create account</button>
                 </form>
             </div>
-            <img src={bg_obj_1} className="bg-img-1" />
-            <img src={bg_obj_2} className="bg-img-2" />
-            <Link to={"/"}><img src={favicon} className="back-btn" /></Link>
+            <img src={bg_obj_1} className={styles.bgImg1} />
+            <img src={bg_obj_2} className={styles.bgImg2} />
+            <Link to={"/"}><img src={favicon} className={styles.backButton} /></Link>
             <Copyrights />
         </div>
     )

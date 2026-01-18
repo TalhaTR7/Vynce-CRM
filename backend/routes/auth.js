@@ -2,11 +2,10 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import authMiddleware from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Signup
+
 router.post("/signup", async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
   try {
@@ -41,7 +40,6 @@ router.post("/signup", async (req, res) => {
 });
 
 
-// Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -60,16 +58,12 @@ router.post("/login", async (req, res) => {
       email: user.email,
     };
 
-    res.json({ token, user: userResponse });
+    res.status(201).json({ token, user: userResponse });
   }
   catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-
-router.get("/dashboard", authMiddleware, (req, res) => {
-  res.json({ msg: "Protected dashboard data", userId: req.user.id });
-});
 
 export default router;

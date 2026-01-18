@@ -1,0 +1,109 @@
+.board {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    height: 800px;
+    overflow-y: hidden;
+
+    .boardInfo {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 10px;
+        margin: 5px 0;
+        border-radius: 7px;
+
+        .color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        h6 {
+            font: 16px Google;
+            color: #ccc;
+            margin: 0;
+            cursor: default;
+        }
+
+        p {
+            font: 14px Google;
+            color: #777;
+            margin: 0;
+            cursor: default;
+        }
+
+        img {
+            position: absolute;
+            height: 3px;
+            right: 0;
+            opacity: 0.7;
+            cursor: pointer;
+            padding: 10px;
+            user-select: none;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    .boardColor {
+        height: 3px;
+        width: 100%;
+        margin-bottom: 15px;
+        border-radius: 3px;
+        background-color: #777;
+        opacity: 0.3;
+    }
+
+    .taskContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: scroll;
+        border-radius: 10px;
+        height: 100%;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        .create {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #181818;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            user-select: none;
+
+            img {
+                width: 12px;
+                margin: 0;
+                display: block;
+                opacity: 0.7;
+            }
+
+            &:hover {
+                background-color: #202020;
+
+                img {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .task {
+            text-decoration: none;
+        }
+    }
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
