@@ -49,7 +49,7 @@
             }
 
             h1 {
-                font: 28px Google;
+                font: 28px Roboto;
                 color: #ccc;
             }
         }
@@ -63,7 +63,7 @@
             cursor: default;
 
             .title {
-                font: 28px Google;
+                font: 28px Roboto;
                 color: #ccc;
                 margin: 5px;
                 width: 75%;
@@ -119,7 +119,7 @@
                     align-items: center;
 
                     .key {
-                        font: 16px Google;
+                        font: 16px Roboto;
                         color: #999;
                         width: 150px;
                         margin: 0;
@@ -127,8 +127,6 @@
                     }
 
                     .value {
-                        font: 18px Google;
-                        color: #ccc;
                         display: flex;
                         flex-direction: row;
                         gap: 10px;
@@ -163,6 +161,8 @@
 
 
                         p {
+                            font: 18px Roboto;
+                            color: #ccc;
                             margin: 0;
                             white-space: nowrap;
                             overflow: hidden;
@@ -180,6 +180,17 @@
                             border: none;
                             cursor: pointer;
                             padding: 0;
+                        }
+                    }
+
+                    .stars {
+                        display: flex;
+                        flex-direction: row;
+                        gap: 0px;
+                        align-items: center;
+                        img {
+                            height: 25px;
+                            user-select: none;
                         }
                     }
 
@@ -202,7 +213,7 @@
         .description {
             color: #ccc;
             cursor: text;
-            font: 18px Google;
+            font: 18px Roboto;
             line-height: 1.5;
             width: 85%;
             padding: 5px;
@@ -244,7 +255,7 @@
             padding: 5px 15px;
 
             h1 {
-                font: 21px Google;
+                font: 21px Roboto;
                 color: #ccc;
             }
 
@@ -261,7 +272,7 @@
                 }
 
                 p {
-                    font: 16px Google;
+                    font: 16px Roboto;
                     color: #ccc;
                 }
             }
@@ -293,7 +304,7 @@
                 margin: 0 25px;
 
                 .content {
-                    font: 14px Google;
+                    font: 14px Roboto;
                     color: #777;
                     margin: 0;
                     line-height: 1.5;
@@ -301,7 +312,7 @@
                 }
 
                 .timestamp {
-                    font: 14px Google;
+                    font: 14px Roboto;
                     color: #777;
                     margin: 0;
                     width: 40%;
@@ -349,7 +360,7 @@
                         }
 
                         p {
-                            font: 16px Google;
+                            font: 16px Roboto;
                             color: #999;
                             margin: 0;
                             white-space: nowrap;
@@ -359,7 +370,7 @@
                     }
 
                     .timestamp {
-                        font: 14px Google;
+                        font: 14px Roboto;
                         color: #777;
                         margin: 0;
                         width: 40%;
@@ -369,7 +380,7 @@
                 }
 
                 .content {
-                    font: 18px Google;
+                    font: 18px Roboto;
                     color: #ccc;
                     margin: 5px 0;
                 }
@@ -396,7 +407,7 @@
                 border: none;
                 outline: none;
                 color: #ccc;
-                font: 16px Google;
+                font: 16px Roboto;
                 padding: 5px 0;
 
                 &::placeholder {
@@ -419,6 +430,7 @@
                 img {
                     width: 20px;
                     height: 20px;
+                    user-select: none;
                 }
 
                 &:hover {

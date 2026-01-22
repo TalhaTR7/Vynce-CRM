@@ -1,0 +1,142 @@
+.titlePane {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    label {
+        font: 18px Roboto;
+        color: #ccc;
+        margin: 0;
+    }
+
+    img {
+        width: 14px;
+        user-select: none;
+        cursor: pointer;
+    }
+}
+
+.meta {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    .projectImage {
+        width: 60px;
+        height: 60px;
+        border-radius: 20%;
+        flex-shrink: 0;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: filter 0.2s ease;
+            pointer-events: none;
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.25);
+            background-image: url("../../../assets/icons/edit.svg");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 60%;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        &:hover {
+            img {
+                filter: brightness(0.7);
+            }
+
+            &::after {
+                opacity: 1;
+            }
+        }
+    }
+
+    .projectName {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+
+        label {
+            font: 14px Roboto;
+            color: #777;
+            margin: 0 5px;
+        }
+
+        input {
+            font: 16px Roboto;
+            color: #ccc;
+            padding: 6px 12px;
+            background-color: transparent;
+            border: 1px solid #333;
+            border-radius: 7px;
+            outline: none;
+
+            &:focus {
+                border-color: #555;
+            }
+        }
+    }
+}
+
+
+.submission {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+
+    span {
+        font: 16px Roboto;
+        color: #ccc;
+        margin: 0;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 10px;
+
+        p {
+            font: 14px Roboto;
+            color: #999;
+            max-width: 65%;
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        button {
+            background-color: var(--green);
+            border: none;
+            border-radius: 7px;
+            padding: 4px 10px;
+            font: 16px Roboto;
+            opacity: 0.8;
+            cursor: pointer;
+            transition: opacity 0.2s;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+}

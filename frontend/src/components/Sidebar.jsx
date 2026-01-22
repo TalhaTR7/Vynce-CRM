@@ -1,13 +1,15 @@
-
+import dashboard_svg from "../assets/icons/dashboard.svg";
+import inbox_svg from "../assets/icons/inbox.svg";
+import leaderboard_svg from "../assets/icons/leaderboard.svg";
+import add_svg from "../assets/icons/add.svg";
+import more_svg from "../assets/icons/more.svg";
+import shop_svg from "../assets/icons/shop.svg";
 import styles from "../css/Sidebar.module.scss";
-import dashboard_svg from "../assets/dashboard.svg";
-import inbox_svg from "../assets/inbox.svg";
-import askai_svg from "../assets/askai.svg";
-import create_svg from "../assets/create.svg";
-import more_svg from "../assets/more.svg";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useModal } from "../context/ModalContext";
+
 
 function Sidebar() {
 
@@ -15,6 +17,7 @@ function Sidebar() {
     const [projects, setProjects] = useState([]);
     const [chats, setChats] = useState([]);
 
+    const { openModal } = useModal();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -48,7 +51,7 @@ function Sidebar() {
         fetchUser();
         fetchChats();
         fetchProjects();
-    }, []);
+    }, [openModal]);
 
     if (!user) return <p>Loading...</p>;
 
@@ -64,6 +67,10 @@ function Sidebar() {
                     <img src={inbox_svg} />
                     <p>Inbox</p>
                 </Link>
+                <Link to={"/leaderboards"} className={styles.homeElements}>
+                    <img src={leaderboard_svg} />
+                    <p>Leaderboards</p>
+                </Link>
             </div>
             <div className={styles.divider}>{/* divider */}</div>
             <div className={styles.chats}>
@@ -78,10 +85,10 @@ function Sidebar() {
                         </Link>
                     ))}
                 </div>
-                <div className={styles.create}>
-                    <img src={create_svg} />
+                <button className={styles.create}>
+                    <img src={add_svg} />
                     <p>Add member</p>
-                </div>
+                </button>
             </div>
             <div className={styles.divider}>{/* divider */}</div>
             <div className={styles.projects}>
@@ -97,14 +104,14 @@ function Sidebar() {
                         </Link>
                     ))}
                 </div>
-                <div className={styles.create}>
-                    <img src={create_svg} />
+                <button className={styles.create} onClick={() => openModal("CREATE_PROJECT")}>
+                    <img src={add_svg} />
                     <p>Create project</p>
-                </div>
+                </button>
             </div>
-            <button className={styles.askAI}>
-                <img src={askai_svg} />
-                Ask AI
+            <button className={styles.shop}>
+                <img src={shop_svg} />
+                <p>Shop</p>
             </button>
         </aside>
     )

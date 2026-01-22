@@ -1,33 +1,49 @@
 
-import favicon from "../assets/favicon.svg"
-import settings_svg from "../assets/settings.svg"
-import project_svg from "../assets/project.svg"
-import logout_svg from "../assets/logout.svg"
-import lock_svg from "../assets/lock.svg"
-import delete_svg from "../assets/delete.svg"
-import styles from "../css/UserSettings.module.scss"
-import Header from "../components/Header"
-import Sidebar from "../components/Sidebar"
+import favicon from "../assets/icons/favicon.svg";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import back_svg from "../assets/icons/back.svg";
+import settings_svg from "../assets/icons/settings.svg";
+import project_svg from "../assets/icons/project.svg";
+import logout_svg from "../assets/icons/logout.svg";
+import lock_svg from "../assets/icons/lock.svg";
+import delete_svg from "../assets/icons/delete.svg";
+import add_svg from "../assets/icons/add.svg";
+import styles from "../css/UserSettings.module.scss";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom"
 
 
-function GeneralSettings({ user }) {
+function GeneralSettings({ user, setUser }) {
 
     const [firstname, setFirstName] = useState(user.firstname);
     const [lastname, setLastName] = useState(user.lastname);
 
-    // useEffect(() => {
-    //     if (firstname !== user.firstname || lastname !== user.lastname) {
-    //         const button = document.getElementsByClassName("save")[0];
-    //         button.classList.add("active");
-    //     }
-    // }, [firstname, lastname]);
     const saveNeeded = firstname !== user.firstname || lastname !== user.lastname;
 
+    useEffect(() => {
+        setFirstName(user.firstname);
+        setLastName(user.lastname);
+    }, [user]);
+
+    if (!user) return <p>Loading user...</p>;
+
+    const saveUser = async () => {
+        try {
+            const res = await axios.patch("http://localhost:5000/api/users/user", { firstname, lastname }, {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            })
+            setUser(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
     return (
-        <main className={styles.general}>
+        <div className={styles.general}>
             <div className={styles.userPane}>
                 <div className={styles.profileImage}>
                     <img src={user.profileImage.url} />
@@ -37,14 +53,14 @@ function GeneralSettings({ user }) {
             <div className={styles.inputField}>
                 <label>First name</label>
                 <input type="text"
-                    defaultValue={user.firstname}
+                    value={firstname}
                     onChange={(e) => setFirstName(e.target.value)}
                     required />
             </div>
             <div className={styles.inputField}>
                 <label>Last name</label>
                 <input type="text"
-                    defaultValue={user.lastname}
+                    value={lastname}
                     onChange={(e) => setLastName(e.target.value)}
                     required />
             </div>
@@ -69,17 +85,70 @@ function GeneralSettings({ user }) {
                     </button>
                 </div>
             </div>
-            <button className={`${styles.save} ${saveNeeded ? styles.active : ""}`} disabled={!saveNeeded}>
+            <button className={`${styles.save} ${saveNeeded ? styles.active : ""}`} disabled={!saveNeeded} onClick={saveUser}>
                 Save
             </button>
-        </main>
+        </div>
     )
 }
+
+
+function ProjectSettings() {
+    const [projects, setProjects] = useState([]);
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            const res = await axios.get("http://localhost:5000/api/projects/user", {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            setProjects(res.data);
+        };
+        fetchProjects();
+    }, []);
+
+    return (
+        <div className={styles.projects}>
+            <p>My projects</p>
+            <div className={styles.projectContainer}>
+                {
+                    projects.map(project => (
+                        <div key={project._id} className={styles.project}>
+                            <div className={styles.projectImage}>
+                                <img src={project.projectImage.url} />
+                            </div>
+                            <div className={styles.projectInfo}>
+                                <Link to={`/project/${project._id}`}>{project.name}</Link>
+                                <p>Project {project.role.toLowerCase()}</p>
+                            </div>
+                            {(project.role === "MEMBER") && <p className={styles.leave}>Leave</p>}
+                            {(project.role !== "MEMBER") &&
+                                <Link
+                                    to={`/settings/project/${project._id}`}
+                                    state={{ origin: `${project._id}` }}
+                                    className={styles.settings}>
+                                    Settings
+                                </Link>
+                            }
+                        </div>
+                    ))
+                }
+            </div>
+            <div className={styles.create}>
+                <img src={add_svg} />
+                <p>Create a new project</p>
+            </div>
+        </div>
+    )
+}
+
 
 function UserSettings() {
 
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState("general");
+    const navigate = useNavigate();
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -93,7 +162,7 @@ function UserSettings() {
                 const res = await axios.get("http://localhost:5000/api/users/user", {
                     headers: {
                         Authorization: `Bearer ${token}`
-                    },
+                    }
                 });
                 setUser(res.data);
             } catch (err) {
@@ -109,10 +178,10 @@ function UserSettings() {
 
     const renderContent = () => {
         switch (activeTab) {
-            case "general": return <GeneralSettings user={user} />;
-            case "projects": return <ProjectSettings user={user} />;
-            case "logout": return <GeneralSettings user={user} />;
-            default: return <GeneralSettings user={user} />;
+            case "general": return <GeneralSettings user={user} setUser={setUser} />;
+            case "projects": return <ProjectSettings />;
+            case "logout": return <GeneralSettings user={user} setUser={setUser} />;
+            default: return <GeneralSettings user={user} setUser={setUser} />;
         }
     };
 
@@ -128,7 +197,10 @@ function UserSettings() {
             <Header />
             <div className={styles.container}>
                 <Sidebar />
-                <div className={styles.userSettings}>
+                <main className={styles.userSettings}>
+                    <button className={styles.back} onClick={() => navigate(-1)}>
+                        <img src={back_svg} />
+                    </button>
                     <aside className={styles.sidebar}>
                         <p>All Settings</p>
                         <Button img={settings_svg} text="General" onSelect="general" active="general" />
@@ -136,7 +208,7 @@ function UserSettings() {
                         <Button img={logout_svg} text="Log out" onSelect={null} active="logout" />
                     </aside>
                     {renderContent(activeTab)}
-                </div>
+                </main>
             </div>
         </div>
     )

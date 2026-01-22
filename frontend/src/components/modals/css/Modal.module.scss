@@ -1,0 +1,45 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 10%;
+
+    opacity: 0;
+    transition:
+        opacity 0.2s ease,
+        backdrop-filter 0.2s ease,
+        background 0.2s ease-in-out;
+
+    &.show {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(4px);
+    }
+}
+
+.modal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #151515;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 450px;
+
+    transform: translateY(50px) scale(0.7);
+    opacity: 0;
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+
+    &.show {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}

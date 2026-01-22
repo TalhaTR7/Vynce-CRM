@@ -1,7 +1,7 @@
 import styles from "../css/Card.module.scss"
-import eth_svg from "../assets/eth.svg";
-import clock_svg from "../assets/clock.svg";
-import comment_svg from "../assets/comment.svg";
+import coin_svg from "../assets/icons/coin.svg";
+import clock_svg from "../assets/icons/clock.svg";
+import comment_svg from "../assets/icons/comment.svg";
 
 export function Card({ task }) {
 
@@ -33,7 +33,7 @@ export function Card({ task }) {
                         <img src={task.assignee.profileImage.url} />
                     </div>
                     <div className={styles.ethereum}>
-                        <img src={eth_svg} />
+                        <img src={coin_svg} />
                         <p>{task.ethereum.calculated}</p>
                     </div>
                 </div>

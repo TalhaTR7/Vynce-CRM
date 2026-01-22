@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import './index.css';
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -9,10 +10,16 @@ import Project from "./pages/Project";
 import Task from "./pages/Task";
 import Chat from "./pages/Chat";
 import UserSettings from "./pages/UserSettings";
+import ProjectSettings from "./pages/ProjectSettings";
 import ProtectedRoute from "./components/ProtectedRoute";
+
+import { useModal } from "./context/ModalContext";
+import CreateProject from "./components/modals/CreateProject";
 
 
 function App() {
+  const { modal, closeModal } = useModal();
+
   return (
     <Router>
       <Toaster position="top-center" toastOptions={{ className: "my-toast" }} />
@@ -26,7 +33,9 @@ function App() {
         <Route path="/task/:id" element={<ProtectedRoute><Task /></ProtectedRoute>} />
         <Route path="/chat/:id" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/settings/user" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
+        <Route path="/settings/project/:id" element={<ProtectedRoute><ProjectSettings /></ProtectedRoute>} />
       </Routes>
+      {modal === "CREATE_PROJECT" && (<CreateProject onClose={closeModal} />)}
     </Router>
   )
 }

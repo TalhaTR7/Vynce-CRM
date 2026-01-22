@@ -1,11 +1,11 @@
 
 import styles from "../css/Signup.module.scss"
-import favicon from "../assets/favicon.svg"
-import bg_obj_1 from "../assets/auth_bg_1.png"
-import bg_obj_2 from "../assets/auth_bg_2.png"
+import favicon from "../assets/icons/favicon.svg"
+import bgImg1 from "../assets/backgrounds/authBgImg1.png";
+import bgImg2 from "../assets/backgrounds/authBgImg2.png";
 import { Copyrights } from "../components/Footer"
-import hide_password from "../assets/hide.svg"
-import show_password from "../assets/show.svg"
+import hide_svg from "../assets/icons/hide.svg"
+import show_svg from "../assets/icons/show.svg"
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
@@ -29,6 +29,7 @@ function Signup() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -93,34 +94,30 @@ function Signup() {
                             onClick={() => setShowPassword((prev) => !prev)}
                             role="button"
                             aria-label={showPassword ? "Hide password" : "Show password"} >
-                            <img
-                                src={showPassword ? hide_password : show_password}
-                                alt={showPassword ? "Hide password" : "Show password"} />
+                            <img src={showPassword ? show_svg : hide_svg} />
                         </span>
                     </div>
                     <div className={styles.passwordWrapper}>
                         <input
-                            type={showPassword ? "text" : "password"}
+                            type={showConfirm ? "text" : "password"}
                             placeholder="Confirm password"
                             className={styles.inputField}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)} />
                         <span
                             className={styles.eyeIcon}
-                            onClick={() => setShowPassword((prev) => !prev)}
+                            onClick={() => setShowConfirm((prev) => !prev)}
                             role="button"
-                            aria-label={showPassword ? "Hide password" : "Show password"} >
-                            <img
-                                src={showPassword ? hide_password : show_password}
-                                alt={showPassword ? "Hide password" : "Show password"} />
+                            aria-label={showConfirm ? "Hide password" : "Show password"} >
+                            <img src={showConfirm ? show_svg : hide_svg} />
                         </span>
                     </div>
                     <p className={styles.message}>By clicking “Create account” you agree to our <span>Terms & Conditions</span> and <span>Privacy Policy</span></p>
                     <button type="submit" className={styles.signupButton}>Create account</button>
                 </form>
             </div>
-            <img src={bg_obj_1} className={styles.bgImg1} />
-            <img src={bg_obj_2} className={styles.bgImg2} />
+            <img src={bgImg1} className={styles.bgImg1} />
+            <img src={bgImg2} className={styles.bgImg2} />
             <Link to={"/"}><img src={favicon} className={styles.backButton} /></Link>
             <Copyrights />
         </div>

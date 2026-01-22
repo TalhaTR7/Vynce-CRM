@@ -40,7 +40,7 @@
                 }
 
                 p {
-                    font: 18px Google;
+                    font: 18px Roboto;
                     color: #ccc;
                     margin: 0;
                 }
@@ -65,7 +65,7 @@
                 }
 
                 p {
-                    font: 16px Google;
+                    font: 16px Roboto;
                     color: #ccc;
                     margin: 0;
                 }
@@ -130,7 +130,7 @@
                 }
 
                 .content {
-                    font: 18px Google;
+                    font: 18px Roboto;
                     color: #ccc;
                     background-color: #181818;
                     padding: 10px 20px;
@@ -140,7 +140,7 @@
                 }
 
                 .time {
-                    font: 14px Google;
+                    font: 14px Roboto;
                     color: #999;
                     visibility: hidden;
                     margin-top: 10px;
@@ -164,9 +164,14 @@
             border-radius: 12px;
             box-shadow: 0 0 25px #0c0c0c;
             margin: 25px auto;
+            transition: all 0.2s;
+
+            &:hover {
+                transform: translateY(-2px);
+            }
 
             input[type="text"] {
-                font: 18px Google;
+                font: 18px Roboto;
                 color: #ccc;
                 background-color: transparent;
                 border: none;

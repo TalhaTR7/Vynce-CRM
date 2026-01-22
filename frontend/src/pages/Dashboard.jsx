@@ -1,12 +1,14 @@
-import favicon from "../assets/favicon.svg";
+import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import create_svg from "../assets/create.svg";
-import eth_svg from "../assets/eth.svg";
-import comment_svg from "../assets/comment.svg";
-import boards_svg from "../assets/boards.svg";
-import noTask_svg from "../assets/noTask.svg";
+import add_svg from "../assets/icons/add.svg";
+import coin_svg from "../assets/icons/coin.svg";
+import comment_svg from "../assets/icons/comment.svg";
+import link_svg from "../assets/icons/link.svg";
+import boards_svg from "../assets/icons/boards.svg";
+import tasks_svg from "../assets/icons/tasks.svg";
 import styles from "../css/Dashboard.module.scss";
+import { useModal } from "../context/ModalContext";
 import { useState, useEffect } from 'react';
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -19,6 +21,8 @@ function Dashboard() {
     const [boards, setBoards] = useState([]);
     const [activeBoardId, setActiveBoardId] = useState(boards?.[0]?._id || null);
     const [tasks, setTasks] = useState([]);
+
+    const { openModal } = useModal();
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -147,8 +151,8 @@ function Dashboard() {
                                     </div>
                                 ))
                             }
-                            <button className={styles.create}>
-                                <img src={create_svg} />
+                            <button className={styles.create} onClick={() => openModal("CREATE_PROJECT")}>
+                                <img src={add_svg} />
                                 <p>Create project</p>
                             </button>
                         </div>
@@ -172,8 +176,6 @@ function Dashboard() {
                             boards?.length > 0 &&
                             <div className={styles.taskList}>
                                 {tasks.map(task => {
-                                    const creationDate = "3 Dec";
-                                    const dueDate = "4 Jan";
                                     const workedHours = Math.floor(task.worktime / 60);
                                     const workedMinutes = task.worktime % 60;
                                     return (
@@ -184,7 +186,7 @@ function Dashboard() {
                                                 </div>
                                                 <h3>{task.title}</h3>
                                                 <div className={styles.ethereum}>
-                                                    <img src={eth_svg} style={{ height: "21px" }} />
+                                                    <img src={coin_svg} style={{ height: "21px" }} />
                                                     <p>{task.ethereum}</p>
                                                 </div>
                                                 <div className={styles.comments}>
@@ -202,17 +204,20 @@ function Dashboard() {
                         }
                         {(tasks.length === 0) &&
                             <div className={styles.nothing}>
-                                <img src={boards.length > 0 ? noTask_svg : boards_svg} />
+                                <img src={boards.length > 0 ? tasks_svg : boards_svg} />
                                 <p>Feels a little lonely in here...</p>
                                 <Link to={`/project/${activeProjectId}`} className={styles.link}>Open project</Link>
                             </div>
                         }
                         {(boards.length > 0 && tasks.length > 0) &&
-                            <Link to={`/project/${activeProjectId}`} className={styles.link}>Open project</Link>
+                            <Link to={`/project/${activeProjectId}`} className={styles.link}>
+                                <img src={link_svg} />
+                                <p>Open project</p>
+                                </Link>
                         }
                     </section>
                     <section className={styles.bottomLeft}>
-                        <h1>Weekly analysis</h1>
+                        <h1>Weekly leaderboards</h1>
                     </section>
                     <section className={styles.bottomRight}>
                         <h1>Notifications</h1>

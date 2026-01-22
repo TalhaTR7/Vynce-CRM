@@ -4,8 +4,8 @@
 }
 
 @font-face {
-  font-family: 'Google';
-  src: url('./assets/fonts/Google.TTF');
+  font-family: 'Roboto';
+  src: url('./assets/fonts/Roboto.ttf');
 }
 
 
@@ -25,7 +25,7 @@ body {
 }
 
 .my-toast {
-  background: #111;
+  background-color: #111;
   color: #ccc;
   border: 2px solid #888;
   border-radius: 10px;

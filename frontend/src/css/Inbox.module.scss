@@ -43,9 +43,9 @@
 
                         &::before {
                             content: "";
-                            width: 10px;
-                            height: 10px;
-                            background-image: url("../assets/tick.svg");
+                            width: 14px;
+                            height: 14px;
+                            background-image: url("../assets/icons/check.svg");
                             background-size: contain;
                             background-repeat: no-repeat;
                             background-position: center;
@@ -55,7 +55,7 @@
 
                 label {
                     color: #999;
-                    font: 16px Google;
+                    font: 16px Roboto;
                     cursor: pointer;
                 }
             }
@@ -94,6 +94,7 @@
                 img {
                     height: 15px;
                     margin: 1px 15px;
+                    opacity: 0.5;
                     user-select: none;
                 }
 
@@ -102,7 +103,7 @@
                     border: none;
                     margin-right: 20px;
                     width: 100%;
-                    font: 18px Google;
+                    font: 18px Roboto;
                     color: #ccc;
 
                     &::placeholder {
@@ -118,7 +119,7 @@
             }
 
             p {
-                font: 16px Google;
+                font: 16px Roboto;
                 color: #999;
                 margin: 0;
             }

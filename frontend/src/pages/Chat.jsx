@@ -1,9 +1,9 @@
 
+import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import favicon from "../assets/favicon.svg";
-import eth_svg from "../assets/eth.svg";
-import send_svg from "../assets/send.svg";
+import coin_svg from "../assets/icons/coin.svg";
+import send_svg from "../assets/icons/send.svg";
 import styles from "../css/Chat.module.scss";
 import { useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
@@ -86,7 +86,7 @@ function Chat() {
                             <p>{otherUser.firstname} {otherUser.lastname}</p>
                         </div>
                         <button>
-                            <img src={eth_svg} />
+                            <img src={coin_svg} />
                             <p>Send ETH</p>
                         </button>
                     </div>

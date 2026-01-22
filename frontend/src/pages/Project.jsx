@@ -1,11 +1,11 @@
+import favicon from "../assets/icons/favicon.svg"
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Board from "../components/Board";
 import styles from "../css/Project.module.scss"
-import more_svg from "../assets/more.svg"
-import boards_svg from "../assets/boards.svg"
-import create_svg from "../assets/create.svg"
-import favicon from "../assets/favicon.svg"
+import more_svg from "../assets/icons/more.svg"
+import boards_svg from "../assets/icons/boards.svg"
+import add_svg from "../assets/icons/add.svg"
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -67,7 +67,7 @@ function Project() {
     if (!project) return <p>Loading project...</p>;
     if (!user) return <p>Loading user...</p>;
 
-    const userRole = project.members.find(member => member.userId._id === user._id).role;
+    const userRole = project.memberships.find(member => member.user._id === user._id).role;
 
     return (
         <div className={styles.canvas}>
@@ -101,7 +101,7 @@ function Project() {
                                     {
                                         (userRole === "OWNER" || userRole === "ADMIN") &&
                                         <button className={styles.createBoard}>
-                                            <img src={create_svg} />
+                                            <img src={add_svg} />
                                             <p>Create board</p>
                                         </button>
                                     }

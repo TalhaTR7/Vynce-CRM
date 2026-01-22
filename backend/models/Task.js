@@ -8,6 +8,7 @@ const taskSchema = new mongoose.Schema({
     assigneeId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     creatorId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     dueDate: { type: Date, default: null },
+    difficulty: { type: Number, default: 1, min: 1, max: 5 },
     ethereum: {
         assigned: { type: Number, default: 1, min: 1 },
         calculated: { type: Number, default: 0 },
@@ -30,7 +31,8 @@ const taskSchema = new mongoose.Schema({
                 "STARTED_TIMER",
                 "STOPPED_TIMER",
                 "CHANGED_STATUS",
-                "UPDATED_REWARD"
+                "UPDATED_REWARD",
+                "CHANGED_DIFFICULTY"
             ], default: null
         },
         old_date: { type: Date, default: null },

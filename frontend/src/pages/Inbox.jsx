@@ -1,13 +1,13 @@
-
+import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import styles from "../css/Inbox.module.scss";
-import delete_svg from "../assets/delete.svg";
-import selectall_svg from "../assets/selectAll.svg";
-import search_svg from "../assets/search.svg";
-import left_svg from "../assets/left.svg";
-import right_svg from "../assets/right.svg";
-import { useState } from "react";
+import delete_svg from "../assets/icons/delete.svg";
+import selectall_svg from "../assets/icons/selectAll.svg";
+import search_svg from "../assets/icons/search.svg";
+import left_svg from "../assets/icons/left.svg";
+import right_svg from "../assets/icons/right.svg";
+import { useEffect, useState } from "react";
 
 
 function Inbox() {
@@ -15,6 +15,12 @@ function Inbox() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const totalCount = 75;
+
+    useEffect(() => {
+        let link = document.querySelector("link[rel='icon']");
+        link.href = favicon;
+        document.title = "Vynce | More Than a CRM";
+    }, []);
 
     const getRange = () => {
         const lower = (currentPage - 1) * itemsPerPage + 1;
@@ -36,10 +42,10 @@ function Inbox() {
                             <label htmlFor="select-all">Select all</label>
                         </div>
                         <button className={styles.buttons}>
-                            <img src={delete_svg} style={{height: "15px"}} />
+                            <img src={delete_svg} style={{ height: "15px" }} />
                         </button>
                         <button className={styles.buttons}>
-                            <img src={selectall_svg} style={{height: "12px"}} />
+                            <img src={selectall_svg} style={{ height: "12px" }} />
                         </button>
                         <div className={styles.search}>
                             <img src={search_svg} />

@@ -1,14 +1,14 @@
+import favicon from "../assets/icons/favicon.svg"
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import back_svg from "../assets/back.svg";
-import more_svg from "../assets/more.svg";
-import eth_svg from "../assets/eth.svg";
-import timerRunning_svg from "../assets/timer_running.svg";
-import timerStopped_svg from "../assets/timer_stopped.svg";
-import mp_svg from "../assets/mp.svg";
-import comment_svg from "../assets/comment.svg";
-import send_svg from "../assets/send.svg";
-import favicon from "../assets/favicon.svg";
+import back_svg from "../assets/icons/back.svg";
+import more_svg from "../assets/icons/more.svg";
+import coin_svg from "../assets/icons/coin.svg";
+import difficultyOn_svg from "../assets/icons/difficultyOn.svg";
+import difficultyOff_svg from "../assets/icons/difficultyOff.svg";
+import points_svg from "../assets/icons/points.svg";
+import comment_svg from "../assets/icons/comment.svg";
+import send_svg from "../assets/icons/send.svg";
 import styles from "../css/Task.module.scss";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -25,6 +25,7 @@ function Task() {
     const [description, setDescription] = useState("");
     const [title, setTitle] = useState("");
     const [editing, setEditing] = useState("");
+    const [difficulty, setDifficulty] = useState(1);
     const [worktime, setWorktime] = useState(0);
     const [comment, setComment] = useState("");
 
@@ -163,6 +164,28 @@ function Task() {
     const workedMinutes = worktime % 60;
     const motivation = worktime * 2;
 
+
+    const changeDifficulty = async () => {
+        if (title === task.title) return;
+        try {
+            const res = await axios.patch(`http://localhost:5000/api/tasks/task/${id}/changegDifficulty`, { title }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                }
+            });
+            setTask(prev => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    title: title,
+                    activity: [...prev.activity, res.data.activity]
+                };
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const canEdit = task.fetcher.role === "OWNER" || task.fetcher.role === "ADMIN";
 
     const saveDescription = async () => {
@@ -263,7 +286,7 @@ function Task() {
                             <div className={styles.pair}>
                                 <p className={styles.key}>Bounty</p>
                                 <div className={`${styles.value} ${canEdit ? styles.editable : ""}`}>
-                                    <img src={eth_svg} />
+                                    <img src={coin_svg} />
                                     <p>{task.ethereum.assigned}</p>
                                 </div>
                             </div>
@@ -279,7 +302,7 @@ function Task() {
                             <div className={styles.pair}>
                                 <p className={styles.key}>MP earned</p>
                                 <div className={styles.value}>
-                                    <img src={mp_svg} />
+                                    <img src={points_svg} />
                                     <p>{motivation}</p>
                                 </div>
                             </div>
@@ -306,8 +329,19 @@ function Task() {
                             <div className={styles.pair}>
                                 <p className={styles.key}>Payout</p>
                                 <div className={styles.value}>
-                                    <img src={eth_svg} />
+                                    <img src={coin_svg} />
                                     <p>{task.ethereum.calculated}</p>
+                                </div>
+                            </div>
+                            {/* task difficulty */}
+                            <div className={styles.pair}>
+                                <p className={styles.key}>Difficulty</p>
+                                <div className={`${styles.value} ${styles.stars} ${canEdit ? styles.editable : ""}`}>
+                                    {
+                                        [...Array(5)].map((_, index) => (
+                                            <img key={index} src={index < task.difficulty ? difficultyOn_svg : difficultyOff_svg} />
+                                        ))
+                                    }
                                 </div>
                             </div>
                             {/* time tracker */}
@@ -318,7 +352,7 @@ function Task() {
                                         disabled={String(task.fetcher?._id) !== String(task.assignee?._id)}
                                         onClick={task.isTimerRunning ? stopTimer : startTimer}
                                         style={String(task.fetcher?._id) === String(task.assignee?._id) ? { cursor: "pointer" } : { cursor: "default" }}>
-                                        <img src={task.isTimerRunning ? timerRunning_svg : timerStopped_svg} />
+                                        <div style={{ width: "12px", height: "12px", borderRadius: "30%", backgroundColor: task.isTimerRunning ? "#ccc" : "#ff0000" }} />
                                     </button>
                                     <p>{workedHours === 0 ? "" : `${workedHours}h `}{workedMinutes}m</p>
                                 </div>

@@ -11,7 +11,7 @@
 
     h1 {
         margin: 30px 20px;
-        font: 24px Google;
+        font: 24px Roboto;
     }
 
     .homePages {
@@ -35,13 +35,12 @@
             border: 1px solid transparent;
 
             img {
-                height: 18px;
-                width: 20px;
+                width: 18px;
                 user-select: none;
             }
 
             p {
-                font: 18px Google;
+                font: 18px Roboto;
             }
 
             &:hover {
@@ -86,7 +85,7 @@
         }
 
         span {
-            font: 14px Google;
+            font: 14px Roboto;
             margin: 0 0 15px 0;
         }
 
@@ -106,7 +105,7 @@
             cursor: pointer;
 
             .name {
-                font: 18px Google;
+                font: 18px Roboto;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -114,8 +113,8 @@
 
             .more {
                 position: absolute;
-                width: 10px;
-                right: 5%;
+                width: 21px;
+                right: 1%;
                 opacity: 0;
                 padding: 10px;
                 user-select: none;
@@ -162,20 +161,22 @@
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
             padding: 7px 10px;
             border-radius: 7px;
             margin: 10px 0 auto;
             opacity: 0.7;
+            background-color: transparent;
+            border: none;
 
             p {
-                font: 14px Google;
+                font: 14px Roboto;
                 color: #ccc;
                 margin: 0;
             }
 
             img {
-                width: 10px;
+                width: 18px;
                 user-select: none;
             }
 
@@ -187,7 +188,7 @@
         }
     }
 
-    .askAI {
+    .shop {
         position: absolute;
         bottom: 2%;
         width: 60%;
@@ -198,21 +199,35 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        font: 18px Google;
+        font: 18px Roboto;
         color: #999;
         background-color: transparent;
-        border: 1px solid #444;
+        border: 1px solid #777;
         gap: 7px;
-            user-select: none;
+        user-select: none;
+        opacity: 0.7;
+        transition: all 0.2s ease;
+
 
         img {
             width: 15px;
         }
 
+        p {
+            font: 16px Roboto;
+            color: #ccc;
+        }
+
         &:hover {
-            border: 1px solid #888;
             color: #ccc;
             cursor: pointer;
+            opacity: 1;
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
         }
     }
 }

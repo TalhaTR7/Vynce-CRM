@@ -1,11 +1,11 @@
-import styles   from "../css/Footer.module.scss"
-import sponsor1 from "../assets/sponsor-1.png"
-import sponsor2 from "../assets/sponsor-2.png"
-import sponsor3 from "../assets/sponsor-3.png"
-import sponsor4 from "../assets/sponsor-4.png"
-import sponsor5 from "../assets/sponsor-5.png"
-import favicon  from "../assets/favicon.svg"
-import globe    from "../assets/language.svg"
+import favicon   from "../assets/icons/favicon.svg"
+import styles    from "../css/Footer.module.scss"
+import sponsor1  from "../assets/sponsors/sponsor-1.png"
+import sponsor2  from "../assets/sponsors/sponsor-2.png"
+import sponsor3  from "../assets/sponsors/sponsor-3.png"
+import sponsor4  from "../assets/sponsors/sponsor-4.png"
+import sponsor5  from "../assets/sponsors/sponsor-5.png"
+import globe_svg from "../assets/icons/globe.svg"
 
 
 export function Sponsors() {
@@ -33,7 +33,7 @@ export function Copyrights() {
                 <p className={styles.document}>No T&Cs</p>
             </div>
             <div className={styles.language}>
-                <img src={globe} />
+                <img src={globe_svg} />
                 <p>English (US)</p>
             </div>
         </div>
@@ -96,7 +96,6 @@ export function Weblinks() {
         </div>
     )
 }
-
 
 
 function Footer() {

@@ -2,25 +2,44 @@ import express from "express";
 import authMiddleware from "../middleware/auth.js";
 import Project from "../models/Project.js";
 import Member from "../models/Membership.js";
+import Board from "../models/Board.js";
+import createUploader from "../middleware/multer.js";
 
 const router = express.Router();
 
+const imageUpload = createUploader({
+    folder: "projects",
+    allowedTypes: ["image/png"],
+});
+
+function formatImage(image) {
+    const url = image?.url;
+    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
+    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+}
+
+
 // create a project
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", authMiddleware, imageUpload.single("image"), async (req, res) => {
     const { name } = req.body;
 
     try {
-        const newProject = new Project({ name });
-        await newProject.save();
+        const project = await Project.create({
+            name,
+            projectImage: {
+                url: req.file
+                    ? `/uploads/projects/${req.file.filename}`
+                    : "/assets/project.png"
+            }
+        });
 
-        const ownerMembership = new Member({
-            projectId: newProject._id,
+        await Member.create({
+            projectId: project._id,
             userId: req.user.id,
             role: "OWNER",
         });
-        await ownerMembership.save();
 
-        res.status(201).json(newProject);
+        res.status(201).json(project);
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
@@ -33,9 +52,7 @@ router.get("/", authMiddleware, async (req, res) => {
         let projects = await Project.find();
         projects = projects.map(project => {
             const projectObj = project.toObject();
-            projectObj.projectImage.url = projectObj.projectImage.url.startsWith("/assets")
-                ? projectObj.projectImage.url
-                : `http://localhost:${process.env.PORT}/api${projectObj.projectImage.url}`;
+            projectObj.projectImage = formatImage(projectObj.projectImage);
             return projectObj;
         });
         res.status(200).json(projects);
@@ -50,14 +67,13 @@ router.get("/user", authMiddleware, async (req, res) => {
     const userId = req.user.id;
     try {
         const memberships = await Member.find({ userId }).populate("projectId");
-        let projects = memberships.map(member => member.projectId.toObject());
-        projects = projects.map(project => {
-            project.projectImage.url = project.projectImage.url.startsWith("/assets")
-                ? project.projectImage.url
-                : `http://localhost:${process.env.PORT}/api${project.projectImage.url}`;
+        const projects = memberships.map(member => {
+            const project = member.projectId.toObject();
+            project.projectImage = formatImage(project.projectImage);
+            project.role = member.role;
             return project;
-        })
-        res.status(200).json(projects);
+        });
+        res.status(200).json(projects, memberships);
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
@@ -68,23 +84,71 @@ router.get("/user", authMiddleware, async (req, res) => {
 router.get("/project/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
-        let project = await Project.findById(id);
+        const project = await Project.findById(id);
         if (!project) return res.status(404).json({ msg: "Project not found" });
-        project.projectImage.url = project.projectImage.url.startsWith("/assets")
-            ? project.projectImage.url
-            : `http://localhost:${process.env.PORT}/api${project.projectImage.url}`;
+        project.projectImage = formatImage(project.projectImage);
 
-        const members = await Member.find({ projectId: id })
-            .populate("userId", "firstname lastname email");
+        const boards = await Board.find({ projectId: id });
+
+        let memberships = await Member.find({ projectId: id })
+            .populate("userId", "firstname lastname email currentMood profileImage");
+
+
+        memberships = memberships.map(membership => {
+            membership.userId.profileImage = formatImage(membership.userId.profileImage);
+            return {
+                _id: membership._id,
+                user: membership.userId,
+                role: membership.role,
+                createdAt: membership.createdAt,
+            }
+        });
+
+        const membership = await Member.findOne({
+            projectId: id,
+            userId: req.user.id
+        });
 
         res.status(200).json({
             ...project.toObject(),
-            members,
+            userRole: membership.role,
+            boards,
+            memberships
         });
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
 });
+
+
+// edit project meta
+router.patch("/project/:id/edit", authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { name, projectImage } = req.body;
+
+    try {
+        const update = {};
+
+        if (name) update.name = name;
+
+        if (projectImage?.url) update["projectImage.url"] = projectImage.url;
+
+        const project = await Project.findByIdAndUpdate(
+            id,
+            { $set: update },
+            { new: true }
+        );
+
+        if (!project) return res.status(404).json({ msg: "Project not found" });
+
+        project.projectImage = formatImage(project.projectImage);
+
+        res.status(200).json(project);
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
 
 
 export default router;

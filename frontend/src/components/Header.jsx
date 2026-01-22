@@ -1,7 +1,7 @@
 
 import styles from "../css/Header.module.scss";
-import eth_svg from "../assets/eth.svg";
-import mp_svg from "../assets/MPLevel.svg";
+import coin_svg from "../assets/icons/coin.svg"
+import level_svg from "../assets/icons/level.svg"
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -14,7 +14,6 @@ import okay_emoji from "../assets/moods/okay.svg";
 import vibing_emoji from "../assets/moods/vibing.svg";
 import happy_emoji from "../assets/moods/happy.svg";
 import chilling_emoji from "../assets/moods/chilling.svg";
-
 
 export const mood = {
     ANGRY: angry_emoji,
@@ -49,15 +48,11 @@ function Header() {
 
         const updateTime = () => {
             const now = new Date();
-            const options = {
-                weekday: "short",
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-            };
-            setDateTime(now.toLocaleString("en-US", options));
+            const weekday = now.toLocaleString("en-US", { weekday: "long" });
+            const day = now.toLocaleString("en-US", { day: "numeric" });
+            const month = now.toLocaleString("en-US", { month: "short" });
+            const time = now.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit" });
+            setDateTime(`${weekday}, ${day} ${month}, ${time}`);
         };
 
         updateTime();
@@ -78,12 +73,12 @@ function Header() {
             </div>
             <div className={styles.userElements}>
                 <div className={styles.etherium}>
-                    <img src={eth_svg} />
+                    <img src={coin_svg} style={{width: "20px"}} />
                     <p>{user.etherium}</p>
                 </div>
                 <div className={styles.motivation}>
                     <div className={styles.wrapper}>
-                        <img src={mp_svg} />
+                        <img src={level_svg} style={{width: "30px"}} />
                         <span>{user.motivationLevel}</span>
                     </div>
                     <p>{user.motivationScore.toLocaleString()}</p>

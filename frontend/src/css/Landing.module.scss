@@ -22,67 +22,77 @@
                 height: 30px;
                 border-radius: 10px;
                 border: none;
-                font: 16px Arial;
+                font: 16px Roboto;
                 background-color: #1a1a1a;
-                color: #aaa;
+                color: #ccc;
                 cursor: pointer;
-                transition: background-color 0.3s ease,
-                    color 0.3s ease;
+                transition: all 0.3s;
+                opacity: 0.7;
 
                 &:hover {
-                    background-color: var(--green);
-                    color: #1a1a1a;
-                    box-shadow: 0 0 30px #000;
+                    opacity: 1;
+                    box-shadow: 0 0 30px #090909;
+                    transform: translateY(-1px);
+                }
+
+                &:active {
+                    filter: brightness(1.1);
+                    transform: translateY(0);
                 }
             }
         }
     }
+}
 
-    .frontContent {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin: 220px 350px;
-        margin-right: 45%;
-        cursor: default;
+.frontContent {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 220px 350px;
+    margin-right: 45%;
+    cursor: default;
 
-        h1 {
-            font: 48px Timun;
-            color: #ccc;
+    h1 {
+        font: 48px Timun;
+        color: #ccc;
+    }
+
+    button {
+        width: 300px;
+        height: 50px;
+        font: 24px Roboto;
+        color: #111;
+        background-color: var(--green);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        opacity: 0.7;
+
+        &:hover {
+            opacity: 1;
+            color: #1a1a1a;
+            box-shadow: 0 0 30px #090909;
+            transform: translateY(-3px);
         }
 
-        button {
-            width: 300px;
-            height: 50px;
-            font: 24px Arial;
-            color: #aaa;
-            background-color: #1a1a1a;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease,
-                color 0.3s ease;
-
-            &:hover {
-                background-color: var(--green);
-                color: #1a1a1a;
-                box-shadow: 0 0 30px #000;
-            }
-        }
-
-        p {
-            font: 24px Arial;
-            color: #aaa;
-            line-height: 1.5;
+        &:active {
+            filter: brightness(1.1);
         }
     }
 
-    .object {
-        position: absolute;
-        top: 200px;
-        right: 350px;
-        width: 500px;
-        mix-blend-mode: screen;
-        pointer-events: none;
+    p {
+        font: 24px Roboto;
+        color: #aaa;
+        line-height: 1.5;
     }
+}
+
+.object {
+    position: absolute;
+    top: 200px;
+    right: 350px;
+    width: 500px;
+    mix-blend-mode: screen;
+    pointer-events: none;
 }

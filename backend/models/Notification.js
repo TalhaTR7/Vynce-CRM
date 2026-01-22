@@ -7,7 +7,6 @@ const notificationSchema = new mongoose.Schema(
             type: String, enum: [
                 "TASK_ASSIGNED",
                 "TASK_DUE_IN",
-                "MESSAGE_FROM_USER",
                 "ETH_FROM_USER",
                 "WEEKLY_MP",
                 "TASK_REWARDS",

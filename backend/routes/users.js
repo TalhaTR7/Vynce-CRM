@@ -53,4 +53,24 @@ router.get("/:userId", authMiddleware, async (req, res) => {
 });
 
 
+// update user meta
+router.patch("/user", authMiddleware, async (req, res) => {
+  const { firstname, lastname } = req.body;
+  try {
+    let user = await User.findById(req.user.id).select("-passwordHash");
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    if (firstname.trim() && firstname !== user.firstname)
+      user.firstname = firstname;
+    if (lastname.trim() && lastname !== user.lastname)
+      user.lastname = lastname;
+
+    await user.save();
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+});
+
+
 export default router;

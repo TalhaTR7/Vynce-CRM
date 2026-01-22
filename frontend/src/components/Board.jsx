@@ -1,6 +1,6 @@
 import styles from "../css/Board.module.scss"
-import more from "../assets/more.svg"
-import create from "../assets/create.svg"
+import more_svg from "../assets/icons/more.svg"
+import add_svg from "../assets/icons/add.svg"
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Card } from "./Card";
@@ -33,18 +33,18 @@ function Board({ board, role }) {
                 <p>{tasks.length}</p>
                 {
                     (role === "OWNER" || role === "ADMIN") &&
-                    <img src={more} />
+                    <img src={more_svg} />
                 }
             </div>
             {
                 role === "MEMBER" &&
-                <div className={styles.boardColor} style={{backgroundColor: board.color}}/>
+                <div className={styles.boardColor} style={{backgroundColor: board.color}} />
             }
             <div className={styles.taskContainer}>
                 {
                     (role === "OWNER" || role === "ADMIN") &&
                     <div className={styles.create}>
-                        <img src={create} />
+                        <img src={add_svg} />
                     </div>
                 }
                 {tasks.map(task => (

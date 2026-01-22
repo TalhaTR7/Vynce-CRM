@@ -26,7 +26,7 @@
             box-sizing: border-box;
 
             h1 {
-                font: 32px Google;
+                font: 32px Roboto;
                 color: #ccc;
                 margin: 0 5px;
                 padding: 20px 20px;
@@ -54,6 +54,12 @@
                 flex-direction: row;
                 gap: 15px;
                 padding: 0 20px;
+                max-width: 75%;
+                overflow-x: auto;
+
+                &::-webkit-scrollbar {
+                    display: none;
+                }
 
                 .project {
                     display: flex;
@@ -67,6 +73,7 @@
                     cursor: pointer;
                     opacity: 0.7;
                     user-select: none;
+
 
                     &:hover {
                         background-color: #212121;
@@ -94,9 +101,12 @@
                     }
 
                     p {
-                        font: 18px Google;
+                        font: 18px Roboto;
                         color: #ccc;
                         margin: 0;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
                 }
 
@@ -105,7 +115,8 @@
                     background-color: transparent;
                     display: flex;
                     flex-direction: row;
-                    gap: 7px;
+                    align-items: center;
+                    gap: 5px;
                     right: 3%;
                     padding: 5px 10px;
                     border: none;
@@ -118,12 +129,12 @@
                     }
 
                     img {
-                        width: 10px;
+                        width: 21px;
                         user-select: none;
                     }
 
                     p {
-                        font: 16px Google;
+                        font: 16px Roboto;
                         color: #ccc;
                         margin: 0;
                     }
@@ -144,7 +155,7 @@
                     user-select: none;
 
                     .board {
-                        font: 16px Google;
+                        font: 16px Roboto;
                         color: #ccc;
                         opacity: 0.7;
                         padding: 2px 7px;
@@ -165,7 +176,7 @@
                 }
 
                 p {
-                    font: 14px Google;
+                    font: 14px Roboto;
                     color: #999;
                     text-align: center;
                     margin: 12px 0;
@@ -217,7 +228,7 @@
                         }
 
                         h3 {
-                            font: 21px Google;
+                            font: 21px Roboto;
                             color: #ccc;
                             margin: 0;
                             white-space: nowrap;
@@ -235,14 +246,14 @@
                             user-select: none;
 
                             p {
-                                font: 16px Google;
+                                font: 16px Roboto;
                                 color: #999;
                             }
                         }
                     }
 
                     p {
-                        font: 18px Google;
+                        font: 18px Roboto;
                         color: #ccc;
                         text-align: center;
                     }
@@ -250,15 +261,27 @@
             }
 
             .link {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
                 position: absolute;
                 bottom: 4%;
-                font: 16px Google;
-                color: #ccc;
-                text-decoration: none;
                 margin: 0px 25px;
                 padding: 5px 10px;
                 opacity: 0.7;
                 cursor: pointer;
+                text-decoration: none;
+
+                img {
+                    width: 12px;
+                }
+
+                p {
+                    font: 16px Roboto;
+                    color: #ccc;
+                    margin: 0;
+                }
 
                 &:hover {
                     opacity: 1;
@@ -278,14 +301,14 @@
                 }
 
                 p {
-                    font: 16px Google;
+                    font: 16px Roboto;
                     color: #999;
                     margin: 20px;
                     cursor: default;
                 }
 
                 .link {
-                    font: 16px Google;
+                    font: 16px Roboto;
                     color: #ccc;
                     text-decoration: none;
                     margin: 10px auto;

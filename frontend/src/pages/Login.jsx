@@ -1,15 +1,15 @@
 
-import { Copyrights } from "../components/Footer"
-import styles from "../css/Login.module.scss"
-import favicon from "../assets/favicon.svg"
-import bg_obj_1 from "../assets/auth_bg_1.png"
-import bg_obj_2 from "../assets/auth_bg_2.png"
-import hide_password from "../assets/hide.svg"
-import show_password from "../assets/show.svg"
-import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
-import axios from 'axios'
+import { Copyrights } from "../components/Footer";
+import styles from "../css/Login.module.scss";
+import favicon from "../assets/icons/favicon.svg";
+import bgImg1 from "../assets/backgrounds/authBgImg1.png";
+import bgImg2 from "../assets/backgrounds/authBgImg2.png";
+import hide_svg from "../assets/icons/hide.svg";
+import show_svg from "../assets/icons/show.svg";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 
 function Login() {
@@ -54,8 +54,7 @@ function Login() {
                         placeholder="Email address"
                         className={styles.inputField}
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+                        onChange={(e) => setEmail(e.target.value)} />
 
                     <div className={styles.passwordWrapper}>
                         <input
@@ -69,16 +68,16 @@ function Login() {
                             onClick={() => setShowPassword((prev) => !prev)}
                             role="button"
                             aria-label={showPassword ? "Hide password" : "Show password"} >
-                            <img src={showPassword ? hide_password : show_password} alt={showPassword ? "Hide password" : "Show password"} />
+
+                            <img src={showPassword ? show_svg : hide_svg} />
                         </span>
                     </div>
 
                     <div className={styles.misc}>
-                        <label className={styles.checkboxContainer}>
-                            <input type="checkbox" />
-                            <span className={styles.checkmark}>Remember me</span>
-                        </label>
-
+                        <div className={styles.checkboxContainer}>
+                            <input type="checkbox" id="remember-me" className={styles.checkbox} />
+                            <label htmlFor="remember-me" className={styles.checkmark}>Remember me</label>
+                        </div>
                         <a className={styles.highlight}>Forgot Password?</a>
                     </div>
 
@@ -88,8 +87,8 @@ function Login() {
                 </form>
             </div>
 
-            <img src={bg_obj_1} className={styles.bgImg1} />
-            <img src={bg_obj_2} className={styles.bgImg2} />
+            <img src={bgImg1} className={styles.bgImg1} />
+            <img src={bgImg2} className={styles.bgImg2} />
 
             <Link to="/">
                 <img src={favicon} className={styles.backButton} />

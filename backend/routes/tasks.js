@@ -8,6 +8,12 @@ import Task from "../models/Task.js";
 
 const router = express.Router();
 
+function formatImage(image) {
+    const url = image?.url;
+    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
+    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+}
+
 // create a task
 router.post("/", authMiddleware, async (req, res) => {
     const {
@@ -124,13 +130,9 @@ router.get("/board/:boardId", authMiddleware, async (req, res) => {
         tasks = tasks.map(task => {
             task = task.toObject();
             if (task.projectId?.projectImage?.url)
-                task.projectId.projectImage.url = task.projectId.projectImage.url.startsWith("/assets")
-                    ? task.projectId.projectImage.url
-                    : `http://localhost:${process.env.PORT}/api${task.projectId.projectImage.url}`;
+                task.projectId.projectImage = formatImage(task.projectId.projectImage);
             if (task.assigneeId?.profileImage?.url)
-                task.assigneeId.profileImage.url = task.assigneeId.profileImage.url.startsWith("/assets")
-                    ? task.assigneeId.profileImage.url
-                    : `http://localhost:${process.env.PORT}/api${task.assigneeId.profileImage.url}`;
+                task.assigneeId.profileImage = formatImage(task.assigneeId.profileImage);
             return {
                 ...task,
                 project: task.projectId,
@@ -164,16 +166,11 @@ router.get("/dashboard/:boardId", authMiddleware, async (req, res) => {
 
 
         const response = tasks.map(task => {
-
-            const raw = task.projectId?.projectImage?.url;
-            const image = raw?.startsWith("/assets") ? raw
-                : `http://localhost:${process.env.PORT}/api${raw}`;
+            task.projectId.projectImage = formatImage(task.projectId.projectImage);
 
             return ({
                 _id: task._id,
-                projectImage: {
-                    url: image
-                },
+                projectImage: task.projectId.projectImage,
                 title: task.title,
                 ethereum: task.ethereum.calculated,
                 comments: task.activity.filter(a => a.type === "COMMENT").length,
@@ -212,12 +209,8 @@ router.get("/task/:taskId", authMiddleware, async (req, res) => {
 
         task = task.toObject();
 
-        task.projectId.projectImage.url = task.projectId.projectImage.url.startsWith("/assets")
-            ? task.projectId.projectImage.url
-            : `http://localhost:${process.env.PORT}/api${task.projectId.projectImage.url}`;
-        task.assigneeId.profileImage.url = task.assigneeId.profileImage.url.startsWith("/assets")
-            ? task.assigneeId.profileImage.url
-            : `http://localhost:${process.env.PORT}/api${task.assigneeId.profileImage.url}`;
+        task.projectId.projectImage = formatImage(task.projectId.projectImage);
+        task.assigneeId.profileImage = formatImage(task.assigneeId.profileImage);
 
         task = {
             ...task,
@@ -242,15 +235,12 @@ router.get("/task/:taskId", authMiddleware, async (req, res) => {
                 const user = await User.findById(object.userId)
                     .select("_id firstname lastname profileImage");
 
+                user.profileImage = formatImage(user.profileImage)
+
                 return {
                     ...object,
                     user: user ? {
                         ...user.toObject(),
-                        profileImage: {
-                            url: user.profileImage?.url?.startsWith("/assets")
-                                ? user.profileImage.url
-                                : `http://localhost:${process.env.PORT}/api${user.profileImage.url}`
-                        }
                     } : null,
                     userId: undefined
                 };
@@ -437,11 +427,9 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
         });
 
         const response = task.activity[task.activity.length - 1].toObject();
+        response.userId.profileImage = formatImage(response.userId.profileImage);
         response.user = response.userId;
         response.userId = undefined;
-        response.user.profileImage.url = response.user.profileImage.url.startsWith("/assets")
-            ? response.user.profileImage.url
-            : `http://localhost:${process.env.PORT}/api${response.user.profileImage.url}`;
 
         res.status(200).json({
             comment,
@@ -451,6 +439,38 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
         res.status(500).json({ msg: err.message });
     }
 });
+
+
+// change difficulty level
+router.patch("/task/:taskId/changeDifficulty", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { difficulty } = req.body;
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        task.difficulty = difficulty;
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "CHANGED_DIFFICULTY",
+            content: `${user.firstname} ${user.lastname} changed the difficulty`,
+            time: new Date()
+        });
+
+        await task.save();
+        res.status(200).json({
+            difficulty: task.difficulty,
+            activity: task.activity[task.activity.length - 1]
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
 
 
 export default router;

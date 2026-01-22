@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styles from "../css/Landing.module.scss"
 import Footer from "../components/Footer"
-import favicon from "../assets/favicon.svg"
-import logo from "../assets/logo.png"
-import object from "../assets/landing.png"
+import favicon from "../assets/icons/favicon.svg"
+import logo from "../assets/backgrounds/logo.png"
+import object from "../assets/backgrounds/landing.png"
 
 
 function Landing() {
@@ -14,7 +14,6 @@ function Landing() {
         link.href = favicon;
         document.title = "Vynce | More Than a CRM";
     });
-
 
     return (
         <div className={styles.landing}>

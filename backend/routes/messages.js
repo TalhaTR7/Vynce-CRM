@@ -48,10 +48,6 @@ router.post("/:userId", authMiddleware, async (req, res) => {
     const receiverId = req.params.userId;
     const { content } = req.body;
 
-    console.log("JWT user:", req.user.id);
-    console.log("Param user:", req.params.userId);
-    console.log("Equal?", req.user.id === req.params.userId);
-
     if (!content) return res.status(400).json({ msg: "Message content is required" });
 
     if (senderId === receiverId)
