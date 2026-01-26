@@ -87,7 +87,7 @@ function Sidebar() {
                 </div>
                 <button className={styles.create}>
                     <img src={add_svg} />
-                    <p>Add member</p>
+                    <p>Find someone</p>
                 </button>
             </div>
             <div className={styles.divider}>{/* divider */}</div>

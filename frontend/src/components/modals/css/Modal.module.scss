@@ -13,12 +13,12 @@
     transition:
         opacity 0.2s ease,
         backdrop-filter 0.2s ease,
-        background 0.2s ease-in-out;
+        background 0.2s;
 
     &.show {
         opacity: 1;
-        background: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(4px);
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
     }
 }
 
@@ -30,12 +30,13 @@
     border: 1px solid #333;
     border-radius: 12px;
     padding: 25px;
+    width: 100%;
     max-width: 450px;
 
     transform: translateY(50px) scale(0.7);
     opacity: 0;
     transition:
-        transform 0.2s ease,
+        transform 0.2s ease-in-out,
         opacity 0.2s ease;
 
     &.show {

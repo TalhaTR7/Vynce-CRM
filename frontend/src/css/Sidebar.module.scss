@@ -6,12 +6,12 @@
     border-right: 1px solid #555;
     color: #ccc;
     width: 260px;
-    height: 940px;
-    overflow-y: auto;
+    height: 100%;
+    overflow-y: hidden;
 
     h1 {
         margin: 30px 20px;
-        font: 24px Roboto;
+        font: 21px Roboto;
     }
 
     .homePages {
@@ -62,16 +62,23 @@
         margin: 0 15px;
         color: #999;
 
+        span {
+            font: 14px Roboto;
+            margin-bottom: 10px;
+        }
+
         .listContainer {
             max-height: 200px;
             overflow-y: auto;
-            padding-right: 5px;
+            scrollbar-gutter: stable;
+            padding: 5px;
             display: flex;
             flex-direction: column;
             gap: 5px;
 
             &::-webkit-scrollbar {
                 width: 5px;
+                background: transparent;
             }
 
             &::-webkit-scrollbar-thumb {
@@ -80,13 +87,8 @@
             }
 
             &::-webkit-scrollbar-track {
-                background-color: #151515;
+                background-color: transparent;
             }
-        }
-
-        span {
-            font: 14px Roboto;
-            margin: 0 0 15px 0;
         }
 
         .chat,

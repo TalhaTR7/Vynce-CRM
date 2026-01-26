@@ -15,7 +15,7 @@ function formatImage(image) {
 }
 
 // create a task
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/create", authMiddleware, async (req, res) => {
     const {
         projectId,
         boardId,
@@ -210,6 +210,7 @@ router.get("/task/:taskId", authMiddleware, async (req, res) => {
         task = task.toObject();
 
         task.projectId.projectImage = formatImage(task.projectId.projectImage);
+        task.creatorId.profileImage = formatImage(task.creatorId.profileImage);
         task.assigneeId.profileImage = formatImage(task.assigneeId.profileImage);
 
         task = {
@@ -253,6 +254,169 @@ router.get("/task/:taskId", authMiddleware, async (req, res) => {
     }
 });
 
+
+// edit title
+router.patch("/task/:taskId/editTitle", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { title } = req.body;
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        task.title = title;
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "CHANGED_TITLE",
+            content: `${user.firstname} ${user.lastname} changed the title`,
+            time: new Date()
+        });
+
+        await task.save();
+        res.status(200).json({
+            title: task.title,
+            activity: task.activity[task.activity.length - 1]
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// change the assignee
+router.patch("/task/:taskId/reassign", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { assigneeId } = req.body;
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        const membership = await Membership.findOne({ userId: assigneeId }).select("userId");
+        if (!membership) return res.status(404).json({
+            msg: "User is either not a member, or doesn't exist"
+        });
+
+        if (task.assigneeId.equals(assigneeId))
+            return res.status(200).json({ msg: "No change" });
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "CHANGED_ASSIGNEE",
+            content: `${user.firstname} ${user.lastname} changed the assignee`,
+            time: new Date()
+        });
+
+        task.assigneeId = assigneeId;
+        await task.save();
+
+        res.status(200).json({
+            assigneeId: task.assigneeId,
+            activity: task.activity.at(-1)
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// edit due date
+router.patch("/task/:taskId/editDueDate", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { dueDate } = req.body;
+
+    const formatDueDate = (dueDate) => {
+        if (!dueDate) return "None";
+
+        const due = new Date(dueDate);
+        const today = new Date();
+
+        due.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        if (due.getTime() === today.getTime()) return "Today";
+        if (due.getTime() < today.getTime()) return "Overdue";
+
+        return due.toLocaleDateString("en-US", { month: "short", day: "numeric", });
+    };
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        if (task.dueDate && new Date(task.dueDate).getTime() === new Date(dueDate).getTime())
+            return res.status(200).json({ msg: "No change" });
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+        const hadDueDate = !!task.dueDate;
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "CHANGED_DUE_DATE",
+            content: !hadDueDate
+                ? `${user.firstname} ${user.lastname} set the due date to ${formatDueDate(dueDate)}`
+                : !dueDate ? `${user.firstname} ${user.lastname} removed the due date`
+                    : `${user.firstname} ${user.lastname} updated the due date from ${formatDueDate(task.dueDate)} to ${formatDueDate(dueDate)}`,
+            time: new Date()
+        });
+
+        task.dueDate = dueDate;
+        await task.save();
+        res.status(200).json({
+            dueDate: task.dueDate,
+            activity: task.activity[task.activity.length - 1]
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// change status
+router.patch("/task/:taskId/changeStatus", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { boardId } = req.body;
+
+    try {
+        const task = await Task.findById(taskId).populate("boardId", "name projectId");
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        const newBoard = await Board.findById(boardId);
+        if (!newBoard) return res.status(404).json({ msg: "Board not found" });
+
+        if (!newBoard.projectId.equals(task.projectId))
+            return res.status(400).json({ msg: "Irrelevant task" });
+
+        if (task.boardId._id.equals(boardId))
+            return res.status(200).json({ msg: "No change" });
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "CHANGED_STATUS",
+            content: `${user.firstname} ${user.lastname} changed the status from ${task.boardId.name} to ${newBoard.name}`,
+            time: new Date()
+        });
+
+        task.boardId = boardId;
+        await task.save();
+
+        res.status(200).json({
+            board: newBoard,
+            activity: task.activity.at(-1)
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
 
 // start timer
 router.patch("/task/:taskId/startTimer", authMiddleware, async (req, res) => {
@@ -331,29 +495,29 @@ router.patch("/task/:taskId/stopTimer", authMiddleware, async (req, res) => {
 });
 
 
-// edit title
-router.patch("/task/:taskId/editTitle", authMiddleware, async (req, res) => {
+// change difficulty level
+router.patch("/task/:taskId/changeDifficulty", authMiddleware, async (req, res) => {
     const { taskId } = req.params;
-    const { title } = req.body;
+    const { difficulty } = req.body;
 
     try {
         const task = await Task.findById(taskId);
         if (!task) return res.status(404).json({ msg: "Task not found" });
 
-        task.title = title;
+        task.difficulty = difficulty;
 
         const user = await User.findById(req.user.id).select("firstname lastname");
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
-            action: "CHANGED_TITLE",
-            content: `${user.firstname} ${user.lastname} changed the title`,
+            action: "CHANGED_DIFFICULTY",
+            content: `${user.firstname} ${user.lastname} changed the difficulty`,
             time: new Date()
         });
 
         await task.save();
         res.status(200).json({
-            title: task.title,
+            difficulty: task.difficulty,
             activity: task.activity[task.activity.length - 1]
         });
     } catch (err) {
@@ -439,38 +603,6 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
         res.status(500).json({ msg: err.message });
     }
 });
-
-
-// change difficulty level
-router.patch("/task/:taskId/changeDifficulty", authMiddleware, async (req, res) => {
-    const { taskId } = req.params;
-    const { difficulty } = req.body;
-
-    try {
-        const task = await Task.findById(taskId);
-        if (!task) return res.status(404).json({ msg: "Task not found" });
-
-        task.difficulty = difficulty;
-
-        const user = await User.findById(req.user.id).select("firstname lastname");
-        task.activity.push({
-            type: "ACTION",
-            userId: req.user.id,
-            action: "CHANGED_DIFFICULTY",
-            content: `${user.firstname} ${user.lastname} changed the difficulty`,
-            time: new Date()
-        });
-
-        await task.save();
-        res.status(200).json({
-            difficulty: task.difficulty,
-            activity: task.activity[task.activity.length - 1]
-        });
-    } catch (err) {
-        res.status(500).json({ msg: err.message });
-    }
-});
-
 
 
 export default router;

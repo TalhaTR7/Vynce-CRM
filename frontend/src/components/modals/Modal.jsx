@@ -5,7 +5,9 @@ function Modal({ children, onClose }) {
     const [visibility, setVisibility] = useState(false);
 
     useEffect(() => {
-        setVisibility(true);
+        requestAnimationFrame(() => {
+            setVisibility(true);
+        });
     }, []);
 
     const handleClose = () => {

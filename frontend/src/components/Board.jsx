@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Card } from "./Card";
 import { Link } from "react-router-dom";
+import { useModal } from "../context/ModalContext";
 
 function Board({ board, role }) {
     if (!board) return <p>Loading board...</p>;
 
     const [tasks, setTasks] = useState([]);
+    const { openModal } = useModal();
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -24,7 +26,19 @@ function Board({ board, role }) {
         fetchTasks();
     }, []);
 
-    
+    const taskObj = {
+        project: {
+            _id: board.project._id,
+            name: board.project.name,
+            image: board.project.projectImage.url
+        },
+        board: {
+            _id: board._id,
+            name: board.name,
+            color: board.color
+        }
+    }
+
     return (
         <section className={styles.board}>
             <div className={styles.boardInfo}>
@@ -38,12 +52,15 @@ function Board({ board, role }) {
             </div>
             {
                 role === "MEMBER" &&
-                <div className={styles.boardColor} style={{backgroundColor: board.color}} />
+                <div className={styles.boardColor} style={{ backgroundColor: board.color }} />
             }
             <div className={styles.taskContainer}>
                 {
                     (role === "OWNER" || role === "ADMIN") &&
-                    <div className={styles.create}>
+                    <div className={styles.create} onClick={() => openModal("CREATE_TASK", {
+                        project: taskObj.project,
+                        board: taskObj.board
+                    })}>
                         <img src={add_svg} />
                     </div>
                 }
@@ -57,4 +74,4 @@ function Board({ board, role }) {
     )
 }
 
-export default Board
+export default Board;

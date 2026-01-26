@@ -5,7 +5,7 @@ const ModalContext = createContext();
 export function ModalProvider({ children }) {
   const [modal, setModal] = useState(null);
 
-  const openModal = (type) => setModal(type);
+  const openModal = (type, payload = {}) => { setModal({ type, payload }) };
   const closeModal = () => setModal(null);
 
   return (

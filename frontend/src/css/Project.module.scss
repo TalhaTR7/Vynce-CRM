@@ -20,7 +20,7 @@
             .projectInfo {
                 display: flex;
                 flex-direction: row;
-                align-items: center;
+                align-items: flex-start;
                 gap: 20px;
 
                 .projectImage {
@@ -40,8 +40,9 @@
 
                 .memberDetails {
                     display: flex;
-                    flex-direction: column;
+                    flex-direction: row;
                     gap: 5px;
+                    margin-top: 3px;
 
                     h1 {
                         font: 28px Roboto;
@@ -49,11 +50,9 @@
                         margin: 0;
                     }
 
-                    p {
-                        font: 16px Roboto;
-                        text-transform: capitalize;
-                        color: #999;
-                        margin: 0;
+                    img {
+                        width: 30px;
+                        user-select: none;
                     }
                 }
             }
@@ -71,7 +70,7 @@
                 user-select: none;
 
                 img {
-                    width: 18px;
+                    width: 27px;
                     height: auto;
                     display: block;
                 }
@@ -108,8 +107,9 @@
 
                     img {
                         width: 150px;
-                        opacity: 0.5;
+                        opacity: 0.3;
                         user-select: none;
+                        pointer-events: none;
                     }
 
                     p {
@@ -118,6 +118,7 @@
                         max-width: 400px;
                         text-align: center;
                         margin: 0;
+                        pointer-events: none;
                     }
 
                     .createBoard {
@@ -130,16 +131,17 @@
                         border: 1px solid #777;
                         border-radius: 7px;
                         cursor: pointer;
-                        opacity: 0.7;
                         user-select: none;
                         transition: opacity 0.2s;
+                        opacity: 0.7;
 
                         img {
                             width: 18px;
+                            opacity: 0.7;
                         }
 
                         p {
-                            color: #777;
+                            color: #999;
                         }
 
                         &:hover {

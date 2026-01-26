@@ -67,13 +67,17 @@ router.get("/user", authMiddleware, async (req, res) => {
     const userId = req.user.id;
     try {
         const memberships = await Member.find({ userId }).populate("projectId");
-        const projects = memberships.map(member => {
-            const project = member.projectId.toObject();
-            project.projectImage = formatImage(project.projectImage);
-            project.role = member.role;
-            return project;
-        });
-        res.status(200).json(projects, memberships);
+
+        const projects = memberships
+            .filter(member => member.projectId)
+            .map(member => {
+                const project = member.projectId.toObject();
+                project.projectImage = formatImage(project.projectImage);
+                project.role = member.role;
+                return project;
+            });
+
+        res.status(200).json(projects);
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
@@ -122,16 +126,17 @@ router.get("/project/:id", authMiddleware, async (req, res) => {
 
 
 // edit project meta
-router.patch("/project/:id/edit", authMiddleware, async (req, res) => {
+router.patch("/project/:id/edit", authMiddleware, imageUpload.single("image"), async (req, res) => {
     const { id } = req.params;
-    const { name, projectImage } = req.body;
+    const { name } = req.body;
 
     try {
         const update = {};
-
         if (name) update.name = name;
 
-        if (projectImage?.url) update["projectImage.url"] = projectImage.url;
+        if (req.file) {
+            update["projectImage.url"] = `/uploads/projects/${req.file.filename}`;
+        }
 
         const project = await Project.findByIdAndUpdate(
             id,

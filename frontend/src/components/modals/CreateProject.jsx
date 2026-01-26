@@ -55,6 +55,7 @@ function CreateProject({ onClose }) {
 
             handleClose();
             navigate(`/project/${res.data._id}`);
+            toast.success("Project successfully created")
         } catch (err) {
             console.error(err);
         }

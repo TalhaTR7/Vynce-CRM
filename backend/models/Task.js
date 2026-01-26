@@ -26,6 +26,7 @@ const taskSchema = new mongoose.Schema({
             type: String, enum: [
                 "CREATED_TASK",
                 "CHANGED_TITLE",
+                "CHANGED_ASSIGNEE",
                 "CHANGED_DESCRIPTION",
                 "CHANGED_DUE_DATE",
                 "STARTED_TIMER",
@@ -35,13 +36,8 @@ const taskSchema = new mongoose.Schema({
                 "CHANGED_DIFFICULTY"
             ], default: null
         },
-        old_date: { type: Date, default: null },
-        new_date: { type: Date, default: null },
-        old_status: { type: mongoose.Schema.Types.ObjectId, ref: "Board", default: null },
-        new_status: { type: mongoose.Schema.Types.ObjectId, ref: "Board", default: null },
-        old_reward: { type: Number, default: 0 },
-        new_reward: { type: Number, default: 0 }
-    }]
+    }],
+    closed: { type: Boolean, default: false }
 },
     { timestamps: true }
 );

@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import back_svg from "../assets/icons/back.svg";
 import more_svg from "../assets/icons/more.svg";
+import search_svg from "../assets/icons/search.svg";
 import coin_svg from "../assets/icons/coin.svg";
 import difficultyOn_svg from "../assets/icons/difficultyOn.svg";
 import difficultyOff_svg from "../assets/icons/difficultyOff.svg";
@@ -13,35 +14,51 @@ import styles from "../css/Task.module.scss";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import SelectDate from "../components/SelectDate";
 
 
 function Task() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [openDropdown, setOpenDropdown] = useState(null);
     const textareaRef = useRef(null);
     const activityEndRef = useRef(null);
+    const dropdownRef = useRef(null);
 
     const [task, setTask] = useState(null);
     const [description, setDescription] = useState("");
     const [title, setTitle] = useState("");
     const [editing, setEditing] = useState("");
+    const [dueDate, setDueDate] = useState(null);
     const [difficulty, setDifficulty] = useState(1);
     const [worktime, setWorktime] = useState(0);
     const [comment, setComment] = useState("");
 
+    const [members, setMembers] = useState([]);
+    const [boards, setBoards] = useState([]);
+    const [activeBoard, setActiveBoard] = useState(null);
+    const [activeAssignee, setActiveAssignee] = useState(null);
+    const [searchValue, setSearchValue] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
-            const res = await axios.get(`http://localhost:5000/api/tasks/task/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
-            setTask(res.data);
-        };
+            const _headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
 
+            const res = await axios.get(`http://localhost:5000/api/tasks/task/${id}`, { headers: _headers });
+
+            setTask(res.data);
+            setActiveBoard(res.data.board);
+            setActiveAssignee(res.data.assignee);
+
+            const _members = await axios.get(`http://localhost:5000/api/memberships/project/${res.data.project._id}`, { headers: _headers });
+            setMembers(_members?.data);
+
+            const _boards = await axios.get(`http://localhost:5000/api/boards/project/${res.data.project._id}`, { headers: _headers });
+            setBoards(_boards?.data);
+        };
         fetchTask();
     }, [id]);
+
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -56,8 +73,19 @@ function Task() {
         if (task?.description !== undefined) {
             setDescription(task.description);
         }
-
+        if (task?.dueDate != null) {
+            setDueDate(task.dueDate);
+        }
     }, [task]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+                setOpenDropdown(null);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     useEffect(() => {
         if (editing && textareaRef.current) {
@@ -65,6 +93,67 @@ function Task() {
             textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
         }
     }, [description, title, editing]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+                setOpenDropdown(null);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        const reassign = async () => {
+            if (!task || !activeAssignee) return;
+            if (activeAssignee._id === task.assigneeId) return;
+
+            try {
+                const res = await axios.patch(`http://localhost:5000/api/tasks/task/${id}/reassign`, { assigneeId: activeAssignee._id }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    }
+                });
+
+                if (res.data.activity) {
+                    setTask(prev => ({
+                        ...prev,
+                        assignee: activeAssignee,
+                        activity: [...prev.activity, res.data.activity]
+                    }));
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        reassign();
+    }, [activeAssignee]);
+
+    useEffect(() => {
+        const changeStatus = async () => {
+            if (!task || !activeBoard) return;
+            if (activeBoard._id === task.board._id) return;
+
+            try {
+                const res = await axios.patch(`http://localhost:5000/api/tasks/task/${id}/changeStatus`, { boardId: activeBoard._id }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    }
+                });
+
+                setTask(prev => ({
+                    ...prev,
+                    board: activeBoard,
+                    activity: [...prev.activity, res.data.activity]
+                }));
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        changeStatus();
+    }, [activeBoard]);
 
     useEffect(() => {
         if (!task) return;
@@ -120,16 +209,28 @@ function Task() {
         month: "short",
     });
 
-    const formatDueDate = (dueDate) => {
-        if (!dueDate) return "None";
-        const due = new Date(dueDate);
-        const now = new Date();
-        due.setHours(0, 0, 0, 0);
-        now.setHours(0, 0, 0, 0);
-        if (due.getTime() === now.getTime()) return "today";
-        else if (due.getTime() < now.getTime()) return "overdue";
-        else return due.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-    }
+    const updateDueDate = async (newDate) => {
+        if (task?.dueDate !== newDate) {
+            const res = await axios.patch(`http://localhost:5000/api/tasks/task/${id}/editDueDate`, { dueDate: newDate }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            setTask(prev => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    dueDate: newDate,
+                    activity: [...prev.activity, res.data.activity]
+                };
+            });
+        }
+    };
+
+    const handleDueDateChange = async (date) => {
+        setDueDate(date);
+        await updateDueDate(date);
+    };
 
     const startTimer = async () => {
         await axios.patch(`http://localhost:5000/api/tasks/task/${id}/startTimer`, {}, {
@@ -164,7 +265,6 @@ function Task() {
     const workedMinutes = worktime % 60;
     const motivation = worktime * 2;
 
-
     const changeDifficulty = async () => {
         if (title === task.title) return;
         try {
@@ -187,6 +287,7 @@ function Task() {
     };
 
     const canEdit = task.fetcher.role === "OWNER" || task.fetcher.role === "ADMIN";
+    const isAuthorized = canEdit || task.fetcher._id === task.assignee._id;
 
     const saveDescription = async () => {
         if (description === task.description) return;
@@ -293,9 +394,24 @@ function Task() {
                             {/* task status */}
                             <div className={styles.pair}>
                                 <p className={styles.key}>Status</p>
-                                <div className={`${styles.value} ${canEdit ? styles.editable : ""}`}>
-                                    <div className={styles.color} style={{ backgroundColor: task.board.color }} />
-                                    <p>{task.board.name}</p>
+                                <div className={`${styles.value} ${styles.boards}`} ref={dropdownRef} onClick={() => { if (isAuthorized) setOpenDropdown(openDropdown === "status" ? null : "status") }} style={{ pointerEvents: isAuthorized ? "" : "none" }}>
+                                    <div className={styles.board} style={{ backgroundColor: openDropdown === "status" ? "#181818" : "" }}>
+                                        <div className={styles.boardColor} style={{ backgroundColor: activeBoard.color }} />
+                                        <p>{activeBoard.name}</p>
+                                    </div>
+                                    {openDropdown === "status" && (
+                                        <ul className={styles.dropdown}>
+                                            {boards.map(board => (
+                                                <li key={board._id} className={`${styles.board} ${styles.option}`} onClick={() => {
+                                                    setActiveBoard(board);
+                                                    setOpenDropdown(null);
+                                                }}>
+                                                    <div className={styles.boardColor} style={{ backgroundColor: board.color }} />
+                                                    <p>{board.name}</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
                                 </div>
                             </div>
                             {/* motivation */}
@@ -311,18 +427,54 @@ function Task() {
                             {/* assignee */}
                             <div className={styles.pair}>
                                 <p className={styles.key}>Assignee</p>
-                                <div className={`${styles.value} ${canEdit ? styles.editable : ""}`}>
-                                    <div className={styles.profileImage}>
-                                        <img src={task.assignee.profileImage.url} />
+                                <div className={`${styles.value} ${styles.members}`} ref={dropdownRef} onClick={() => { if (canEdit) { setOpenDropdown(openDropdown === "assignee" ? null : "assignee"); setSearchValue(""); } }} style={{ pointerEvents: canEdit ? "" : "none" }}>
+                                    <div className={styles.member} style={{ backgroundColor: openDropdown === "assignee" ? "#181818" : "" }}>
+                                        <div className={styles.profileImage}>
+                                            <img src={activeAssignee.profileImage.url} />
+                                        </div>
+                                        <p>{activeAssignee.firstname} {activeAssignee.lastname}</p>
                                     </div>
-                                    <p>{task.assignee.firstname} {task.assignee.lastname}</p>
+                                    {openDropdown === "assignee" && (
+                                        <div className={styles.dropdown} onClick={(e) => e.stopPropagation()}>
+                                            <div className={styles.searchField}>
+                                                <img src={search_svg} />
+                                                <input type="text" placeholder="Search assignee" onChange={(e) => setSearchValue(e.target.value)} onMouseDown={(e) => e.stopPropagation()} />
+                                            </div>
+                                            <ul className={styles.memberContainer}>
+                                                {
+                                                    members.filter(member => {
+                                                        if (!searchValue) return true;
+                                                        const fullName = `${member.firstname} ${member.lastname}`.toLowerCase();
+                                                        return fullName.startsWith(searchValue.toLowerCase())
+                                                            || member.firstname.toLowerCase().startsWith(searchValue.toLowerCase())
+                                                            || member.lastname.toLowerCase().startsWith(searchValue.toLowerCase());
+                                                    }).map(member => (
+                                                        <li key={member._id} className={styles.option} onClick={() => {
+                                                            setActiveAssignee(member);
+                                                            setOpenDropdown(null);
+                                                        }}>
+                                                            <div className={styles.profileImage}>
+                                                                <img src={member.profileImage.url} />
+                                                            </div>
+                                                            <p>{member.firstname} {member.lastname}</p>
+                                                        </li>
+                                                    ))
+                                                }
+                                            </ul>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             {/* due date */}
                             <div className={styles.pair}>
                                 <p className={styles.key}>Due date</p>
                                 <div className={`${styles.value} ${canEdit ? styles.editable : ""}`}>
-                                    <p>{formatDueDate(task.dueDate)}</p>
+                                    <SelectDate
+                                        dueDate={dueDate}
+                                        onChange={handleDueDateChange}
+                                        placeholder="None"
+                                        disabled={!canEdit}
+                                    />
                                 </div>
                             </div>
                             {/* task commpletion calculated reward */}
@@ -352,7 +504,7 @@ function Task() {
                                         disabled={String(task.fetcher?._id) !== String(task.assignee?._id)}
                                         onClick={task.isTimerRunning ? stopTimer : startTimer}
                                         style={String(task.fetcher?._id) === String(task.assignee?._id) ? { cursor: "pointer" } : { cursor: "default" }}>
-                                        <div style={{ width: "12px", height: "12px", borderRadius: "30%", backgroundColor: task.isTimerRunning ? "#ccc" : "#ff0000" }} />
+                                        <div style={{ width: "12px", height: "12px", borderRadius: "30%", backgroundColor: task.isTimerRunning ? "#ff0000" : "#cccccc" }} />
                                     </button>
                                     <p>{workedHours === 0 ? "" : `${workedHours}h `}{workedMinutes}m</p>
                                 </div>
@@ -369,11 +521,11 @@ function Task() {
                             className={`${styles.description} ${styles.editable}`}
                             value={description}
                             autoFocus
+                            onChange={(e) => setDescription(e.target.value)}
                             onBlur={() => {
                                 setEditing(null);
                                 saveDescription();
-                            }}
-                            onChange={(e) => setDescription(e.target.value)} />
+                            }} />
                     )}
                 </main>
                 <aside className={styles.activityContainer}>
@@ -440,9 +592,12 @@ function Task() {
                         </button>
                     </div>
                 </aside>
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }
 
 export default Task;
+
+
+

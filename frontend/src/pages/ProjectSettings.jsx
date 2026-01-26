@@ -15,9 +15,10 @@ import remove_svg from "../assets/icons/close.svg";
 import selectAll_svg from "../assets/icons/selectAll.svg";
 import search_svg from "../assets/icons/search.svg";
 import styles from "../css/ProjectSettings.module.scss";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom"
+import { useModal } from "../context/ModalContext";
 
 import angry_emoji from "../assets/moods/angry.svg";
 import exhausted_emoji from "../assets/moods/exhausted.svg";
@@ -28,17 +29,23 @@ import okay_emoji from "../assets/moods/okay.svg";
 import vibing_emoji from "../assets/moods/vibing.svg";
 import happy_emoji from "../assets/moods/happy.svg";
 import chilling_emoji from "../assets/moods/chilling.svg";
+import toast from "react-hot-toast";
 
 
 function GeneralSettings({ project, setProject }) {
 
     const [projectName, setProjectName] = useState("");
+    const [projectImage, setProjectImage] = useState("");
+    const [file, setFile] = useState(null);
+    const fileInputRef = useRef();
+    const { openModal } = useModal();
     const boards = project.boards;
 
-    const saveNeeded = projectName !== project.name;
+    const saveNeeded = projectName !== project.name || file !== null;
 
     useEffect(() => {
         setProjectName(project.name);
+        setProjectImage(project.projectImage.url);
     }, [project]);
 
     const createdOn = new Date(project.createdAt).toLocaleString("en-GB", {
@@ -47,30 +54,80 @@ function GeneralSettings({ project, setProject }) {
         year: "numeric",
     });
 
+    const handleDivClick = () => fileInputRef.current.click();
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
+        setProjectImage(URL.createObjectURL(selectedFile));
+        setFile(selectedFile);
+    };
+
     const saveProject = async () => {
+        const token = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
         try {
-            const res = await axios.patch("http://localhost:5000/api/users/user", { name }, {
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+            if (!projectName) {
+                toast.error("Project name required");
+                return;
+            }
+
+            if (file) {
+                const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+                if (file.size > MAX_FILE_SIZE) {
+                    toast.error("File is larger than 5 MB");
+                    return;
                 }
-            })
-            setProject(res.data);
+                if (file.type !== "image/png") {
+                    toast.error("Only PNG is allowed");
+                    return;
+                }
+            }
+
+            const formData = new FormData();
+            formData.append("name", projectName);
+            if (file) formData.append("image", file);
+
+            const res = await axios.patch(`http://localhost:5000/api/projects/project/${project._id}/edit`, formData, { headers });
+
+            setProject(prev => ({
+                ...prev,
+                name: projectName,
+                projectImage: {
+                    url: file
+                        ? projectImage
+                        : res.data.projectImage.url
+                }
+            }));
+            setFile(null);
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const projectObj = {
+        _id: project._id,
+        name: project.name,
+        image: project.projectImage.url
     }
 
     return (
         <div className={styles.general}>
-            <div className={styles.projectPane}>
-                <div className={styles.projectImage}>
-                    <img src={project.projectImage.url} />
+            <div className={styles.projectPane} >
+                <div className={styles.projectImage} onClick={handleDivClick}>
+                    <img src={projectImage ? projectImage : null} />
                 </div>
+                <input
+                    type="file"
+                    accept="image/png"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileChange} />
                 <div className={styles.projectInfo}>
                     <h3>{project.name}</h3>
                     <p>Created on {createdOn}</p>
                 </div>
-                <img className={styles.memberStatus} src={project.userRole === "OWNER" ? owner_svg : admin_svg} />
+                {project.userRole !== "MEMBER" && <img className={styles.memberStatus} src={project.userRole === "OWNER" ? owner_svg : admin_svg} />}
             </div>
             <div className={styles.inputField}>
                 <label>Project name</label>
@@ -93,7 +150,7 @@ function GeneralSettings({ project, setProject }) {
                         ))
                     }
                 </div>
-                <div className={styles.create}>
+                <div className={styles.create} onClick={() => openModal("CREATE_BOARD", { project: projectObj })}>
                     <img src={add_svg} />
                     <p>Create new board</p>
                 </div>
@@ -286,9 +343,9 @@ function ProjectSettings() {
         }
     };
 
-    const Button = ({ img, text, onSelect, active }) => (
+    const Button = ({ img, size, text, onSelect, active }) => (
         <button className={activeTab === active ? `${styles.active}` : ""} onClick={() => onSelect ? setActiveTab(onSelect) : ``}>
-            <img src={img} />
+            <img src={img} width={size} height={size} />
             <p>{text}</p>
         </button>
     )
@@ -304,8 +361,8 @@ function ProjectSettings() {
                     </button>
                     <aside className={styles.sidebar}>
                         <p>All Settings</p>
-                        <Button img={settings_svg} text="General" onSelect="general" active="general" />
-                        <Button img={team_svg} text="Team" onSelect="team" active="team" />
+                        <Button img={settings_svg} size={15} text="General" onSelect="general" active="general" />
+                        <Button img={team_svg} size={15} text="Team" onSelect="team" active="team" />
                     </aside>
                     {renderContent(activeTab)}
                 </main>

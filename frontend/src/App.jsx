@@ -15,6 +15,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import { useModal } from "./context/ModalContext";
 import CreateProject from "./components/modals/CreateProject";
+import CreateBoard from "./components/modals/CreateBoard";
+import CreateTask from "./components/modals/CreateTask";
 
 
 function App() {
@@ -35,7 +37,9 @@ function App() {
         <Route path="/settings/user" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
         <Route path="/settings/project/:id" element={<ProtectedRoute><ProjectSettings /></ProtectedRoute>} />
       </Routes>
-      {modal === "CREATE_PROJECT" && (<CreateProject onClose={closeModal} />)}
+      {modal?.type === "CREATE_PROJECT" && (<CreateProject onClose={closeModal} />)}
+      {modal?.type === "CREATE_BOARD" && (<CreateBoard onClose={closeModal} project={modal.payload.project} />)}
+      {modal?.type === "CREATE_TASK" && (<CreateTask onClose={closeModal} project={modal.payload.project} board={modal.payload.board} />)}
     </Router>
   )
 }

@@ -12,7 +12,8 @@ import add_svg from "../assets/icons/add.svg";
 import styles from "../css/UserSettings.module.scss";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom";
+import { useModal } from "../context/ModalContext";
 
 
 function GeneralSettings({ user, setUser }) {
@@ -95,6 +96,7 @@ function GeneralSettings({ user, setUser }) {
 
 function ProjectSettings() {
     const [projects, setProjects] = useState([]);
+    const { openModal } = useModal();
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -135,7 +137,7 @@ function ProjectSettings() {
                     ))
                 }
             </div>
-            <div className={styles.create}>
+            <div className={styles.create} onClick={() => openModal("CREATE_PROJECT")}>
                 <img src={add_svg} />
                 <p>Create a new project</p>
             </div>
@@ -185,10 +187,10 @@ function UserSettings() {
         }
     };
 
-    const Button = ({ img, text, onSelect, active }) => (
+    const Button = ({ img, size, text, onSelect, active }) => (
         <button className={activeTab === active ? `${styles.active}` : ""} onClick={() => onSelect ? setActiveTab(onSelect) : ``}>
-            <img src={img} />
-            <p>{text}</p>
+            <img src={img} width={size} height={size} />
+            <p style={{flexShrink: "0"}} >{text}</p>
         </button>
     )
 
@@ -203,9 +205,9 @@ function UserSettings() {
                     </button>
                     <aside className={styles.sidebar}>
                         <p>All Settings</p>
-                        <Button img={settings_svg} text="General" onSelect="general" active="general" />
-                        <Button img={project_svg} text="Projects" onSelect="projects" active="projects" />
-                        <Button img={logout_svg} text="Log out" onSelect={null} active="logout" />
+                        <Button img={settings_svg} size="15" text="General" onSelect="general" active="general" />
+                        <Button img={project_svg} size="15" text="Projects" onSelect="projects" active="projects" />
+                        <Button img={logout_svg} size="15" text="Log out" onSelect={null} active="logout" />
                     </aside>
                     {renderContent(activeTab)}
                 </main>

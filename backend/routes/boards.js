@@ -6,8 +6,15 @@ import Board from "../models/Board.js"
 
 const router = express.Router();
 
+function formatImage(image) {
+    const url = image?.url;
+    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
+    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+}
+
+
 // create a board
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/create", authMiddleware, async (req, res) => {
     const { projectId, name, color } = req.body;
 
     try {
@@ -68,10 +75,23 @@ router.get("/project/:projectId", authMiddleware, async (req, res) => {
 
         if (!membership) return res.status(403).json({ msg: "Not a member of this project" });
 
-        const boards = await Board
+        let boards = await Board
             .find({ projectId })
             .sort({ position: 1 })
-            .select("name position color");
+            .select("name position color projectId")
+            .populate("projectId", "name projectImage")
+            .lean();
+
+        boards = boards.map(board => {
+            board.projectId.projectImage = formatImage(board.projectId.projectImage);
+            return {
+                _id: board._id,
+                name: board.name,
+                position: board.position,
+                color: board.color,
+                project: board.projectId,
+            }
+        });
 
         res.json(boards);
     } catch (err) {

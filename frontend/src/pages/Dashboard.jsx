@@ -179,7 +179,7 @@ function Dashboard() {
                                     const workedHours = Math.floor(task.worktime / 60);
                                     const workedMinutes = task.worktime % 60;
                                     return (
-                                        <Link to={`/task/${task._id}`} className={styles.task}>
+                                        <Link key={task._id} to={`/task/${task._id}`} className={styles.task}>
                                             <div className={styles.taskMain}>
                                                 <div className={styles.projectImage}>
                                                     <img src={task.projectImage.url} />

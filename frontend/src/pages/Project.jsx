@@ -3,11 +3,14 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Board from "../components/Board";
 import styles from "../css/Project.module.scss"
+import owner_svg from "../assets/icons/owner.svg"
+import admin_svg from "../assets/icons/admin.svg"
 import more_svg from "../assets/icons/more.svg"
 import boards_svg from "../assets/icons/boards.svg"
 import add_svg from "../assets/icons/add.svg"
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useModal } from "../context/ModalContext";
 import axios from "axios";
 
 function Project() {
@@ -15,6 +18,8 @@ function Project() {
     const [user, setUser] = useState(null);
     const [project, setProject] = useState(null);
     const [boards, setBoards] = useState([]);
+
+    const { openModal } = useModal();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -56,7 +61,7 @@ function Project() {
         fetchUser();
         fetchProject();
         fetchBoards();
-    }, [id]);
+    }, [id, openModal]);
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -69,6 +74,13 @@ function Project() {
 
     const userRole = project.memberships.find(member => member.user._id === user._id).role;
 
+    const projectObj = {
+        _id: project._id,
+        name: project.name,
+        image: project.projectImage.url
+    }
+
+    
     return (
         <div className={styles.canvas}>
             <Header />
@@ -82,7 +94,7 @@ function Project() {
                             </div>
                             <div className={styles.memberDetails}>
                                 <h1>{project.name}</h1>
-                                <p>Project {userRole.toLowerCase()}</p>
+                                {project.userRole !== "MEMBER" && <img src={project.userRole === "OWNER" ? owner_svg : admin_svg} />}
                             </div>
                         </div>
                         <div className={styles.more}>
@@ -100,7 +112,7 @@ function Project() {
                                     <p>Feels a little lonely in here...</p>
                                     {
                                         (userRole === "OWNER" || userRole === "ADMIN") &&
-                                        <button className={styles.createBoard}>
+                                        <button className={styles.createBoard} onClick={() => openModal("CREATE_BOARD", { project: projectObj })}>
                                             <img src={add_svg} />
                                             <p>Create board</p>
                                         </button>
