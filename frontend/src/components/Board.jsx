@@ -65,6 +65,7 @@ function Board({ board, role }) {
                     </div>
                 }
                 {tasks.map(task => (
+                    !task.closed &&
                     <Link key={task._id} to={`/task/${task._id}`} className={styles.task}>
                         <Card task={task} />
                     </Link>

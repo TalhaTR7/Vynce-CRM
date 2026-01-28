@@ -6,7 +6,6 @@ import favicon from "../assets/icons/favicon.svg"
 import logo from "../assets/backgrounds/logo.png"
 import object from "../assets/backgrounds/landing.png"
 
-
 function Landing() {
 
     useEffect(() => {

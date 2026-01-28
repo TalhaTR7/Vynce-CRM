@@ -23,7 +23,8 @@ router.post("/create", authMiddleware, async (req, res) => {
         description = "",
         assigneeId,
         dueDate = null,
-        ethereum = 1
+        ethereum = 1,
+        difficulty = 1
     } = req.body;
 
     try {
@@ -89,6 +90,7 @@ router.post("/create", authMiddleware, async (req, res) => {
                 assigned: setReward,
                 calculated: calculatedReward
             },
+            difficulty: difficulty,
             worktime: 0,
             motivation: 0,
             activity: [{
@@ -341,7 +343,7 @@ router.patch("/task/:taskId/editDueDate", authMiddleware, async (req, res) => {
         today.setHours(0, 0, 0, 0);
 
         if (due.getTime() === today.getTime()) return "Today";
-        if (due.getTime() < today.getTime()) return "Overdue";
+        if (due.getTime() < today.getTime()) return `${due.toLocaleDateString("en-US", { month: "short", day: "numeric", })} (Overdue)`;
 
         return due.toLocaleDateString("en-US", { month: "short", day: "numeric", });
     };
@@ -495,7 +497,54 @@ router.patch("/task/:taskId/stopTimer", authMiddleware, async (req, res) => {
 });
 
 
-// change difficulty level
+// change bounty
+router.patch("/task/:taskId/changeBounty", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { bounty, mood } = req.body;
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+
+        const setReward = Math.max(1, Number(bounty) || 1);
+        const multiplier = {
+            ANGRY: 2,
+            EXHAUSTED: 1.8,
+            SICK: 1.6,
+            SAD: 1.5,
+            NORMAL: 1.5,
+            OKAY: 1.5,
+            VIBING: 1.4,
+            HAPPY: 1.2,
+            CHILLING: 1
+        }[mood] || 1;
+        const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
+
+        task.ethereum.assigned = setReward;
+        task.ethereum.calculated = calculatedReward;
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "UPDATED_REWARD",
+            content: `${user.firstname} ${user.lastname} updated the bounty`,
+            time: new Date()
+        });
+
+        await task.save();
+        res.status(200).json({
+            ethereum: task.ethereum,
+            activity: task.activity[task.activity.length - 1]
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// change difficulty
 router.patch("/task/:taskId/changeDifficulty", authMiddleware, async (req, res) => {
     const { taskId } = req.params;
     const { difficulty } = req.body;
@@ -604,5 +653,35 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
     }
 });
 
+
+// close or delete a task
+router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        task.closed = true;
+        task.dueDate = null;
+
+        const user = await User.findById(req.user.id).select("firstname lastname");
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "ARCHIVE_TASK",
+            content: `${user.firstname} ${user.lastname} archived this task`,
+            time: new Date()
+        });
+
+        await task.save();
+        res.status(200).json({
+            closed: task.closed,
+            activity: task.activity[task.activity.length - 1]
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
 
 export default router;

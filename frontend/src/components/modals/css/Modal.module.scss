@@ -6,8 +6,8 @@
     z-index: 1000;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    padding-top: 10%;
+    align-items: center;
+    padding-bottom: 10%;
 
     opacity: 0;
     transition:
@@ -22,16 +22,17 @@
     }
 }
 
+.popup,
+.popover,
+.dialogue,
 .modal {
     display: flex;
     flex-direction: column;
     gap: 10px;
     background: #151515;
     border: 1px solid #333;
-    border-radius: 12px;
-    padding: 25px;
+    border-radius: 15px;
     width: 100%;
-    max-width: 450px;
 
     transform: translateY(50px) scale(0.7);
     opacity: 0;
@@ -43,4 +44,27 @@
         transform: translateY(0) scale(1);
         opacity: 1;
     }
+}
+
+.popup {
+    max-width: 450px;
+    padding: 25px;
+    top: 0%;
+}
+
+.popover {
+    max-width: 250px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.modal {
+    max-width: 450px;
+    padding: 25px;
+}
+
+.dialogue {
+    max-width: 400px;
+    padding: 0;
+    gap: 0;
 }

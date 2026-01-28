@@ -33,7 +33,8 @@ const taskSchema = new mongoose.Schema({
                 "STOPPED_TIMER",
                 "CHANGED_STATUS",
                 "UPDATED_REWARD",
-                "CHANGED_DIFFICULTY"
+                "CHANGED_DIFFICULTY",
+                "ARCHIVE_TASK"
             ], default: null
         },
     }],

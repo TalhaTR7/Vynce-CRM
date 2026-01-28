@@ -64,12 +64,11 @@ function CreateProject({ onClose }) {
     return (
         <Modal onClose={onClose}>
             {({ handleClose }) => (
-                <>
+                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }}>
                     <div className={styles.titlePane}>
                         <label>Project creation</label>
                         <img src={close_svg} onClick={handleClose} />
                     </div>
-
                     <div className={styles.meta}>
                         <div className={styles.projectImage} onClick={handleDivClick}>
                             <img src={projectImage} />
@@ -89,10 +88,10 @@ function CreateProject({ onClose }) {
                         <span>Just one click away!</span>
                         <div className={styles.content}>
                             <p>Don't worry. You can create your boards after the creation of your project.</p>
-                            <button onClick={() => submit(handleClose)}>Create project</button>
+                            <button type="submit">Create project</button>
                         </div>
                     </div>
-                </>
+                </form>
             )}
         </Modal>
     );

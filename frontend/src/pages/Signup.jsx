@@ -38,7 +38,7 @@ function Signup() {
             return;
         }
         else if (password.length < 5) {
-            toast.error("Passwords must be 8 characters long");
+            toast.error("Password must be at least 5 characters long");
             return;
         }
         else {

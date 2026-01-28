@@ -48,8 +48,9 @@
                 box-sizing: border-box;
 
                 &:-webkit-autofill {
-                    -webkit-box-shadow: 0 0 0 30px #212121 inset;
-                    color: #ccc;
+                    -webkit-box-shadow: 0 0 0 30px #212121 inset !important;
+                    -webkit-text-fill-color: #ccc !important;
+                    caret-color: #ccc !important;
                 }
 
                 &::placeholder {

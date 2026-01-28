@@ -68,7 +68,7 @@ function GeneralSettings({ project, setProject }) {
         const headers = { Authorization: `Bearer ${token}` };
         try {
             if (!projectName) {
-                toast.error("Project name required");
+                toast.error("Project name is required");
                 return;
             }
 

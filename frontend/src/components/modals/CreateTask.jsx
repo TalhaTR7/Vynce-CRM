@@ -12,7 +12,7 @@ import difficultyOff_svg from "../../assets/icons/difficultyOff.svg";
 import toast from "react-hot-toast";
 import axios from "axios";
 import styles from "./css/CreateTask.module.scss";
-import SelectDate from "../SelectDate";
+import SelectDate from "./SelectDate";
 import { useNavigate } from "react-router-dom";
 
 import angry_emoji from "../../assets/moods/angry.svg";
@@ -28,24 +28,41 @@ import chilling_emoji from "../../assets/moods/chilling.svg";
 
 function CreateTask({ onClose, project, board }) {
     const [title, setTitle] = useState("");
+    const [status, setStatus] = useState(null);
+    const [assignee, setAssignee] = useState(null);
     const [dueDate, setDueDate] = useState(null);
     const [bounty, setBounty] = useState(1);
     const [difficulty, setDifficulty] = useState(1);
     const [description, setDescription] = useState("");
-    const [members, setMembers] = useState([]);
-    const [searchValue, setSearchValue] = useState("");
 
+    const [members, setMembers] = useState([]);
+    const [boards, seBoards] = useState([]);
+    const [openDropdown, setOpenDropdown] = useState(null);
     const dropdownRef = useRef(null);
-    const [isOpen, setIsOpen] = useState(false);
-    const [assignee, setAssignee] = useState(null);
+    const [searchValue, setSearchValue] = useState("");
     const navigate = useNavigate();
 
-    const toggleDropdown = () => setIsOpen(!isOpen);
+    useEffect(() => {
+        if (board) setStatus(board);
+    }, [board]);
 
-    const handleSelect = (member) => {
+    const handleSelectAssignee = (member) => {
         setAssignee(member);
-        setIsOpen(false);
+        setOpenDropdown(null);
     };
+
+    const handleSelectStatus = (status) => {
+        setStatus(status);
+        setOpenDropdown(null);
+    };
+
+    const handleClickOutside = (e) => {
+        if (!closeOnOverlay) return;
+        if (contentRef.current && !contentRef.current.contains(e.target)) {
+            handleClose();
+        }
+    };
+
 
     useEffect(() => {
         const fetchMembers = async () => {
@@ -63,16 +80,32 @@ function CreateTask({ onClose, project, board }) {
         };
         fetchMembers();
         setAssignee(null);
-    }, [project._id]);
+
+        const fetchBoards = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/api/boards/project/${project._id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
+
+                seBoards(res.data);
+            } catch (err) {
+                console.error("Failed to fetch boards", err);
+            }
+        };
+        fetchBoards();
+    }, [project._id, board._id]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target))
-                setIsOpen(false);
+                setOpenDropdown(null);
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    }, [openDropdown]);
+
 
 
     const mood = {
@@ -104,7 +137,6 @@ function CreateTask({ onClose, project, board }) {
     };
 
     const submit = async (handleClose) => {
-        console.log(project._id, board._id, title, dueDate, bounty, difficulty, description);
         if (!title) {
             toast.error("Task title is required");
             return;
@@ -117,12 +149,13 @@ function CreateTask({ onClose, project, board }) {
         try {
             const res = await axios.post("http://localhost:5000/api/tasks/create", {
                 projectId: project._id,
-                boardId: board._id,
+                boardId: status._id,
                 title: title,
                 description: description,
                 assigneeId: assignee._id,
                 dueDate: dueDate,
-                ethereum: bounty
+                ethereum: bounty,
+                difficulty: difficulty
             }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -160,20 +193,36 @@ function CreateTask({ onClose, project, board }) {
                                 <input disabled value={project.name} />
                             </div>
                         </div>
-                        <div className={styles.board}>
+                        <div className={styles.board} ref={dropdownRef}>
                             <label>Status</label>
-                            <div className={styles.inputField}>
-                                <div className={styles.boardColor} style={{ backgroundColor: board.color }} />
-                                <input disabled value={board.name} />
+                            <div className={styles.inputField} ref={openDropdown === "status" ? dropdownRef : null} onClick={() => setOpenDropdown(openDropdown === "status" ? null : "status")}>
+                                <div className={styles.activeBoard}>
+                                    <div className={styles.boardColor} style={{ backgroundColor: status?.color }} />
+                                    <span>{status?.name}</span>
+                                </div>
+                                {
+                                    openDropdown === "status" &&
+                                    <ul className={styles.dropdown}>
+                                        {
+                                            boards.map(status => (
+                                                <li key={status._id} className={styles.option} onClick={() => handleSelectStatus(status)}>
+                                                    <div className={styles.boardColor} style={{ backgroundColor: status.color }} />
+                                                    <span>{status.name}</span>
+                                                </li>
+                                            ))
+                                        }
+                                    </ul>
+                                }
+
                             </div>
                         </div>
                     </div>
 
                     <div className={styles.taskInfo}>
                         {/* set assignee */}
-                        <div className={styles.assignee} ref={dropdownRef}>
+                        <div className={styles.assignee} ref={openDropdown === "assignee" ? dropdownRef : null}>
                             <label>Assignee</label>
-                            <div className={styles.inputField} onClick={toggleDropdown}>
+                            <div className={styles.inputField} onClick={() => { setOpenDropdown(openDropdown === "assignee" ? null : "assignee"); setSearchValue("") }}>
                                 {
                                     assignee === null &&
                                     <div className={styles.activeMember}>
@@ -192,13 +241,11 @@ function CreateTask({ onClose, project, board }) {
                                 }
                             </div>
                             {
-                                isOpen &&
+                                openDropdown === "assignee" &&
                                 <ul className={styles.dropdown}>
                                     <div className={styles.searchField}>
                                         <img src={search_svg} />
-                                        <input type="text"
-                                            placeholder="Search member"
-                                            onChange={(e) => setSearchValue(e.target.value)} />
+                                        <input type="text" placeholder="Search member" onChange={(e) => setSearchValue(e.target.value)} />
                                     </div>
                                     {
                                         members.filter(member => {
@@ -208,7 +255,7 @@ function CreateTask({ onClose, project, board }) {
                                                 || member.firstname.toLowerCase().startsWith(searchValue.toLowerCase())
                                                 || member.lastname.toLowerCase().startsWith(searchValue.toLowerCase());
                                         }).map(member => (
-                                            <li key={member._id} className={styles.option} onClick={() => handleSelect(member)}>
+                                            <li key={member._id} className={styles.option} onClick={() => handleSelectAssignee(member)}>
                                                 <div className={styles.profileImage}>
                                                     <img src={member.profileImage.url} />
                                                 </div>

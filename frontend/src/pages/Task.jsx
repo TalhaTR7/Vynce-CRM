@@ -1,8 +1,11 @@
 import favicon from "../assets/icons/favicon.svg"
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import styles from "../css/Task.module.scss";
 import back_svg from "../assets/icons/back.svg";
-import more_svg from "../assets/icons/more.svg";
+import archive_svg from "../assets/icons/archive.svg";
+import delete_svg from "../assets/icons/delete.svg";
+import check_svg from "../assets/icons/check.svg";
 import search_svg from "../assets/icons/search.svg";
 import coin_svg from "../assets/icons/coin.svg";
 import difficultyOn_svg from "../assets/icons/difficultyOn.svg";
@@ -10,11 +13,12 @@ import difficultyOff_svg from "../assets/icons/difficultyOff.svg";
 import points_svg from "../assets/icons/points.svg";
 import comment_svg from "../assets/icons/comment.svg";
 import send_svg from "../assets/icons/send.svg";
-import styles from "../css/Task.module.scss";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useModal } from "../context/ModalContext";
 import axios from "axios";
-import SelectDate from "../components/SelectDate";
+import SelectDate from "../components/modals/SelectDate";
+
 
 
 function Task() {
@@ -30,7 +34,6 @@ function Task() {
     const [title, setTitle] = useState("");
     const [editing, setEditing] = useState("");
     const [dueDate, setDueDate] = useState(null);
-    const [difficulty, setDifficulty] = useState(1);
     const [worktime, setWorktime] = useState(0);
     const [comment, setComment] = useState("");
 
@@ -39,6 +42,8 @@ function Task() {
     const [activeBoard, setActiveBoard] = useState(null);
     const [activeAssignee, setActiveAssignee] = useState(null);
     const [searchValue, setSearchValue] = useState("");
+
+    const { openModal } = useModal();
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -57,8 +62,7 @@ function Task() {
             setBoards(_boards?.data);
         };
         fetchTask();
-    }, [id]);
-
+    }, [id, openModal]);
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -80,7 +84,7 @@ function Task() {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+            if (openDropdown && dropdownRef.current && !dropdownRef.current.contains(e.target))
                 setOpenDropdown(null);
         };
         document.addEventListener("mousedown", handleClickOutside);
@@ -93,15 +97,6 @@ function Task() {
             textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
         }
     }, [description, title, editing]);
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
-                setOpenDropdown(null);
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
     useEffect(() => {
         const reassign = async () => {
@@ -183,6 +178,7 @@ function Task() {
 
     if (!task) return <p>Loading task ...</p>;
 
+
     const saveTitle = async () => {
         if (title === task.title) return;
         try {
@@ -225,6 +221,16 @@ function Task() {
                 };
             });
         }
+    };
+
+    const handleSelectAssignee = (member) => {
+        setActiveAssignee(member);
+        setOpenDropdown(null);
+    };
+
+    const handleSelectStatus = (board) => {
+        setActiveBoard(board);
+        setOpenDropdown(null);
     };
 
     const handleDueDateChange = async (date) => {
@@ -360,8 +366,26 @@ function Task() {
                                 }}
                                 onChange={(e) => setTitle(e.target.value)} />
                         )}
+                    </div>
+                    <div className={styles.buttons}>
                         {
-                            (canEdit) ? <img src={more_svg} /> : <></>
+                            canEdit && <>
+                                <button style={{ backgroundColor: "var(--green)" }}>
+                                    <img src={archive_svg} style={{ filter: "invert(1)" }} />
+                                    <span style={{ color: "#111" }}>Close</span>
+                                </button>
+                                <button style={{ backgroundColor: "var(--red)" }}>
+                                    <img src={delete_svg} />
+                                    <span style={{ color: "#fff" }}>Delete</span>
+                                </button>
+                            </>
+                        }
+                        {
+                            (task.fetcher._id === task.assignee._id) &&
+                            <button style={{ backgroundColor: "var(--blue)" }}>
+                                <img src={check_svg} style={{ filter: "invert(1)" }} />
+                                <span style={{ color: "#fff" }}>Submit</span>
+                            </button>
                         }
                     </div>
                     <div className={styles.taskDetails}>
@@ -386,7 +410,7 @@ function Task() {
                             {/* assigned reward */}
                             <div className={styles.pair}>
                                 <p className={styles.key}>Bounty</p>
-                                <div className={`${styles.value} ${canEdit ? styles.editable : ""}`}>
+                                <div className={`${styles.value} ${canEdit ? styles.editable : ""}`} onClick={() => canEdit ? openModal("SET_BOUNTY", { task: task }) : ""}>
                                     <img src={coin_svg} />
                                     <p>{task.ethereum.assigned}</p>
                                 </div>
@@ -400,12 +424,9 @@ function Task() {
                                         <p>{activeBoard.name}</p>
                                     </div>
                                     {openDropdown === "status" && (
-                                        <ul className={styles.dropdown}>
+                                        <ul className={styles.dropdown} onClick={(e) => e.stopPropagation()}>
                                             {boards.map(board => (
-                                                <li key={board._id} className={`${styles.board} ${styles.option}`} onClick={() => {
-                                                    setActiveBoard(board);
-                                                    setOpenDropdown(null);
-                                                }}>
+                                                <li key={board._id} className={`${styles.board} ${styles.option}`} onClick={() => handleSelectStatus(board)}>
                                                     <div className={styles.boardColor} style={{ backgroundColor: board.color }} />
                                                     <p>{board.name}</p>
                                                 </li>
@@ -449,10 +470,7 @@ function Task() {
                                                             || member.firstname.toLowerCase().startsWith(searchValue.toLowerCase())
                                                             || member.lastname.toLowerCase().startsWith(searchValue.toLowerCase());
                                                     }).map(member => (
-                                                        <li key={member._id} className={styles.option} onClick={() => {
-                                                            setActiveAssignee(member);
-                                                            setOpenDropdown(null);
-                                                        }}>
+                                                        <li key={member._id} className={styles.option} onClick={() => handleSelectAssignee(member)}>
                                                             <div className={styles.profileImage}>
                                                                 <img src={member.profileImage.url} />
                                                             </div>
@@ -473,8 +491,7 @@ function Task() {
                                         dueDate={dueDate}
                                         onChange={handleDueDateChange}
                                         placeholder="None"
-                                        disabled={!canEdit}
-                                    />
+                                        disabled={!canEdit} />
                                 </div>
                             </div>
                             {/* task commpletion calculated reward */}
@@ -488,7 +505,7 @@ function Task() {
                             {/* task difficulty */}
                             <div className={styles.pair}>
                                 <p className={styles.key}>Difficulty</p>
-                                <div className={`${styles.value} ${styles.stars} ${canEdit ? styles.editable : ""}`}>
+                                <div className={`${styles.value} ${styles.stars} ${canEdit ? styles.editable : ""}`} onClick={() => canEdit ? openModal("SET_DIFFICULTY", { task: task }) : ""}>
                                     {
                                         [...Array(5)].map((_, index) => (
                                             <img key={index} src={index < task.difficulty ? difficultyOn_svg : difficultyOff_svg} />
@@ -551,13 +568,13 @@ function Task() {
                                 const activityTime = `${day} ${month} ${year} at ${hours}:${minutes} ${median}`;
 
                                 if (activity.type === "ACTION") return (
-                                    <div className={styles.action}>
+                                    <div className={styles.action} key={activity._id}>
                                         <p className={styles.content}>{activity.content}</p>
                                         <p className={styles.timestamp}>{activityTime}</p>
                                     </div>
                                 )
                                 else return (
-                                    <div className={styles.comment}>
+                                    <div className={styles.comment} key={activity._id}>
                                         <div className={styles.commentInfo}>
                                             <div className={styles.commenter}>
                                                 <div className={styles.profileImage}>

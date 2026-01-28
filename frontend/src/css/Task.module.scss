@@ -59,7 +59,7 @@
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            margin: 30px 0;
+            margin-top: 20px;
             cursor: default;
 
             .title {
@@ -85,19 +85,44 @@
                 overflow: hidden;
                 cursor: text;
             }
+        }
 
-            img {
-                width: 27px;
-                margin: auto 50px;
-                padding: 20px;
+        .buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin: 5px 10px;
+            margin-bottom: 30px;
+
+            button {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 5px;
+                padding: 3px 5px;
+                width: 90px;
+                border: none;
+                border-radius: 7px;
                 cursor: pointer;
-                opacity: 0.7;
-                user-select: none;
 
-                &:hover {
-                    opacity: 1;
+                img {
+                    width: 20px;
+                    user-select: none;
+                    pointer-events: none;
+                }
+
+                span {
+                    font: 14px Roboto;
+                    margin: 0;
+                    margin-top: 1px;
+                    user-select: none;
+                }
+
+                &:hover, &:active {
+                    filter: brightness(1.1);
                 }
             }
+
         }
 
         .taskDetails {
@@ -149,6 +174,7 @@
                                 height: 100%;
                                 object-fit: cover;
                                 display: block;
+                                pointer-events: none;
                             }
                         }
 

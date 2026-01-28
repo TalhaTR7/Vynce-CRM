@@ -93,12 +93,9 @@
         }
     }
 
-    .project,
-    .board {
-        .inputField {
-            background-color: #212121;
-            border: 1px solid transparent;
-        }
+    .project .inputField {
+        background-color: #212121;
+        border: 1px solid transparent;
     }
 
     .assignee,
@@ -160,6 +157,91 @@
     border-radius: 8px;
     padding: 10px;
     cursor: pointer;
+}
+
+.board {
+    position: relative;
+
+    .inputField {
+        background-color: transparent;
+        outline: 1px solid #555;
+        height: 31px;
+
+        &:hover {
+            background-color: #222;
+        }
+
+        .activeBoard {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 7px;
+            width: 100%;
+            position: relative;
+            padding: 3px 0px;
+            cursor: pointer;
+
+            .boardColor {
+                width: 10px;
+                height: 10px;
+            }
+
+            span {
+                font: 16px Roboto;
+                color: #ccc;
+                user-select: none;
+                max-width: 140px;
+                margin: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+
+    .dropdown {
+        position: absolute;
+        top: 75%;
+        width: 80%;
+        left: 0;
+        background-color: #212121;
+        border: 1px solid #353535;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        list-style: none;
+        padding: 5px 0;
+        z-index: 1000;
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            margin: 0px 3px;
+            border-radius: 7px;
+            gap: 7px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #333;
+            }
+
+            .boardColor {
+                width: 10px;
+                height: 10px;
+            }
+
+            span {
+                font: 16px Roboto;
+                color: #ccc;
+                user-select: none;
+                max-width: 130px;
+                margin: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
 }
 
 .assignee {
@@ -276,7 +358,6 @@
             border-radius: 7px;
             gap: 7px;
             cursor: pointer;
-            transition: background 0.2s;
 
             &:hover {
                 background-color: #333;

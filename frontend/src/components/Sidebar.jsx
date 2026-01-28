@@ -66,6 +66,7 @@ function Sidebar() {
                 <Link to={"/inbox"} className={styles.homeElements}>
                     <img src={inbox_svg} />
                     <p>Inbox</p>
+                    <span></span>
                 </Link>
                 <Link to={"/leaderboards"} className={styles.homeElements}>
                     <img src={leaderboard_svg} />
@@ -109,10 +110,10 @@ function Sidebar() {
                     <p>Create project</p>
                 </button>
             </div>
-            <button className={styles.shop}>
+            <Link className={styles.shop} to={"/settings/user"}>
                 <img src={shop_svg} />
                 <p>Shop</p>
-            </button>
+            </Link>
         </aside>
     )
 }

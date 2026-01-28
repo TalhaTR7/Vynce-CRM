@@ -1,5 +1,5 @@
 import Modal from "./Modal";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./css/CreateBoard.module.scss";
 import close_svg from "../../assets/icons/close.svg";
 import toast from "react-hot-toast";
@@ -59,7 +59,7 @@ function CreateBoard({ onClose, project }) {
     return (
         <Modal onClose={onClose}>
             {({ handleClose }) => (
-                <>
+                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }}>
                     <div className={styles.titlePane}>
                         <label>Board creation</label>
                         <img src={close_svg} onClick={handleClose} />
@@ -94,9 +94,9 @@ function CreateBoard({ onClose, project }) {
                                 <p>{project.name}</p>
                             </div>
                         </div>
-                        <button onClick={() => submit(handleClose)}>Create board</button>
+                        <button type="submit">Create board</button>
                     </div>
-                </>
+                </form>
             )}
         </Modal>
     );
