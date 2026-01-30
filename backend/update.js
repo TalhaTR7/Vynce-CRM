@@ -12,10 +12,10 @@ const update = async () => {
     const result = await mongoose.connection.db
       .collection("tasks")
       .updateMany(
-        { closed: { $exists: false } },
+        { isRewarded: { $exists: false } },
         {
           $set: {
-            closed: false
+            isRewarded: false
           }
         }
       );

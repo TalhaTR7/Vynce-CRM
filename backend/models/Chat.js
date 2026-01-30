@@ -1,8 +1,14 @@
 import mongoose from 'mongoose';
 
 const chatSchema = new mongoose.Schema({
-    userId1: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    userId2: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user1: {
+        _id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        isActive: { type: Boolean, default: false }
+    },
+    user2: {
+        _id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        isActive: { type: Boolean, default: false }
+    },
 },
     { timestamps: true }
 );

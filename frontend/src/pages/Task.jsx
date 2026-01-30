@@ -293,7 +293,6 @@ function Task() {
     };
 
     const canEdit = task.fetcher.role === "OWNER" || task.fetcher.role === "ADMIN";
-    const isAuthorized = canEdit || task.fetcher._id === task.assignee._id;
 
     const saveDescription = async () => {
         if (description === task.description) return;
@@ -370,11 +369,11 @@ function Task() {
                     <div className={styles.buttons}>
                         {
                             canEdit && <>
-                                <button style={{ backgroundColor: "var(--green)" }}>
+                                <button style={{ backgroundColor: "var(--green)" }} onClick={() => openModal("CLOSE_TASK")}>
                                     <img src={archive_svg} style={{ filter: "invert(1)" }} />
                                     <span style={{ color: "#111" }}>Close</span>
                                 </button>
-                                <button style={{ backgroundColor: "var(--red)" }}>
+                                <button style={{ backgroundColor: "var(--red)" }} onClick={() => openModal("DELETE_TASK")}>
                                     <img src={delete_svg} />
                                     <span style={{ color: "#fff" }}>Delete</span>
                                 </button>
@@ -382,7 +381,7 @@ function Task() {
                         }
                         {
                             (task.fetcher._id === task.assignee._id) &&
-                            <button style={{ backgroundColor: "var(--blue)" }}>
+                            <button style={{ backgroundColor: "var(--blue)" }} onClick={() => openModal("SUBMIT_TASK")}>
                                 <img src={check_svg} style={{ filter: "invert(1)" }} />
                                 <span style={{ color: "#fff" }}>Submit</span>
                             </button>
@@ -418,7 +417,7 @@ function Task() {
                             {/* task status */}
                             <div className={styles.pair}>
                                 <p className={styles.key}>Status</p>
-                                <div className={`${styles.value} ${styles.boards}`} ref={dropdownRef} onClick={() => { if (isAuthorized) setOpenDropdown(openDropdown === "status" ? null : "status") }} style={{ pointerEvents: isAuthorized ? "" : "none" }}>
+                                <div className={`${styles.value} ${styles.boards}`} ref={dropdownRef} onClick={() => setOpenDropdown(openDropdown === "status" ? null : "status")}>
                                     <div className={styles.board} style={{ backgroundColor: openDropdown === "status" ? "#181818" : "" }}>
                                         <div className={styles.boardColor} style={{ backgroundColor: activeBoard.color }} />
                                         <p>{activeBoard.name}</p>

@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 import authMiddleware from "../middleware/auth.js";
 import User from "../models/User.js";
 import Task from "../models/Task.js";
+import Archived from "../models/Archived.js";
 import Membership from "../models/Membership.js";
-import Project from "../models/Project.js";
-import Chat from "../models/Chat.js";
+import Notification from "../models/Notification.js";
 import createUploader from "../middleware/multer.js";
 
 const router = express.Router();
@@ -23,48 +23,40 @@ function formatImage(image) {
 }
 
 
-// get all users
-router.get("/", authMiddleware, async (req, res) => {
-  try {
-    let users = await User.find().select("-passwordHash");
-
-    users = users.map(user => {
-      const userObj = user.toObject();
-      userObj.profileImage.url = userObj.profileImage.url.startsWith("/assets")
-        ? userObj.profileImage.url
-        : `http://localhost:${process.env.PORT}/api${userObj.profileImage.url}`;
-      return userObj;
-    });
-
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ msg: err.message });
-  }
-});
-
 // get logged in user
 router.get("/user", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-passwordHash");
-    user.profileImage.url = user.profileImage.url.startsWith("/assets")
-      ? user.profileImage.url
-      : `http://localhost:${process.env.PORT}/api${user.profileImage.url}`
-    if (!user) return res.status(404).json({ msg: "User not found" });
+    user.profileImage = formatImage(user.profileImage);
+    if (!user) return res.status(404).json({ msg: "User couldn't found" });
     res.json(user);
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 });
 
+
 // get user by id
-router.get("/:userId", authMiddleware, async (req, res) => {
+router.get("/id/:userId", authMiddleware, async (req, res) => {
   const { userId } = req.params;
   try {
     const user = await User.findById(userId).select("-passwordHash");
-    if (!user) return res.status(404).json({ msg: "User not found" });
-    user.profileImage.url = user.profileImage.url.startsWith("/assets")
-      ? user.profileImage.url
-      : `http://localhost:${process.env.PORT}/api${user.profileImage.url}`
+    if (!user) return res.status(404).json({ msg: "User couldn't found" });
+    user.profileImage = formatImage(user.profileImage);
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+});
+
+
+// get user by email
+router.get("/email/:email", authMiddleware, async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await User.findOne({ email }).select("-passwordHash");
+    if (!user) return res.status(404).json({ msg: "User couldn't found" });
+    user.profileImage = formatImage(user.profileImage);
     res.json(user);
   } catch (err) {
     res.status(500).json({ msg: err.message });
@@ -98,6 +90,7 @@ router.patch("/user", authMiddleware, imageUpload.single("image"), async (req, r
 });
 
 
+// change password
 router.patch("/user/change-password", authMiddleware, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   try {
@@ -133,27 +126,73 @@ router.patch("/user/change-password", authMiddleware, async (req, res) => {
 });
 
 
+// delete user
 router.delete("/user", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: "User not found" });
 
-
-    const userMemberships = await Membership.find({
+    const ownerMemberships = await Membership.find({
       userId: req.user.id,
       role: "OWNER"
-    });
+    }).select("projectId");
 
-    if (userMemberships.length > 0) {
+    if (ownerMemberships.length > 0) {
       return res.status(400).json({
         msg: "Delete your projects or transfer their ownerships",
-        userProjectIds: userMemberships.map(membership => membership.projectId)
+        projectIds: ownerMemberships.map(membership => membership.projectId)
       });
     }
 
+    const memberships = await Membership.find({
+      userId: req.user.id,
+      role: { $in: ["ADMIN", "MEMBER"] }
+    }).select("projectId");
+
+    const recepientIds = new Set();
+
+    for (const membership of memberships) {
+      const members = await Membership.find({
+        projectId: membership.projectId,
+        userId: { $ne: req.user.id }
+      }).select("userId");
+      members.forEach(member => recepientIds.add(member.userId.toString()));
+    }
+
+    const tasks = await Task.find({ assigneeId: req.user.id });
+
+    if (tasks.length > 0) {
+      const archives = tasks.map(task => {
+        const archived = task.toObject();
+        delete archived._id;
+
+        archived.closed = true;
+        archived.dueDate = null;
+        archived.boardId = null;
+        archived.assigneeId = null;
+        archived.ethereum.assigned = 0;
+
+        return archived;
+      });
+
+      await Archived.insertMany(archives);
+      await Task.deleteMany({ assigneeId: req.user.id });
+    }
+
     await Membership.deleteMany({ userId: req.user.id });
-    await Task.deleteMany({ assigneeId: req.user.id });
+    // deleting his projects won't matter since user is forced
+    // to delete owned projects first before deleting account
     await User.findByIdAndDelete(req.user.id);
+
+    if (recepientIds.size > 0) {
+      await Notification.create({
+        userIds: Array.from(recepientIds),
+        type: "DELETED_ACCOUNT",
+        icon: { type: "USER", refId: user._id, url: formatImage(user.profileImage).url },
+        title: `${user.firstname} ${user.lastname} deleted their account. Their tasks have been archived.`,
+        action: { type: "MESSAGE" }
+      })
+    }
 
     res.status(200).json({ msg: "Account deleted successfully" });
   } catch (err) {
@@ -161,7 +200,6 @@ router.delete("/user", authMiddleware, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 
 export default router;

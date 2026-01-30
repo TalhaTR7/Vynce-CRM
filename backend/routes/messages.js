@@ -43,12 +43,10 @@ router.get("/user", authMiddleware, async (req, res) => {
 });
 
 // start/continue a chat
-router.post("/:userId", authMiddleware, async (req, res) => {
+router.post("/user/:userId", authMiddleware, async (req, res) => {
     const senderId = req.user.id;
     const receiverId = req.params.userId;
     const { content } = req.body;
-
-    if (!content) return res.status(400).json({ msg: "Message content is required" });
 
     if (senderId === receiverId)
         return res.status(400).json({ msg: "Cannot chat with yourself" });
@@ -66,26 +64,31 @@ router.post("/:userId", authMiddleware, async (req, res) => {
             await chat.save();
         }
 
-        const message = await Message.create({
-            chatId: chat._id,
-            senderId,
-            content
-        });
-
-        await message.populate("senderId", "firstname lastname profileImage");
-
-        const sender = message.senderId.toObject();
-        sender.profileImage = formatProfileImage(sender.profileImage);
+        let message = null;
+        if (content) {
+            message = await Message.create({
+                chatId: chat._id,
+                senderId,
+                content
+            });
+            await message.populate("senderId", "firstname lastname profileImage");
+        }
 
         res.status(201).json({
             chat,
-            message: {
+            message: message ? {
                 _id: message._id,
                 content: message.content,
                 createdAt: message.createdAt,
                 isMine: true,
-                sender
+                sender: {
+                    _id: message.senderId._id.toString(),
+                    firstname: message.senderId.firstname,
+                    lastname: message.senderId.lastname,
+                    profileImage: formatProfileImage(message.senderId.profileImage)
+                }
             }
+                : null
 
         });
     } catch (err) {
@@ -95,7 +98,7 @@ router.post("/:userId", authMiddleware, async (req, res) => {
 
 
 // get specific user chat data
-router.get("/:chatId", authMiddleware, async (req, res) => {
+router.get("/chat/:chatId", authMiddleware, async (req, res) => {
     const { chatId } = req.params;
 
     try {
@@ -137,6 +140,23 @@ router.get("/:chatId", authMiddleware, async (req, res) => {
         res.status(500).json({ msg: err.message });
     }
 });
+
+
+// delete empty chats
+router.delete("/chat/:chatId/empty-chat", authMiddleware, async (req, res) => {
+  const { chatId } = req.params;
+  try {
+    const messages = await Message.find({ chatId });
+    if (messages.length === 0) {
+      await Chat.findByIdAndDelete(chatId);
+      return res.status(200).json({ msg: "Empty chat deleted" });
+    }
+    res.status(200).json({ msg: "Chat not empty, not deleted" });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+});
+
 
 
 export default router;

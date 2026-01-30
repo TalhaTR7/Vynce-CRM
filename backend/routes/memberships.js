@@ -64,8 +64,9 @@ router.get("/project/:id", authMiddleware, async (req, res) => {
 
 
 // make a membership
-router.post("/create", authMiddleware, async (req, res) => {
-    const { projectId, role } = req.body;
+router.post("/project/:projectId", authMiddleware, async (req, res) => {
+    const { projectId } = req.params;
+    const { role } = req.body;
     const userId = req.user.id;
 
     if (!projectId || !role)

@@ -100,6 +100,7 @@ function GeneralSettings({ project, setProject }) {
                 }
             }));
             setFile(null);
+            toast.success("Changes saved!");
         } catch (err) {
             console.error(err);
         }

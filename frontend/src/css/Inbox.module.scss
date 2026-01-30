@@ -8,7 +8,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        padding: 25px 40px;
+        padding: 25px 0;
         overflow-y: hidden;
 
         .inboxPane {
@@ -16,12 +16,12 @@
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
+            margin: 0 40px;
 
             .selectAll {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                gap: 10px;
                 padding: 10px 0;
                 user-select: none;
                 cursor: pointer;
@@ -69,16 +69,20 @@
                 border-radius: 5px;
                 background-color: transparent;
                 border: 1px solid #777;
-                opacity: 0.5;
                 cursor: pointer;
+                opacity: 0.7;
                 user-select: none;
 
+                img {
+                    height: 15px
+                }
+
                 &:hover {
-                    opacity: 0.7;
+                    opacity: 1;
                 }
 
                 &:active {
-                    opacity: 0.8;
+                    opacity: 1;
                 }
             }
 
@@ -118,8 +122,8 @@
                 }
             }
 
-            p {
-                font: 16px Roboto;
+            .range {
+                font: 14px Roboto;
                 color: #999;
                 margin: 0;
             }
@@ -143,8 +147,163 @@
                 }
 
             }
+        }
 
+        .list {
+            display: flex;
+            flex-direction: column;
+            padding: 40px 0;
+            width: 100%;
+            box-sizing: border-box;
 
+            .mail {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 20px;
+                padding: 12px 18px;
+                margin: 0 30px;
+                border-bottom: 1px solid #333;
+                cursor: pointer;
+                text-decoration: none;
+
+                &:first-child {
+                    border-top: 1px solid #333;
+                }
+
+                &:hover {
+                    background-color: #212121;
+                    border-bottom-color: transparent;
+                    border-top-color: transparent;
+                    border-radius: 10px;
+
+                    .time {
+                        visibility: visible;
+                    }
+                }
+
+                &:has(+ .mail:hover) {
+                    border-bottom-color: transparent;
+                }
+
+                .checkbox {
+                    appearance: none;
+                    display: grid;
+                    place-content: center;
+                    width: 14px;
+                    height: 14px;
+                    flex: 0 0 16px;
+                    min-width: 14px;
+                    max-width: 14px;
+
+                    border: 1px solid #555;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    background-color: transparent;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+
+                    &:checked {
+                        background-color: var(--green);
+                        border-color: var(--green);
+                        outline: none;
+
+                        &::before {
+                            content: "";
+                            display: block;
+                            width: 14px;
+                            height: 14px;
+                            background-image: url("../assets/icons/check.svg");
+                            background-size: contain;
+                            background-repeat: no-repeat;
+                            background-position: center;
+                        }
+                    }
+                }
+
+                .icon {
+                    width: 45px;
+                    height: 45px;
+                    overflow: hidden;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: contain;
+                        display: block;
+                        user-select: none;
+                    }
+                }
+
+                ._project {
+                    border-radius: 20%;
+                }
+
+                ._user {
+                    border-radius: 50%;
+                }
+
+                .info {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    gap: 5px;
+                    width: 80%;
+
+                    .meta {
+                        font: 14px Roboto;
+                        color: #777;
+                        margin: 0;
+                    }
+
+                    .title {
+                        font: 18px Roboto;
+                        color: #ccc;
+                        margin: 0;
+                        text-align: left;
+                        user-select: none;
+                    }
+                }
+
+                .time {
+                    margin: 0 auto;
+                    flex: 1;
+                    text-align: right;
+                    padding: 0 20px;
+                    font: 16px Roboto;
+                    color: #777;
+                    visibility: hidden;
+                    pointer-events: none;
+                    user-select: none;
+                    margin: 0;
+                }
+            }
+        }
+
+        .emptyInbox {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 15% auto;
+            pointer-events: none;
+            user-select: none;
+
+            img {
+                width: 200px;
+                opacity: 0.2;
+            }
+
+            p {
+                font: 18px Roboto;
+                color: #777;
+                margin: 0;
+                width: 60%;
+                text-align: center;
+                line-height: 1.5;
+            }
         }
     }
 }

@@ -56,13 +56,6 @@ function CreateTask({ onClose, project, board }) {
         setOpenDropdown(null);
     };
 
-    const handleClickOutside = (e) => {
-        if (!closeOnOverlay) return;
-        if (contentRef.current && !contentRef.current.contains(e.target)) {
-            handleClose();
-        }
-    };
-
 
     useEffect(() => {
         const fetchMembers = async () => {
@@ -105,8 +98,6 @@ function CreateTask({ onClose, project, board }) {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [openDropdown]);
-
-
 
     const mood = {
         ANGRY: angry_emoji,

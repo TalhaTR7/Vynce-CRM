@@ -92,6 +92,7 @@ function GeneralSettings({ user, setUser }) {
                 }
             }));
             setFile(null);
+            toast.success("Changes saved!");
         } catch (err) {
             console.error(err);
         }

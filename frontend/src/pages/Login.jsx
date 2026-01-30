@@ -33,6 +33,7 @@ function Login() {
                 email, password
             });
             localStorage.setItem("token", data.token);
+            localStorage.setItem("_id", data.user._id);
             toast.success("Login successful:", data);
             navigate("/dashboard");
         } catch (err) {
@@ -63,12 +64,10 @@ function Login() {
                             className={styles.inputField}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)} />
-                        <span
-                            className={styles.eyeIcon}
+                        <span className={styles.eyeIcon}
                             onClick={() => setShowPassword((prev) => !prev)}
                             role="button"
                             aria-label={showPassword ? "Hide password" : "Show password"} >
-
                             <img src={showPassword ? show_svg : hide_svg} />
                         </span>
                     </div>

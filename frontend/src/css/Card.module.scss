@@ -1,5 +1,5 @@
 .card {
-    width: 350px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -7,19 +7,18 @@
     padding: 10px;
     box-sizing: border-box;
     border-radius: 10px;
-    cursor: pointer;
+    position: relative;
     transition: background-color 0.1s;
-
-    &:hover {
-        background-color: #202020;
-    }
 
     &:active {
         cursor: grab;
     }
 
+    &:has(.title:hover) {
+        background-color: #212121;
+    }
+
     .projectInfo {
-        all: unset;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -33,7 +32,6 @@
             user-select: none;
 
             img {
-                all: unset;
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
@@ -56,6 +54,13 @@
         color: #ccc;
         margin: 5px 0;
         line-height: 1.5;
+        cursor: pointer;
+        width: fit-content;
+        text-decoration: none;
+
+        &:hover {
+            color: #ddd;
+        }
     }
 
     .taskDetails {

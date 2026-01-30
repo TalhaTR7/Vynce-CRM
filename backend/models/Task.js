@@ -17,6 +17,8 @@ const taskSchema = new mongoose.Schema({
     worktime: { type: Number, default: 0 },
     motivation: { type: Number, default: 0 },
     isTimerRunning: { type: Boolean, default: false },
+    isSubmitted: { type: Boolean, default: false },
+    isRewarded: { type: Boolean, default: false },
     activity: [{
         type: { type: String, enum: ["ACTION", "COMMENT"], required: true },
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -24,17 +26,21 @@ const taskSchema = new mongoose.Schema({
         content: { type: String, default: "" },
         action: {
             type: String, enum: [
-                "CREATED_TASK",
-                "CHANGED_TITLE",
-                "CHANGED_ASSIGNEE",
-                "CHANGED_DESCRIPTION",
-                "CHANGED_DUE_DATE",
-                "STARTED_TIMER",
-                "STOPPED_TIMER",
-                "CHANGED_STATUS",
-                "UPDATED_REWARD",
-                "CHANGED_DIFFICULTY",
-                "ARCHIVE_TASK"
+                "CREATED_TASK", // on task creation; creator
+                "CHANGED_TITLE", // on title edit; admin, owner
+                "CHANGED_ASSIGNEE", // on assignee change; admin, owner
+                "CHANGED_DESCRIPTION", // on description edit; admin, owner
+                "CHANGED_DUE_DATE", // on due date edit; admin, owner
+                "STARTED_TIMER", // on timer start; assignee
+                "STOPPED_TIMER", // on timer stop; assignee
+                "CHANGED_STATUS", // on board move/change; assignee, admin, owner
+                "UPDATED_REWARD", // on bounty edit; admin, owner
+                "CHANGED_DIFFICULTY", // on difficulty change; admin, owner
+                "TASK_DELETED", // on task deletion; creator
+                "TASK_CLOSED", // on task closure and assignee reward; creator
+                "TASK_RESTORED", // on task restoration; admin, owner
+                "TASK_SUBMITTED", // on task submission; assignee
+                "TASK_REASSIGNED" // on task reassignment; creator
             ], default: null
         },
     }],

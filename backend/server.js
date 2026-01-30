@@ -8,7 +8,12 @@ import projectRoutes from "./routes/projects.js";
 import memberRoutes from "./routes/memberships.js";
 import boardRoutes from "./routes/boards.js";
 import taskRoutes from "./routes/tasks.js";
+import archiveRoutes from "./routes/archives.js";
 import messageRoutes from "./routes/messages.js";
+import mailRoutes from "./routes/inbox.js";
+import "./cron/taskDueNotifications.js";
+import "./cron/cleanupNotifications.js";
+
 
 dotenv.config();
 const app = express();
@@ -22,11 +27,13 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/memberships", memberRoutes);
 app.use("/api/boards", boardRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/archives", archiveRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/inbox", mailRoutes);
 app.use("/api/uploads", express.static("uploads"));
 
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB connected"))
-.catch(err => console.error("MongoDB connection error:", err));
+    .then(() => console.log("MongoDB connected"))
+    .catch(err => console.error("MongoDB connection error:", err));
 
 app.listen(process.env.PORT, () => console.log(`Server running on ${process.env.PORT}`));

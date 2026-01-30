@@ -5,8 +5,13 @@ import Project from "../models/Project.js";
 import Membership from "../models/Membership.js";
 import Board from "../models/Board.js";
 import Task from "../models/Task.js";
+import Notification from "../models/Notification.js";
 
 const router = express.Router();
+
+function recipients(ids) {
+  return ids.map(id => ({ _id: id }));
+}
 
 function formatImage(image) {
     const url = image?.url;
@@ -28,6 +33,7 @@ router.post("/create", authMiddleware, async (req, res) => {
     } = req.body;
 
     try {
+        // validations and checks
 
         if (!projectId || !boardId || !title || !assigneeId)
             return res.status(400).json({ msg: "projectId, boardId, title, and assigneeId are required" });
@@ -64,6 +70,8 @@ router.post("/create", authMiddleware, async (req, res) => {
 
         if (!membership) return res.status(403).json({ msg: "Assignee is not a member of this project" });
 
+        // actual creation
+
         const setReward = Math.max(1, Number(ethereum) || 1);
         const multiplier = {
             ANGRY: 2,
@@ -93,6 +101,7 @@ router.post("/create", authMiddleware, async (req, res) => {
             difficulty: difficulty,
             worktime: 0,
             motivation: 0,
+            // create an activity
             activity: [{
                 type: "ACTION",
                 userId: creatorId,
@@ -100,6 +109,23 @@ router.post("/create", authMiddleware, async (req, res) => {
                 content: `${creator.firstname} ${creator.lastname} created this task`
             }]
         });
+
+        // make notification
+        if (assigneeId !== req.user.id) {
+            await Notification.create({
+                userIds: recipients([assigneeId]),
+                type: "TASK_ASSIGNED",
+                icon: {
+                    type: "PROJECT",
+                    refId: projectId
+                },
+                title: `${creator.firstname} ${creator.lastname} assigned you a new task: ${title}`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
 
         res.status(201).json(task);
     } catch (err) {
@@ -268,16 +294,33 @@ router.patch("/task/:taskId/editTitle", authMiddleware, async (req, res) => {
 
         task.title = title;
 
-        const user = await User.findById(req.user.id).select("firstname lastname");
+        const editor = await User.findById(req.user.id).select("firstname lastname");
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
             action: "CHANGED_TITLE",
-            content: `${user.firstname} ${user.lastname} changed the title`,
+            content: `${editor.firstname} ${editor.lastname} changed the title`,
             time: new Date()
         });
 
         await task.save();
+
+        if (!task.assigneeId.equals(task.creatorId)) {
+            await Notification.create({
+                userIds: [task.assigneeId],
+                type: "EDIT_TASK",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `${editor.firstname} ${editor.lastname} edited the task. Click to view changes!`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
+
         res.status(200).json({
             title: task.title,
             activity: task.activity[task.activity.length - 1]
@@ -297,7 +340,11 @@ router.patch("/task/:taskId/reassign", authMiddleware, async (req, res) => {
         const task = await Task.findById(taskId);
         if (!task) return res.status(404).json({ msg: "Task not found" });
 
-        const membership = await Membership.findOne({ userId: assigneeId }).select("userId");
+        const membership = await Membership.findOne({
+            userId: assigneeId,
+            projectId: task.projectId
+        }).select("userId");
+
         if (!membership) return res.status(404).json({
             msg: "User is either not a member, or doesn't exist"
         });
@@ -316,6 +363,24 @@ router.patch("/task/:taskId/reassign", authMiddleware, async (req, res) => {
         });
 
         task.assigneeId = assigneeId;
+
+
+        if (assigneeId !== req.user.id) {
+            await Notification.create({
+                users: recipients([task.assigneeId]),
+                type: "TASK_REASSIGNED",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `${user.firstname} ${user.lastname} reassigned you a task: ${task.title}`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
+
         await task.save();
 
         res.status(200).json({
@@ -355,21 +420,38 @@ router.patch("/task/:taskId/editDueDate", authMiddleware, async (req, res) => {
         if (task.dueDate && new Date(task.dueDate).getTime() === new Date(dueDate).getTime())
             return res.status(200).json({ msg: "No change" });
 
-        const user = await User.findById(req.user.id).select("firstname lastname");
+        const editor = await User.findById(req.user.id).select("firstname lastname");
         const hadDueDate = !!task.dueDate;
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
             action: "CHANGED_DUE_DATE",
             content: !hadDueDate
-                ? `${user.firstname} ${user.lastname} set the due date to ${formatDueDate(dueDate)}`
-                : !dueDate ? `${user.firstname} ${user.lastname} removed the due date`
-                    : `${user.firstname} ${user.lastname} updated the due date from ${formatDueDate(task.dueDate)} to ${formatDueDate(dueDate)}`,
+                ? `${editor.firstname} ${editor.lastname} set a due date of ${formatDueDate(dueDate)}`
+                : !dueDate ? `${editor.firstname} ${editor.lastname} removed the due date`
+                    : `${editor.firstname} ${editor.lastname} moved the due date from ${formatDueDate(task.dueDate)} to ${formatDueDate(dueDate)}`,
             time: new Date()
         });
 
         task.dueDate = dueDate;
         await task.save();
+
+        if (!task.assigneeId.equals(task.creatorId)) {
+            await Notification.create({
+                userIds: [task.assigneeId],
+                type: "EDIT_TASK",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `${editor.firstname} ${editor.lastname} edited the task. Click to view changes!`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
+
         res.status(200).json({
             dueDate: task.dueDate,
             activity: task.activity[task.activity.length - 1]
@@ -398,18 +480,34 @@ router.patch("/task/:taskId/changeStatus", authMiddleware, async (req, res) => {
         if (task.boardId._id.equals(boardId))
             return res.status(200).json({ msg: "No change" });
 
-        const user = await User.findById(req.user.id).select("firstname lastname");
+        const editor = await User.findById(req.user.id).select("firstname lastname");
 
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
             action: "CHANGED_STATUS",
-            content: `${user.firstname} ${user.lastname} changed the status from ${task.boardId.name} to ${newBoard.name}`,
+            content: `${editor.firstname} ${editor.lastname} changed the status from ${task.boardId.name} to ${newBoard.name}`,
             time: new Date()
         });
 
         task.boardId = boardId;
         await task.save();
+
+        if (!task.assigneeId.equals(task.creatorId)) {
+            await Notification.create({
+                userIds: [task.assigneeId],
+                type: "EDIT_TASK",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `${editor.firstname} ${editor.lastname} edited the task. Click to view changes!`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
 
         res.status(200).json({
             board: newBoard,
@@ -419,6 +517,7 @@ router.patch("/task/:taskId/changeStatus", authMiddleware, async (req, res) => {
         res.status(500).json({ msg: err.message });
     }
 });
+
 
 // start timer
 router.patch("/task/:taskId/startTimer", authMiddleware, async (req, res) => {
@@ -524,16 +623,33 @@ router.patch("/task/:taskId/changeBounty", authMiddleware, async (req, res) => {
         task.ethereum.assigned = setReward;
         task.ethereum.calculated = calculatedReward;
 
-        const user = await User.findById(req.user.id).select("firstname lastname");
+        const editor = await User.findById(req.user.id).select("firstname lastname");
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
             action: "UPDATED_REWARD",
-            content: `${user.firstname} ${user.lastname} updated the bounty`,
+            content: `${editor.firstname} ${editor.lastname} updated the bounty`,
             time: new Date()
         });
 
         await task.save();
+
+        if (!task.assigneeId.equals(task.creatorId)) {
+            await Notification.create({
+                userIds: [task.assigneeId],
+                type: "EDIT_TASK",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `${editor.firstname} ${editor.lastname} edited the task. Click to view changes!`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
+
         res.status(200).json({
             ethereum: task.ethereum,
             activity: task.activity[task.activity.length - 1]
@@ -555,16 +671,33 @@ router.patch("/task/:taskId/changeDifficulty", authMiddleware, async (req, res) 
 
         task.difficulty = difficulty;
 
-        const user = await User.findById(req.user.id).select("firstname lastname");
+        const editor = await User.findById(req.user.id).select("firstname lastname");
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
             action: "CHANGED_DIFFICULTY",
-            content: `${user.firstname} ${user.lastname} changed the difficulty`,
+            content: `${editor.firstname} ${editor.lastname} changed the difficulty`,
             time: new Date()
         });
 
         await task.save();
+
+        if (!task.assigneeId.equals(task.creatorId)) {
+            await Notification.create({
+                userIds: [task.assigneeId],
+                type: "EDIT_TASK",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `${editor.firstname} ${editor.lastname} edited the task. Click to view changes!`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
+
         res.status(200).json({
             difficulty: task.difficulty,
             activity: task.activity[task.activity.length - 1]
@@ -586,16 +719,33 @@ router.patch("/task/:taskId/editDescription", authMiddleware, async (req, res) =
 
         task.description = description;
 
-        const user = await User.findById(req.user.id).select("firstname lastname");
+        const editor = await User.findById(req.user.id).select("firstname lastname");
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
             action: "CHANGED_DESCRIPTION",
-            content: `${user.firstname} ${user.lastname} made changes to the description`,
+            content: `${editor.firstname} ${editor.lastname} made changes to the description`,
             time: new Date()
         });
 
         await task.save();
+
+        if (!task.assigneeId.equals(task.creatorId)) {
+            await Notification.create({
+                userIds: [task.assigneeId],
+                type: "EDIT_TASK",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `${editor.firstname} ${editor.lastname} edited the task. Click to view changes!`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
+
         res.status(200).json({
             description: task.description,
             activity: task.activity[task.activity.length - 1]
@@ -644,6 +794,26 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
         response.user = response.userId;
         response.userId = undefined;
 
+        // make notification
+
+        const commentor = await User
+            .findById(req.user.id)
+            .select("firstname lastname");
+
+        await Notification.create({
+            users: commentor._id.equals(task.assigneeId) ? [task.creatorId] : [task.assigneeId],
+            type: "COMMENT",
+            icon: {
+                type: "PROJECT",
+                refId: task.projectId
+            },
+            title: `${commentor.firstname} ${commentor.lastname} added a comment. Click to view!`,
+            action: {
+                type: "NAVIGATE",
+                url: `/task/${task._id}`
+            },
+        })
+
         res.status(200).json({
             comment,
             activity: response
@@ -654,34 +824,61 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
 });
 
 
-// close or delete a task
-router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
+// submit a task
+router.patch("/task/:taskId/submit", authMiddleware, async (req, res) => {
     const { taskId } = req.params;
 
     try {
         const task = await Task.findById(taskId);
         if (!task) return res.status(404).json({ msg: "Task not found" });
 
-        task.closed = true;
-        task.dueDate = null;
+        if (!task.assigneeId.equals(req.user.id))
+            return res.status(403).json({ msg: "Unauthorized for submission" });
 
-        const user = await User.findById(req.user.id).select("firstname lastname");
+        if (task.isSubmitted)
+            return res.status(400).json({ msg: "Task already submitted" });
+
+        task.isSubmitted = true;
+
+        const assignee = await User
+            .findById(req.user.id)
+            .select("firstname lastname");
+
+        // make activity
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
-            action: "ARCHIVE_TASK",
-            content: `${user.firstname} ${user.lastname} archived this task`,
+            action: "SUBMIT_TASK",
+            content: `${assignee.firstname} ${assignee.lastname} submitted this task`,
             time: new Date()
         });
 
+        // make notification
+        if (!task.assigneeId.equals(task.creatorId)) {
+            await Notification.create({
+                users: [task.creatorId],
+                type: "TASK_SUBMITTED",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `Submission by ${assignee.firstname} ${assignee.lastname}: ${task.title}`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
+
         await task.save();
         res.status(200).json({
-            closed: task.closed,
+            submission: task.isSubmitted,
             activity: task.activity[task.activity.length - 1]
         });
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
 });
+
 
 export default router;

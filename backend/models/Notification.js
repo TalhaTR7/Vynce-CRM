@@ -2,33 +2,60 @@ import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
     {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        users: [{
+            _id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+            read: { type: Boolean, default: false },
+        }],
         type: {
             type: String, enum: [
-                "TASK_ASSIGNED",
-                "TASK_DUE_IN",
-                "ETH_FROM_USER",
-                "WEEKLY_MP",
-                "TASK_REWARDS",
-                "LEVEL_UP",
-                "REMOVED_FROM_PROJECT",
-                "NEW_TO_PROJECT"
+                "TASK_ASSIGNED", // ✅ on task creation; assignee
+                "TASK_REASSIGNED", // ✅ on task creation; assignee
+                "TASK_SUBMITTED", // ✅ on task creation; creator
+                "TASK_DELETED", // ✅ on task deletion without assignee reward; assignee
+                "TASK_CLOSED", // ✅ on task closure and assignee reward; assignee
+                "TASK_DUE_IN", // ✅ when the task is 2 days away from due; assignee
+                "COMMENT", // ✅ on task comment; assignee
+                "SHREDDING", // ✅ on hard deletion; admins, owner
+                "NEW_BOARD", // ✅ on board creation; admins, owner
+                "EDIT_BOARD", // ✅ on board edit; admins, owner
+                "EDIT_PROJECT", // ✅ on project edit; admins, owner
+                "EDIT_TASK", // ✅ on task edit; assignee
+                "MESSAGE_FROM_USER", // when receiver is AFK; receiver
+                "BID_FROM_USER", // when reciever is AFK and a bid is offered; receiver
+                "WEEKLY_MP", // every sunday when the leaderboards reset with rewards; all
+                "LEVEL_UP", // every time when user levels up; all
+                "PROMOTION", // promoted admin; members
+                "DEMOTION", // demoted member; admins
+                "OWNERSHIP_REQUEST", // to targeted admin; admins
+                "OWNERSHIP_RESPONSE", // response in yes or no by targeted admin; owner
+                "NEW_TO_PROJECT", // to member when he joins a project; member
+                "PROJECT_INVITATION", // to user when an admin/owner invites a user; user 
+                "ACCEPTED_INVITATION", // when user accepts the invitation; admin
+                "DECLINED_INVITATION", // when user rejects the invitation; admin
+                "WELCOME", // when a user joins a project; owner, admins
+                "REMOVED_FROM_PROJECT", // when a member/admin is kicked out by owner; removed user
+                "LEFT_PROJECT", // when a member leaves the project; user that left
+                "DELETED_ACCOUNT" // ✅ when a member deletes his account; owner
             ], required: true
         },
         icon: {
             type: { type: String, enum: ["PROJECT", "USER", "SVG"], required: true },
-            refId: { type: String, required: true }
+            refId: { type: mongoose.Schema.Types.ObjectId, required: true },
+            url: { type: String, default: null }
         },
         title: { type: String, required: true },
         action: {
             type: { type: String, enum: ["NAVIGATE", "MESSAGE"], required: true },
             url: { type: String, default: null }
         },
-        read: { type: Boolean, default: false }
     },
     { timestamps: true }
 );
 
-notificationSchema.index({ userId: 1, read: 1, createdAt: -1 });
+notificationSchema.index({
+    "users.user": 1,
+    "users.read": 1,
+    createdAt: -1
+});
 
 export default mongoose.model("Notification", notificationSchema);

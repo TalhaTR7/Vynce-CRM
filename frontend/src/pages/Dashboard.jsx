@@ -138,83 +138,85 @@ function Dashboard() {
                 <main className={styles.dashboard}>
                     <section className={styles.myWork}>
                         <h1>My work</h1>
-                        <div className={styles.projectPane}>
-                            {
-                                projects.map(project => (
-                                    <div key={project._id}
-                                        className={`${styles.project} ${activeProjectId === project._id ? styles.active : ""}`}
-                                        onClick={() => setActiveProjectId(project._id)}>
-                                        <div className={styles.projectImage}>
-                                            <img src={project.projectImage.url} />
-                                        </div>
-                                        <p>{project.name}</p>
-                                    </div>
-                                ))
-                            }
-                            <button className={styles.create} onClick={() => openModal("CREATE_PROJECT")}>
-                                <img src={add_svg} />
-                                <p>Create project</p>
-                            </button>
-                        </div>
-                        <div className={styles.meta}>
-                            <div className={styles.boardPane}>
+                        {projects.length !== 0 && <>
+                            <div className={styles.projectPane}>
                                 {
-                                    boards.map(board => (
-                                        <p key={board._id}
-                                            className={`${styles.board} ${activeBoardId === board._id ? styles.active : ""}`}
-                                            onClick={() => setActiveBoardId(board._id)}>
-                                            {board.name}
-                                        </p>
+                                    projects.map(project => (
+                                        <div key={project._id}
+                                            className={`${styles.project} ${activeProjectId === project._id ? styles.active : ""}`}
+                                            onClick={() => setActiveProjectId(project._id)}>
+                                            <div className={styles.projectImage}>
+                                                <img src={project.projectImage.url} />
+                                            </div>
+                                            <p>{project.name}</p>
+                                        </div>
                                     ))
                                 }
+                                <button className={styles.create} onClick={() => openModal("CREATE_PROJECT")}>
+                                    <img src={add_svg} />
+                                    <p>Create project</p>
+                                </button>
                             </div>
-                            <p>Created on</p>
-                            <p>Due date</p>
-                            <p>Worktime</p>
-                        </div>
-                        {
-                            boards?.length > 0 &&
-                            <div className={styles.taskList}>
-                                {tasks.map(task => {
-                                    const workedHours = Math.floor(task.worktime / 60);
-                                    const workedMinutes = task.worktime % 60;
-                                    return (
-                                        <Link key={task._id} to={`/task/${task._id}`} className={styles.task}>
-                                            <div className={styles.taskMain}>
-                                                <div className={styles.projectImage}>
-                                                    <img src={task.projectImage.url} />
-                                                </div>
-                                                <h3>{task.title}</h3>
-                                                <div className={styles.ethereum}>
-                                                    <img src={coin_svg} style={{ height: "21px" }} />
-                                                    <p>{task.ethereum}</p>
-                                                </div>
-                                                <div className={styles.comments}>
-                                                    <img src={comment_svg} style={{ width: "18px" }} />
-                                                    <p>{task.comments}</p>
-                                                </div>
-                                            </div>
-                                            <p>{createdAt(task)}</p>
-                                            <p>{formatDueDate(task.dueDate)}</p>
-                                            <p>{workedHours === 0 ? "" : `${workedHours}h `}{workedMinutes}m</p>
-                                        </Link>
-                                    )
-                                })}
+                            <div className={styles.meta}>
+                                <div className={styles.boardPane}>
+                                    {
+                                        boards.map(board => (
+                                            <p key={board._id}
+                                                className={`${styles.board} ${activeBoardId === board._id ? styles.active : ""}`}
+                                                onClick={() => setActiveBoardId(board._id)}>
+                                                {board.name}
+                                            </p>
+                                        ))
+                                    }
+                                </div>
+                                <p>Created on</p>
+                                <p>Due date</p>
+                                <p>Worktime</p>
                             </div>
-                        }
-                        {(tasks.length === 0) &&
-                            <div className={styles.nothing}>
-                                <img src={boards.length > 0 ? tasks_svg : boards_svg} />
-                                <p>Feels a little lonely in here...</p>
-                                <Link to={`/project/${activeProjectId}`} className={styles.link}>Open project</Link>
-                            </div>
-                        }
-                        {(boards.length > 0 && tasks.length > 0) &&
-                            <Link to={`/project/${activeProjectId}`} className={styles.link}>
-                                <img src={link_svg} />
-                                <p>Open project</p>
+                            {
+                                boards?.length > 0 &&
+                                <div className={styles.taskList}>
+                                    {tasks.map(task => {
+                                        const workedHours = Math.floor(task.worktime / 60);
+                                        const workedMinutes = task.worktime % 60;
+                                        return (
+                                            <Link key={task._id} to={`/task/${task._id}`} className={styles.task}>
+                                                <div className={styles.taskMain}>
+                                                    <div className={styles.projectImage}>
+                                                        <img src={task.projectImage.url} />
+                                                    </div>
+                                                    <h3>{task.title}</h3>
+                                                    <div className={styles.ethereum}>
+                                                        <img src={coin_svg} style={{ height: "21px" }} />
+                                                        <p>{task.ethereum}</p>
+                                                    </div>
+                                                    <div className={styles.comments}>
+                                                        <img src={comment_svg} style={{ width: "18px" }} />
+                                                        <p>{task.comments}</p>
+                                                    </div>
+                                                </div>
+                                                <p>{createdAt(task)}</p>
+                                                <p>{formatDueDate(task.dueDate)}</p>
+                                                <p>{workedHours === 0 ? "" : `${workedHours}h `}{workedMinutes}m</p>
+                                            </Link>
+                                        )
+                                    })}
+                                </div>
+                            }
+                            {(tasks.length === 0) &&
+                                <div className={styles.nothing}>
+                                    <img src={boards.length > 0 ? tasks_svg : boards_svg} />
+                                    <p>Feels a little lonely in here...</p>
+                                    <Link to={`/project/${activeProjectId}`} className={styles.link}>Open project</Link>
+                                </div>
+                            }
+                            {(boards.length > 0 && tasks.length > 0) &&
+                                <Link to={`/project/${activeProjectId}`} className={styles.link}>
+                                    <img src={link_svg} />
+                                    <p>Open project</p>
                                 </Link>
-                        }
+                            }
+                        </>}
                     </section>
                     <section className={styles.bottomLeft}>
                         <h1>Weekly leaderboards</h1>

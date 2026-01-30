@@ -21,8 +21,7 @@ function Chat() {
         const fetchMessages = async () => {
             const token = localStorage.getItem("token");
             const currentUserId = jwtDecode(token).id;
-            console.log(currentUserId);
-            const res = await axios.get(`http://localhost:5000/api/messages/${id}`, {
+            const res = await axios.get(`http://localhost:5000/api/messages/chat/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const chatUsers = [res.data.chat.userId1, res.data.chat.userId2];
@@ -34,6 +33,23 @@ function Chat() {
         const interval = setInterval(fetchMessages, 2000);
         return () => clearInterval(interval);
     }, [id]);
+
+
+    const deleteEmptyChat = async () => {
+        try {
+            await axios.delete(`http://localhost:5000/api/messages/chat/${id}/empty-chat`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        deleteEmptyChat();
+    }, []);
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -58,7 +74,7 @@ function Chat() {
     const sendMessage = async () => {
         if (!message.trim()) return;
         try {
-            const res = await axios.post(`http://localhost:5000/api/messages/${otherUser._id}`, {
+            const res = await axios.post(`http://localhost:5000/api/messages/user/${otherUser._id}`, {
                 content: message
             }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

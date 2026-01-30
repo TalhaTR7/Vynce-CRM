@@ -7,7 +7,7 @@ import shop_svg from "../assets/icons/shop.svg";
 import styles from "../css/Sidebar.module.scss";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
 
 
@@ -18,6 +18,11 @@ function Sidebar() {
     const [chats, setChats] = useState([]);
 
     const { openModal } = useModal();
+    const { notifications } = useOutletContext();
+
+
+    const userEntry = notifications.map(mail => mail.users.find(user => user._id === localStorage.getItem("_id")));
+    const unreadCount = userEntry.filter(u => u.read === false).length;
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -66,7 +71,7 @@ function Sidebar() {
                 <Link to={"/inbox"} className={styles.homeElements}>
                     <img src={inbox_svg} />
                     <p>Inbox</p>
-                    <span></span>
+                    {unreadCount ? <span>{unreadCount}</span> : ''}
                 </Link>
                 <Link to={"/leaderboards"} className={styles.homeElements}>
                     <img src={leaderboard_svg} />
@@ -86,7 +91,7 @@ function Sidebar() {
                         </Link>
                     ))}
                 </div>
-                <button className={styles.create}>
+                <button className={styles.create} onClick={() => openModal("FIND_MEMBER")}>
                     <img src={add_svg} />
                     <p>Find someone</p>
                 </button>

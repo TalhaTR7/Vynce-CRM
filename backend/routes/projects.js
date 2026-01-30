@@ -4,6 +4,8 @@ import Project from "../models/Project.js";
 import Member from "../models/Membership.js";
 import Board from "../models/Board.js";
 import createUploader from "../middleware/multer.js";
+import Membership from "../models/Membership.js";
+import Notification from "../models/Notification.js";
 
 const router = express.Router();
 
@@ -134,9 +136,15 @@ router.patch("/project/:id/edit", authMiddleware, imageUpload.single("image"), a
         const update = {};
         if (name) update.name = name;
 
-        if (req.file) {
-            update["projectImage.url"] = `/uploads/projects/${req.file.filename}`;
-        }
+        if (req.file) update["projectImage.url"] = `/uploads/projects/${req.file.filename}`;
+
+        const editor = await Membership.findOne({
+            projectId: id,
+            userId: req.user.id,
+            role: "OWNER"
+        }).populate("userId", "firstname lastname");
+
+        if (!editor) return res.status(403).json({ msg: "Unauthorized" });
 
         const project = await Project.findByIdAndUpdate(
             id,
@@ -147,6 +155,25 @@ router.patch("/project/:id/edit", authMiddleware, imageUpload.single("image"), a
         if (!project) return res.status(404).json({ msg: "Project not found" });
 
         project.projectImage = formatImage(project.projectImage);
+
+        const members = await Membership.find({
+            projectId: id,
+            role: { $in: ["ADMIN", "MEMBER"] }
+        }).select("userId").lean();
+        const userIds = members.map(member => member.userId);
+
+        if (userIds.length > 0) {
+            await Notification.create({
+                userIds,
+                type: "EDIT_PROJECT",
+                icon: { type: "PROJECT", refId: id },
+                title: `${editor.firstname} ${editor.lastname} made edits to the project. Click to view changes!`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/project/${id}`
+                }
+            });
+        }
 
         res.status(200).json(project);
     } catch (err) {

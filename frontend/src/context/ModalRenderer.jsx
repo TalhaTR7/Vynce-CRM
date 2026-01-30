@@ -1,0 +1,31 @@
+import { useModal } from "./ModalContext";
+import ModalPortal from "./ModalPortal";
+import CreateProject from "../components/modals/CreateProject";
+import CreateBoard from "../components/modals/CreateBoard";
+import CreateTask from "../components/modals/CreateTask";
+import { SetBounty, SetDifficulty } from "../components/modals/Popovers";
+import { CloseTask, DeleteAccount, DeleteTask, FindMember, Logout, SubmitTask, UpdatePassword } from "../components/modals/Dialogues";
+
+
+function ModalRenderer() {
+    const { modal, closeModal } = useModal();
+
+    return (
+        <ModalPortal>
+            {modal?.type === "CREATE_PROJECT" && (<CreateProject onClose={closeModal} />)}
+            {modal?.type === "CREATE_BOARD" && (<CreateBoard onClose={closeModal} project={modal.payload.project} />)}
+            {modal?.type === "CREATE_TASK" && (<CreateTask onClose={closeModal} project={modal.payload.project} board={modal.payload.board} />)}
+            {modal?.type === "SET_BOUNTY" && (<SetBounty onClose={closeModal} task={modal.payload.task} />)}
+            {modal?.type === "SET_DIFFICULTY" && (<SetDifficulty onClose={closeModal} task={modal.payload.task} />)}
+            {modal?.type === "CLOSE_TASK" && (<CloseTask onClose={closeModal} />)}
+            {modal?.type === "DELETE_TASK" && (<DeleteTask onClose={closeModal} />)}
+            {modal?.type === "SUBMIT_TASK" && (<SubmitTask onClose={closeModal} />)}
+            {modal?.type === "LOGOUT" && (<Logout onClose={closeModal} />)}
+            {modal?.type === "CHANGE_PASSWORD" && (<UpdatePassword onClose={closeModal} />)}
+            {modal?.type === "DELETE_ACCOUNT" && (<DeleteAccount onClose={closeModal} user={modal.payload.user} />)}
+            {modal?.type === "FIND_MEMBER" && (<FindMember onClose={closeModal} />)}
+        </ModalPortal>
+    );
+}
+
+export default ModalRenderer;

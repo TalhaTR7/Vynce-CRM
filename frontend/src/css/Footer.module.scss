@@ -5,11 +5,11 @@
     justify-content: space-between;
 
     img {
-        height: 40px
+        height: 40px;
+        user-select: none;
+        pointer-events: none;
     }
 }
-
-
 
 .weblinks {
     display: flex;
@@ -65,11 +65,10 @@
 
         img {
             height: 70px;
+            user-select: none;
         }
     }
 }
-
-
 
 .copyrights {
     display: flex;

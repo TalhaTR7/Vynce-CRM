@@ -43,6 +43,16 @@
                 font: 18px Roboto;
             }
 
+            span {
+                font: 12px Roboto;
+                color: var(--green);
+                margin: 0;
+                background-color: #212121;
+                padding: 1px 5px;
+                border-radius: 20%;
+
+            }
+
             &:hover {
                 background-color: #222;
                 cursor: pointer;
@@ -115,10 +125,10 @@
 
             .more {
                 position: absolute;
-                width: 21px;
+                width: 18px;
                 right: 1%;
                 opacity: 0;
-                padding: 10px;
+                padding: 0 10px;
                 user-select: none;
             }
 
@@ -209,7 +219,7 @@
         user-select: none;
         opacity: 0.7;
         transition: all 0.2s ease;
-
+        text-decoration: none;
 
         img {
             width: 15px;

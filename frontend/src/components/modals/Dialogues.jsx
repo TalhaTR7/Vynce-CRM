@@ -14,6 +14,7 @@ export function Logout({ onClose }) {
         localStorage.removeItem("token");
         navigate("/");
     }
+    console.log("MODAL RENDERED");
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
@@ -162,7 +163,6 @@ export function DeleteAccount({ onClose, user }) {
         }
     }
 
-
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
@@ -182,8 +182,8 @@ export function DeleteAccount({ onClose, user }) {
                             </label>
                         </div>
                     </div>
-                    <div className={styles.inputField}>
-                        <p>Type "{user.firstname}-{user.lastname}" to confirm</p>
+                    <div className={styles.inputField} style={{ margin: 0 }}>
+                        <label>Type "{user.firstname}-{user.lastname}" to confirm</label>
                         <input type="text" onChange={(e) => setFieldName(e.target.value)} />
                     </div>
                     <div className={styles.buttons}>
@@ -197,23 +197,132 @@ export function DeleteAccount({ onClose, user }) {
 
 export function FindMember({ onClose }) {
     const navigate = useNavigate();
+    const [email, setEmail] = useState("");
 
-    const submit = (handleClose) => {
-        handleClose();
-        localStorage.removeItem("token");
-        navigate("/");
-    }
+
+    const submit = async (handleClose) => {
+        try {
+            const { data: user } = await axios.get(`http://localhost:5000/api/users/email/${email}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            const { data: { chat } } = await axios.post(`http://localhost:5000/api/messages/user/${user._id}`, { content: "" }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            navigate(`/chat/${chat._id}`);
+            handleClose();
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
                 <>
                     <div className={styles.title}>
-                        <p>Taking some air</p>
+                        <p>Find someone</p>
                     </div>
-                    <p className={styles.message}>You sure you wanna logout?</p>
+                    <div className={styles.inputField}>
+                        <label className={styles.message}>Find a Vynce user by email</label>
+                        <input type="text" onChange={(e) => setEmail(e.target.value)} />
+                    </div>
                     <div className={styles.buttons}>
                         <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                        <button className={styles.primaryGreen} onClick={() => handleLogout(handleClose)}>Logout</button>
+                        <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Open DM</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function CloseTask({ onClose }) {
+    const navigate = useNavigate();
+
+    const submit = async (handleClose) => {
+        try {
+            handleClose();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Closing the task</p>
+                    </div>
+                    <p className={styles.message}>Reward the assignee and find this task in the archives</p>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Close</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function SubmitTask({ onClose }) {
+    const navigate = useNavigate();
+
+    const submit = async (handleClose) => {
+        try {
+            handleClose();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Submitting the task</p>
+                    </div>
+                    <p className={styles.message}>Send the task up for a review and get rewarded after it gets closed</p>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryBlue} onClick={() => submit(handleClose)}>Submit</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function DeleteTask({ onClose }) {
+    const navigate = useNavigate();
+
+    const submit = async (handleClose) => {
+        try {
+            handleClose();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Deleting the task</p>
+                    </div>
+                    <p className={styles.message}>Delete the task without rewarding the assignee and send it to the archives</p>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryRed} onClick={() => submit(handleClose)}>Delete</button>
                     </div>
                 </>
             )}

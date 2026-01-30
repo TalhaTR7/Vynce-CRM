@@ -37,10 +37,10 @@ function CreateBoard({ onClose, project }) {
                 return;
             }
 
-            await axios.post("http://localhost:5000/api/boards/create", {
+            await axios.post("http://localhost:5000/api/boards/board", {
                 projectId: project._id,
                 name,
-                color: selectedColor || "#cccccc"
+                color: selectedColor
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`
