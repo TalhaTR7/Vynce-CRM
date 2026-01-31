@@ -1,18 +1,27 @@
 import mongoose from 'mongoose';
 
 const chatSchema = new mongoose.Schema({
-    user1: {
-        _id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-        isActive: { type: Boolean, default: false }
+    participants: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+        validate: {
+            validator: members => members.length === 2,
+            message: "Chat must have only 2 participants",
+        },
+        required: true,
     },
-    user2: {
-        _id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-        isActive: { type: Boolean, default: false }
+    isActive: {
+        type: Map,
+        of: Boolean,
+        default: {},
     },
 },
     { timestamps: true }
 );
 
-chatSchema.index({ userId1: 1, userId2: 1 }, { unique: true });
+chatSchema.index(
+    { participants: 1 },
+    { unique: true }
+);
 
 export default mongoose.model("Chat", chatSchema);
+

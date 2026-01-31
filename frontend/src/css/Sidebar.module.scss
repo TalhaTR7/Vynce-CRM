@@ -3,11 +3,12 @@
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    border-right: 1px solid #555;
     color: #ccc;
     width: 260px;
     height: 100%;
     overflow-y: hidden;
+    border: 1px solid transparent;
+    background-color: #111;
 
     h1 {
         margin: 30px 20px;

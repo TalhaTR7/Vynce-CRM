@@ -72,9 +72,9 @@ function Header() {
                 <p>right now</p>
             </div>
             <div className={styles.userElements}>
-                <div className={styles.etherium}>
+                <div className={styles.ethereum}>
                     <img src={coin_svg} style={{width: "20px"}} />
-                    <p>{user.etherium}</p>
+                    <p>{user.ethereum}</p>
                 </div>
                 <div className={styles.motivation}>
                     <div className={styles.wrapper}>

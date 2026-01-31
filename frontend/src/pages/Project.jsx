@@ -14,6 +14,7 @@ import { useModal } from "../context/ModalContext";
 import { Card } from '../components/Card';
 import axios from "axios";
 import { DndContext, DragOverlay, closestCenter } from "@dnd-kit/core";
+import Loading from "../components/Loading";
 
 
 function Project() {
@@ -98,8 +99,7 @@ function Project() {
         document.title = `Vynce | ${project?.name}`;
     });
 
-    if (!project) return <p>Loading project...</p>;
-    if (!user) return <p>Loading user...</p>;
+    if (!project || !user) return <Loading />;
 
     const userRole = project.memberships.find(member => member.user._id === user._id).role;
 

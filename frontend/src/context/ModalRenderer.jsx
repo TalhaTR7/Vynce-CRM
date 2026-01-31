@@ -4,7 +4,7 @@ import CreateProject from "../components/modals/CreateProject";
 import CreateBoard from "../components/modals/CreateBoard";
 import CreateTask from "../components/modals/CreateTask";
 import { SetBounty, SetDifficulty } from "../components/modals/Popovers";
-import { CloseTask, DeleteAccount, DeleteTask, FindMember, Logout, SubmitTask, UpdatePassword } from "../components/modals/Dialogues";
+import { CloseTask, DeleteAccount, DeleteTask, FindMember, Logout, ReturnTask, SubmitTask, UpdatePassword } from "../components/modals/Dialogues";
 
 
 function ModalRenderer() {
@@ -17,9 +17,10 @@ function ModalRenderer() {
             {modal?.type === "CREATE_TASK" && (<CreateTask onClose={closeModal} project={modal.payload.project} board={modal.payload.board} />)}
             {modal?.type === "SET_BOUNTY" && (<SetBounty onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "SET_DIFFICULTY" && (<SetDifficulty onClose={closeModal} task={modal.payload.task} />)}
-            {modal?.type === "CLOSE_TASK" && (<CloseTask onClose={closeModal} />)}
-            {modal?.type === "DELETE_TASK" && (<DeleteTask onClose={closeModal} />)}
-            {modal?.type === "SUBMIT_TASK" && (<SubmitTask onClose={closeModal} />)}
+            {modal?.type === "CLOSE_TASK" && (<CloseTask onClose={closeModal} task={modal.payload.task} />)}
+            {modal?.type === "DELETE_TASK" && (<DeleteTask onClose={closeModal} task={modal.payload.task} />)}
+            {modal?.type === "SUBMIT_TASK" && (<SubmitTask onClose={closeModal} task={modal.payload.task} />)}
+            {modal?.type === "RETURN_TASK" && (<ReturnTask onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "LOGOUT" && (<Logout onClose={closeModal} />)}
             {modal?.type === "CHANGE_PASSWORD" && (<UpdatePassword onClose={closeModal} />)}
             {modal?.type === "DELETE_ACCOUNT" && (<DeleteAccount onClose={closeModal} user={modal.payload.user} />)}

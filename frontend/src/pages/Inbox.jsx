@@ -65,9 +65,20 @@ function Inbox() {
         });
     };
 
-    const addSelected = () => {
-        setSelected(prev => prev)
-    }
+    const allSelected = notifications.length > 0 && selected.length === notifications.length;
+
+    const toggleSelectAll = () => {
+        if (allSelected) setSelected([]);
+        else setSelected(notifications.map(mail => mail._id));
+    };
+
+    const toggleSelect = (id) => {
+        setSelected(prev => prev.includes(id)
+            ? prev.filter(_id => _id !== id)
+            : [...prev, id]
+        );
+    };
+
 
     return (
         <div className={styles.canvas}>
@@ -77,10 +88,10 @@ function Inbox() {
                 <main className={styles.inbox}>
                     <div className={styles.inboxPane}>
                         <div className={styles.selectAll}>
-                            <input type="checkbox" id="select-all" />
+                            <input type="checkbox" id="select-all" checked={allSelected} onChange={toggleSelectAll} />
                             <label htmlFor="select-all">Select all</label>
                         </div>
-                        <button className={styles.buttons}>
+                        <button className={styles.buttons} onClick={() => console.log(selected)}>
                             <img src={delete_svg} style={{ opacity: "0.7" }} />
                         </button>
                         <button className={styles.buttons}>
@@ -118,8 +129,8 @@ function Inbox() {
                                     const userEntry = mail.users.find(user => user._id === localStorage.getItem("_id"));
                                     const isRead = userEntry.read;
                                     return (
-                                        <Link to={mail.action.type === "NAVIGATE" ? mail.action.url : ''} key={mail._id} className={styles.mail} onClick={async () => await handleClick(mail._id)}>
-                                            <input type="checkbox" className={styles.checkbox} />
+                                        <Link key={mail._id} to={mail.action.type === "NAVIGATE" ? mail.action.url : ''} className={styles.mail} onClick={async () => await handleClick(mail._id)}>
+                                            <input type="checkbox" className={styles.checkbox} checked={selected.includes(mail._id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleSelect(mail._id)} />
                                             <div className={`${styles.icon} ${classname}`}>
                                                 <img src={mail.icon.url} />
                                             </div>

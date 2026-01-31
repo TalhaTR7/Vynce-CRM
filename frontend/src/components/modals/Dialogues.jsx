@@ -199,20 +199,19 @@ export function FindMember({ onClose }) {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
 
-
     const submit = async (handleClose) => {
         try {
-            const { data: user } = await axios.get(`http://localhost:5000/api/users/email/${email}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
 
-            const { data: { chat } } = await axios.post(`http://localhost:5000/api/messages/user/${user._id}`, { content: "" }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            const { data: user } = await axios.get(`http://localhost:5000/api/users/email/${email}`,
+                { headers: headers }
+            );
+
+            const res = await axios.post(`http://localhost:5000/api/messages/user/${user._id}`,
+                { content: "" },
+                { headers: headers }
+            );
+            const chat = res.data.chat;
 
             navigate(`/chat/${chat._id}`);
             handleClose();
@@ -243,43 +242,20 @@ export function FindMember({ onClose }) {
     )
 }
 
-export function CloseTask({ onClose }) {
-    const navigate = useNavigate();
+export function SubmitTask({ onClose, task }) {
 
     const submit = async (handleClose) => {
         try {
+            await axios.patch(`http://localhost:5000/api/tasks/task/submit`, { taskId: task._id }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
             handleClose();
+            toast.success("Task submitted");
         } catch (err) {
             console.error(err);
-        }
-    };
-
-    return (
-        <Dialogue onClose={onClose}>
-            {({ handleClose }) => (
-                <>
-                    <div className={styles.title}>
-                        <p>Closing the task</p>
-                    </div>
-                    <p className={styles.message}>Reward the assignee and find this task in the archives</p>
-                    <div className={styles.buttons}>
-                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                        <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Close</button>
-                    </div>
-                </>
-            )}
-        </Dialogue>
-    )
-}
-
-export function SubmitTask({ onClose }) {
-    const navigate = useNavigate();
-
-    const submit = async (handleClose) => {
-        try {
-            handleClose();
-        } catch (err) {
-            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
         }
     };
 
@@ -301,14 +277,94 @@ export function SubmitTask({ onClose }) {
     )
 }
 
-export function DeleteTask({ onClose }) {
+export function ReturnTask({ onClose, task }) {
+
+    const submit = async (handleClose) => {
+        try {
+            await axios.patch(`http://localhost:5000/api/tasks/task/return`, { taskId: task._id }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success("Task returned");
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Returning the task</p>
+                    </div>
+                    <p className={styles.message}>You sure you wanna retrun the task? This will not reward the assignee</p>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryBlue} onClick={() => submit(handleClose)}>Return</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function CloseTask({ onClose, task }) {
     const navigate = useNavigate();
 
     const submit = async (handleClose) => {
         try {
+            await axios.patch(`http://localhost:5000/api/archives/task/close`, { taskId: task._id }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
             handleClose();
+            toast.success("Task closed successfully");
+            navigate(`/project/${task.project._id}`);
         } catch (err) {
             console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Closing the task</p>
+                    </div>
+                    <p className={styles.message}>Reward the assignee and find this task in the archives</p>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Close</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function DeleteTask({ onClose, task }) {
+    const navigate = useNavigate();
+
+    const submit = async (handleClose) => {
+        try {
+            await axios.patch(`http://localhost:5000/api/archives/task/archive`, { taskId: task._id }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success("Task archived");
+            navigate(`/project/${task.project._id}`);
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
         }
     };
 

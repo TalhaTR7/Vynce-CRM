@@ -2,13 +2,12 @@
 import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import coin_svg from "../assets/icons/coin.svg";
+import more_svg from "../assets/icons/more.svg";
 import send_svg from "../assets/icons/send.svg";
 import styles from "../css/Chat.module.scss";
 import { useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 
 function Chat() {
     const { id } = useParams();
@@ -20,11 +19,12 @@ function Chat() {
     useEffect(() => {
         const fetchMessages = async () => {
             const token = localStorage.getItem("token");
-            const currentUserId = jwtDecode(token).id;
+            const currentUserId = localStorage.getItem("_id");
             const res = await axios.get(`http://localhost:5000/api/messages/chat/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            const chatUsers = [res.data.chat.userId1, res.data.chat.userId2];
+
+            const chatUsers = res.data.chat.participants;
             const other = chatUsers.find(user => user._id !== currentUserId);
             setOtherUser(other);
             setMessages(res.data.messages);
@@ -48,7 +48,9 @@ function Chat() {
     };
 
     useEffect(() => {
-        deleteEmptyChat();
+        return () => {
+            deleteEmptyChat();
+        };
     }, []);
 
     useEffect(() => {
@@ -101,10 +103,7 @@ function Chat() {
                             </div>
                             <p>{otherUser.firstname} {otherUser.lastname}</p>
                         </div>
-                        <button>
-                            <img src={coin_svg} />
-                            <p>Send ETH</p>
-                        </button>
+                        <img className={styles.more} src={more_svg} />
                     </div>
                     <div className={styles.messageContainer} ref={scrollRef}>
                         {messages.map((message, index) => {

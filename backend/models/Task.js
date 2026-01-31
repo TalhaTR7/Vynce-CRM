@@ -40,7 +40,7 @@ const taskSchema = new mongoose.Schema({
                 "TASK_CLOSED", // on task closure and assignee reward; creator
                 "TASK_RESTORED", // on task restoration; admin, owner
                 "TASK_SUBMITTED", // on task submission; assignee
-                "TASK_REASSIGNED" // on task reassignment; creator
+                "TASK_RETURNED" // on task reassignment; creator
             ], default: null
         },
     }],

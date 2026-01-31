@@ -9,9 +9,14 @@ import Membership from "../models/Membership.js";
 
 const router = express.Router();
 
+function recipients(ids) {
+    return ids.map(id => ({ _id: id }));
+}
+
+
 // close a task
-router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
-    const { taskId } = req.params;
+router.patch("/task/close", authMiddleware, async (req, res) => {
+    const { taskId } = req.body;
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -30,7 +35,7 @@ router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
 
         if (!task.creatorId.equals(req.user.id)) {
             await session.abortTransaction();
-            return res.status(403).json({ msg: "Unauthorized for closure" });
+            return res.status(401).json({ msg: "Unauthorized for closure" });
         }
 
         // make activity
@@ -78,7 +83,7 @@ router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
         // make notification
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create([{
-                userIds: [task.assigneeId],
+                userIds: recipients([task.assigneeId]),
                 type: "TASK_CLOSED",
                 icon: {
                     type: "PROJECT",
@@ -91,14 +96,15 @@ router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
             }], { session });
         }
 
+        // wrap up
         task.closed = true;
         task.dueDate = null;
         task.boardId = null;
         task.assigneeId = null;
+        task.isTimerRunning = false;
 
         const archived = task.toObject();
         delete archived._id;
-
 
         await Archived.create([archived], { session });
         await Task.deleteOne({ _id: task._id }).session(session);
@@ -119,8 +125,8 @@ router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
 
 
 // archive a task
-router.patch("/task/:taskId/archive", authMiddleware, async (req, res) => {
-    const { taskId } = req.params;
+router.patch("/task/archive", authMiddleware, async (req, res) => {
+    const { taskId } = req.body;
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -156,27 +162,28 @@ router.patch("/task/:taskId/archive", authMiddleware, async (req, res) => {
         // make notification
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create([{
-                userIds: [task.assigneeId],
+                userIds: recipients([task.assigneeId]),
                 type: "TASK_DELETED",
                 icon: {
                     type: "PROJECT",
                     refId: task.projectId
                 },
-                title: `${creator.firstname} ${creator.lastname} deleted the task [${task.title}]`,
+                title: `${creator.firstname} ${creator.lastname} archived the task [${task.title}]`,
                 action: {
                     type: "MESSAGE"
                 }
             }], { session });
         }
 
+        task.closed = true;
+        task.dueDate = null;
+        task.boardId = null;
+        task.assigneeId = null;
+        task.ethereum.assigned = 0;
+        task.isTimerRunning = false;
+
         const archived = task.toObject();
         delete archived._id;
-
-        archived.closed = true;
-        archived.dueDate = null;
-        archived.boardId = null;
-        archived.assigneeId = null;
-        archived.ethereum.assigned = 0;
 
         await Archived.create([archived], { session });
         await Task.deleteOne({ _id: task._id }).session(session);
@@ -196,12 +203,12 @@ router.patch("/task/:taskId/archive", authMiddleware, async (req, res) => {
 });
 
 
-// delete a task
+// permanently delete a task from archives
 router.delete("/task/:taskId/", authMiddleware, async (req, res) => {
     const { taskId } = req.params;
 
     try {
-        const task = await Task.findById(taskId);
+        const task = await Archived.findById(taskId);
 
         if (!task) return res.status(404).json({ msg: "Task not found" });
 
@@ -217,7 +224,7 @@ router.delete("/task/:taskId/", authMiddleware, async (req, res) => {
         const members = await Membership.find({
             projectId: task.projectId,
             userId: { $ne: req.user.id },
-            role: { $in: ["OWNER", "ADMIN"] }
+            role: "OWNER"
         }).select("userId").lean();
         const userIds = members.map(member => member.userId);
 
@@ -228,7 +235,7 @@ router.delete("/task/:taskId/", authMiddleware, async (req, res) => {
                 type: "PROJECT",
                 refId: task.projectId
             },
-            title: `${actor.firstname} ${actor.lastname} deleted the task [${task.title}]`,
+            title: `${actor.firstname} ${actor.lastname} permanently deleted the task [${task.title}]`,
             action: {
                 type: "MESSAGE"
             }

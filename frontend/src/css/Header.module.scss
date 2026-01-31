@@ -2,7 +2,8 @@
     position: relative;
     display: flex;
     flex-direction: row;
-    border-bottom: 1px solid #555;
+    background-color: #181818;
+    border: none;
     color: #ccc;
     justify-content: space-between;
     align-items: center;
@@ -43,7 +44,7 @@
         margin: auto 20px;
         user-select: none;
 
-        .etherium,
+        .ethereum,
         .motivation {
             position: relative;
             display: flex;

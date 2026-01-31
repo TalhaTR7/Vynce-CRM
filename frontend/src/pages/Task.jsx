@@ -6,6 +6,7 @@ import back_svg from "../assets/icons/back.svg";
 import archive_svg from "../assets/icons/archive.svg";
 import delete_svg from "../assets/icons/delete.svg";
 import check_svg from "../assets/icons/check.svg";
+import return_svg from "../assets/icons/return.svg";
 import search_svg from "../assets/icons/search.svg";
 import coin_svg from "../assets/icons/coin.svg";
 import difficultyOn_svg from "../assets/icons/difficultyOn.svg";
@@ -271,27 +272,6 @@ function Task() {
     const workedMinutes = worktime % 60;
     const motivation = worktime * 2;
 
-    const changeDifficulty = async () => {
-        if (title === task.title) return;
-        try {
-            const res = await axios.patch(`http://localhost:5000/api/tasks/task/${id}/changegDifficulty`, { title }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                }
-            });
-            setTask(prev => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    title: title,
-                    activity: [...prev.activity, res.data.activity]
-                };
-            });
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
     const canEdit = task.fetcher.role === "OWNER" || task.fetcher.role === "ADMIN";
 
     const saveDescription = async () => {
@@ -368,20 +348,26 @@ function Task() {
                     </div>
                     <div className={styles.buttons}>
                         {
-                            canEdit && <>
-                                <button style={{ backgroundColor: "var(--green)" }} onClick={() => openModal("CLOSE_TASK")}>
+                            (task.fetcher._id === task.creator._id) && <>
+                                <button style={{ backgroundColor: "var(--green)" }} onClick={() => openModal("CLOSE_TASK", { task: task })}>
                                     <img src={archive_svg} style={{ filter: "invert(1)" }} />
                                     <span style={{ color: "#111" }}>Close</span>
                                 </button>
-                                <button style={{ backgroundColor: "var(--red)" }} onClick={() => openModal("DELETE_TASK")}>
+                                <button style={{ backgroundColor: "var(--red)" }} onClick={() => openModal("DELETE_TASK", { task: task })}>
                                     <img src={delete_svg} />
                                     <span style={{ color: "#fff" }}>Delete</span>
                                 </button>
+                                {task.isSubmitted &&
+                                    <button style={{ backgroundColor: "var(--blue)" }} onClick={() => openModal("RETURN_TASK", { task: task })}>
+                                        <img src={return_svg} />
+                                        <span style={{ color: "#fff" }}>Return</span>
+                                    </button>
+                                }
                             </>
                         }
                         {
-                            (task.fetcher._id === task.assignee._id) &&
-                            <button style={{ backgroundColor: "var(--blue)" }} onClick={() => openModal("SUBMIT_TASK")}>
+                            (!task.isSubmitted && task.fetcher._id === task.assignee._id) &&
+                            <button style={{ backgroundColor: "var(--blue)" }} onClick={() => openModal("SUBMIT_TASK", { task: task })} >
                                 <img src={check_svg} style={{ filter: "invert(1)" }} />
                                 <span style={{ color: "#fff" }}>Submit</span>
                             </button>

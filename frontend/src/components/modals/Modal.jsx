@@ -23,7 +23,6 @@ function Base({ children, onClose, className, closeOnOverlay=false }) {
         }
     };
 
-
     return (
         <div className={`${styles.overlay} ${visibility ? styles.show : ""}`} onMouseDown={handleOverlayClick}>
             <div className={`${className} ${visibility ? styles.show : ""}`} ref={contentRef} onMouseDown={(e) => e.stopPropagation()}>

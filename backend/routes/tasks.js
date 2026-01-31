@@ -10,7 +10,7 @@ import Notification from "../models/Notification.js";
 const router = express.Router();
 
 function recipients(ids) {
-  return ids.map(id => ({ _id: id }));
+    return ids.map(id => ({ _id: id }));
 }
 
 function formatImage(image) {
@@ -363,7 +363,6 @@ router.patch("/task/:taskId/reassign", authMiddleware, async (req, res) => {
         });
 
         task.assigneeId = assigneeId;
-
 
         if (assigneeId !== req.user.id) {
             await Notification.create({
@@ -825,8 +824,8 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
 
 
 // submit a task
-router.patch("/task/:taskId/submit", authMiddleware, async (req, res) => {
-    const { taskId } = req.params;
+router.patch("/task/submit", authMiddleware, async (req, res) => {
+    const { taskId } = req.body;
 
     try {
         const task = await Task.findById(taskId);
@@ -848,7 +847,7 @@ router.patch("/task/:taskId/submit", authMiddleware, async (req, res) => {
         task.activity.push({
             type: "ACTION",
             userId: req.user.id,
-            action: "SUBMIT_TASK",
+            action: "TASK_SUBMITTED",
             content: `${assignee.firstname} ${assignee.lastname} submitted this task`,
             time: new Date()
         });
@@ -856,13 +855,70 @@ router.patch("/task/:taskId/submit", authMiddleware, async (req, res) => {
         // make notification
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create({
-                users: [task.creatorId],
+                users: recipients([task.creatorId]),
                 type: "TASK_SUBMITTED",
                 icon: {
                     type: "PROJECT",
                     refId: task.projectId
                 },
                 title: `Submission by ${assignee.firstname} ${assignee.lastname}: ${task.title}`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+        }
+
+        await task.save();
+        res.status(200).json({
+            submission: task.isSubmitted,
+            activity: task.activity[task.activity.length - 1]
+        });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// return a task
+router.patch("/task/return", authMiddleware, async (req, res) => {
+    const { taskId } = req.body;
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        if (!task.creatorId.equals(req.user.id))
+            return res.status(403).json({ msg: "Unauthorized to review" });
+
+        if (!task.isSubmitted)
+            return res.status(400).json({ msg: "Task already returned" });
+
+        task.isSubmitted = false;
+
+        const creator = await User
+            .findById(req.user.id)
+            .select("firstname lastname");
+
+        // make activity
+        task.activity.push({
+            type: "ACTION",
+            userId: req.user.id,
+            action: "TASK_RETURNED",
+            content: `${creator.firstname} ${creator.lastname} retruned this task`,
+            time: new Date()
+        });
+
+        // make notification
+        if (!task.assigneeId.equals(task.creatorId)) {
+            await Notification.create({
+                users: recipients([task.assigneeId]),
+                type: "TASK_RETURNED",
+                icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `Task returned by ${creator.firstname} ${creator.lastname}: ${task.title}`,
                 action: {
                     type: "NAVIGATE",
                     url: `/task/${task._id}`

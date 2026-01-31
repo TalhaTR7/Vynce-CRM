@@ -191,11 +191,12 @@
                     appearance: none;
                     display: grid;
                     place-content: center;
-                    width: 14px;
-                    height: 14px;
+                    width: 18px;
+                    height: 18px;
+                    flex-shrink: 0;
                     flex: 0 0 16px;
-                    min-width: 14px;
-                    max-width: 14px;
+                    min-width: 18px;
+                    max-width: 18px;
 
                     border: 1px solid #555;
                     border-radius: 4px;
