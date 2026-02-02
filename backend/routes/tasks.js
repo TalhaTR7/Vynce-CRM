@@ -19,6 +19,7 @@ function formatImage(image) {
     else return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
+
 // create a task
 router.post("/create", authMiddleware, async (req, res) => {
     const {
@@ -113,7 +114,7 @@ router.post("/create", authMiddleware, async (req, res) => {
         // make notification
         if (assigneeId !== req.user.id) {
             await Notification.create({
-                userIds: recipients([assigneeId]),
+                users: recipients([assigneeId]),
                 type: "TASK_ASSIGNED",
                 icon: {
                     type: "PROJECT",
@@ -307,7 +308,7 @@ router.patch("/task/:taskId/editTitle", authMiddleware, async (req, res) => {
 
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create({
-                userIds: [task.assigneeId],
+                users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
                 icon: {
                     type: "PROJECT",
@@ -437,7 +438,7 @@ router.patch("/task/:taskId/editDueDate", authMiddleware, async (req, res) => {
 
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create({
-                userIds: [task.assigneeId],
+                users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
                 icon: {
                     type: "PROJECT",
@@ -494,7 +495,7 @@ router.patch("/task/:taskId/changeStatus", authMiddleware, async (req, res) => {
 
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create({
-                userIds: [task.assigneeId],
+                users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
                 icon: {
                     type: "PROJECT",
@@ -635,7 +636,7 @@ router.patch("/task/:taskId/changeBounty", authMiddleware, async (req, res) => {
 
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create({
-                userIds: [task.assigneeId],
+                users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
                 icon: {
                     type: "PROJECT",
@@ -683,7 +684,7 @@ router.patch("/task/:taskId/changeDifficulty", authMiddleware, async (req, res) 
 
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create({
-                userIds: [task.assigneeId],
+                users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
                 icon: {
                     type: "PROJECT",
@@ -731,7 +732,7 @@ router.patch("/task/:taskId/editDescription", authMiddleware, async (req, res) =
 
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create({
-                userIds: [task.assigneeId],
+                users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
                 icon: {
                     type: "PROJECT",
@@ -869,6 +870,8 @@ router.patch("/task/submit", authMiddleware, async (req, res) => {
             })
         }
 
+        task.isTimerRunning = false;
+
         await task.save();
         res.status(200).json({
             submission: task.isSubmitted,
@@ -925,6 +928,8 @@ router.patch("/task/return", authMiddleware, async (req, res) => {
                 },
             })
         }
+
+        task.isTimerRunning = false;
 
         await task.save();
         res.status(200).json({

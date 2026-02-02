@@ -9,6 +9,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
+import Loading from "./Loading";
 
 
 function Sidebar() {
@@ -58,7 +59,7 @@ function Sidebar() {
         fetchProjects();
     }, [openModal]);
 
-    if (!user) return <p>Loading...</p>;
+    if (!user) return <Loading />;
 
     return (
         <aside className={styles.sidebar}>
@@ -91,7 +92,7 @@ function Sidebar() {
                         </Link>
                     ))}
                 </div>
-                <button className={styles.create} onClick={() => openModal("FIND_MEMBER")}>
+                <button className={styles.create} onClick={() => openModal("FIND_USER")}>
                     <img src={add_svg} />
                     <p>Find someone</p>
                 </button>

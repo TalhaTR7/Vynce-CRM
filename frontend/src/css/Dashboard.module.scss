@@ -19,7 +19,7 @@
 
         .myWork,
         .bottomLeft,
-        .bottomRight {
+        .notifications {
             background: #151515;
             border-radius: 10px;
             height: 100%;
@@ -37,7 +37,7 @@
             grid-area: left;
         }
 
-        .bottomRight {
+        .notifications {
             grid-area: right;
         }
 
@@ -187,22 +187,31 @@
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
-                border-top: 1px solid #212121;
                 margin: 5px 0;
 
                 .task {
                     display: grid;
                     grid-template-columns: 1fr 180px 180px 180px;
                     align-items: center;
-                    border-bottom: 1px solid #212121;
-                    opacity: 0.7;
+                    border-bottom: 1px solid #33333399;
+                    opacity: 0.8;
                     cursor: pointer;
                     text-decoration: none;
 
+                    &:first-child {
+                        border-top: 1px solid #33333399;
+                    }
+
                     &:hover {
                         background-color: #212121;
-                        opacity: 1;
+                        border-bottom-color: transparent;
+                        border-top-color: transparent;
                     }
+
+                    &:has(+ .task:hover) {
+                        border-bottom-color: transparent;
+                    }
+
 
                     .taskMain {
                         display: flex;
@@ -228,7 +237,7 @@
                         }
 
                         h3 {
-                            font: 21px Roboto;
+                            font: 18px Roboto;
                             color: #ccc;
                             margin: 0;
                             white-space: nowrap;
@@ -257,34 +266,6 @@
                         color: #ccc;
                         text-align: center;
                     }
-                }
-            }
-
-            .link {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                gap: 10px;
-                position: absolute;
-                bottom: 4%;
-                margin: 0px 25px;
-                padding: 5px 10px;
-                opacity: 0.7;
-                cursor: pointer;
-                text-decoration: none;
-
-                img {
-                    width: 12px;
-                }
-
-                p {
-                    font: 16px Roboto;
-                    color: #ccc;
-                    margin: 0;
-                }
-
-                &:hover {
-                    opacity: 1;
                 }
             }
 
@@ -321,6 +302,178 @@
                         cursor: pointer;
                     }
                 }
+            }
+        }
+
+        .notifications {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+
+            .list {
+                display: flex;
+                flex-direction: column;
+                padding: 15px 0;
+                width: 100%;
+                box-sizing: border-box;
+
+                .mail {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    gap: 20px;
+                    padding: 12px 7px;
+                    border-bottom: 1px solid #33333399;
+                    cursor: pointer;
+                    text-decoration: none;
+
+                    margin: 0 20px;
+
+                    &:first-child {
+                        border-top: 1px solid #33333399;
+                    }
+
+                    &:hover {
+                        background-color: #212121;
+                        border-bottom-color: transparent;
+                        border-top-color: transparent;
+                        margin: 0;
+                        padding: 12px 27px;
+
+                        .time {
+                            visibility: visible;
+                        }
+                    }
+
+                    &:has(+ .mail:hover) {
+                        border-bottom-color: transparent;
+                    }
+
+                    .icon {
+                        width: 30px;
+                        height: 30px;
+                        overflow: hidden;
+
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: contain;
+                            display: block;
+                            user-select: none;
+                        }
+                    }
+
+                    ._project {
+                        border-radius: 20%;
+                    }
+
+                    ._user {
+                        border-radius: 50%;
+                    }
+
+                    .title {
+                        font: 18px Roboto;
+                        color: #ccc;
+                        margin: 0;
+                        text-align: left;
+                        user-select: none;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    .time {
+                        margin: 0 auto;
+                        flex: 1;
+                        text-align: right;
+                        padding: 0 7px;
+                        font: 16px Roboto;
+                        color: #777;
+                        visibility: hidden;
+                        pointer-events: none;
+                        user-select: none;
+                        margin: 0;
+                    }
+                }
+            }
+
+            .emptyContainer {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                gap: 10px;
+                margin: 30px auto;
+                user-select: none;
+
+                img {
+                    width: 150px;
+                    opacity: 0.2;
+                    pointer-events: none;
+                }
+
+                label {
+                    font: 16px Roboto;
+                    color: #777;
+                    margin: 0;
+                    width: 30%;
+                    text-align: center;
+                    line-height: 1.5;
+                    pointer-events: none;
+
+                }
+
+                .link {
+                    margin: 10px auto;
+                    opacity: 0.7;
+                    cursor: pointer;
+
+                    img {
+                        width: 12px;
+                        opacity: 0.8;
+                    }
+
+                    p {
+                        font: 16px Roboto;
+                        color: #ccc;
+                        margin: 0;
+                    }
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+            }
+        }
+
+        .myWork .link,
+        .notifications .link {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            bottom: 4%;
+            margin: 5px 25px;
+            padding: 5px 10px;
+            opacity: 0.7;
+            cursor: pointer;
+            text-decoration: none;
+
+            img {
+                width: 12px;
+            }
+
+            p {
+                font: 16px Roboto;
+                color: #ccc;
+                margin: 0;
+            }
+
+            &:hover {
+                opacity: 1;
             }
         }
     }

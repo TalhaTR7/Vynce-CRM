@@ -8,6 +8,9 @@ const memberSchema = new mongoose.Schema({
     { timestamps: true }
 );
 
-memberSchema.index({ projectId: 1, userId: 1 }, { unique: true });
+memberSchema.index(
+    { projectId: 1, userId: 1 },
+    { unique: true }
+);
 
 export default mongoose.model("Member", memberSchema);

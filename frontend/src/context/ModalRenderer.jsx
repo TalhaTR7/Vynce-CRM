@@ -4,7 +4,7 @@ import CreateProject from "../components/modals/CreateProject";
 import CreateBoard from "../components/modals/CreateBoard";
 import CreateTask from "../components/modals/CreateTask";
 import { SetBounty, SetDifficulty } from "../components/modals/Popovers";
-import { CloseTask, DeleteAccount, DeleteTask, FindMember, Logout, ReturnTask, SubmitTask, UpdatePassword } from "../components/modals/Dialogues";
+import { CloseTask, DeleteAccount, DeleteMails, DeleteTask, FindUser, InvitationResponse, InviteUser, LeaveProject, Logout, ReturnTask, SubmitTask, UpdatePassword } from "../components/modals/Dialogues";
 
 
 function ModalRenderer() {
@@ -24,7 +24,11 @@ function ModalRenderer() {
             {modal?.type === "LOGOUT" && (<Logout onClose={closeModal} />)}
             {modal?.type === "CHANGE_PASSWORD" && (<UpdatePassword onClose={closeModal} />)}
             {modal?.type === "DELETE_ACCOUNT" && (<DeleteAccount onClose={closeModal} user={modal.payload.user} />)}
-            {modal?.type === "FIND_MEMBER" && (<FindMember onClose={closeModal} />)}
+            {modal?.type === "FIND_USER" && (<FindUser onClose={closeModal} />)}
+            {modal?.type === "INVITE_USER" && (<InviteUser onClose={closeModal} projectId={modal.payload.projectId} />)}
+            {modal?.type === "INVITE_RESPONSE" && (<InvitationResponse onClose={closeModal} payload={modal.payload.payload} />)}
+            {modal?.type === "LEAVE_PROJECT" && (<LeaveProject onClose={closeModal} project={modal.payload.project} />)}
+            {modal?.type === "DELETE_MAILS" && (<DeleteMails onClose={closeModal} selected={modal.payload.selected} />)}
         </ModalPortal>
     );
 }

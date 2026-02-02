@@ -3,7 +3,6 @@ import authMiddleware from "../middleware/auth.js";
 import Notification from "../models/Notification.js";
 import Project from "../models/Project.js";
 import User from "../models/User.js";
-import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -52,9 +51,9 @@ router.get("/user", authMiddleware, async (req, res) => {
 
 
 // mark as read on click
-router.patch("/read/:mailId", authMiddleware, async (req, res) => {
-    const userId = new mongoose.Types.ObjectId(req.user.id);
-    const mailId = new mongoose.Types.ObjectId(req.params.mailId);
+router.patch("/read", authMiddleware, async (req, res) => {
+    const userId = req.user.id;
+    const { mailId } = req.body;
 
     try {
         const mail = await Notification.findOneAndUpdate(
@@ -79,15 +78,16 @@ router.patch("/read/:mailId", authMiddleware, async (req, res) => {
 
 // read selected mails at once
 router.patch("/read-multiple", authMiddleware, async (req, res) => {
-    const { mailIds } = req.body;
-
-    if (mailIds.length === 0) return res.status(400).json({ msg: "Empty array" });
+    const { selected } = req.body;
 
     try {
-        const result = await Notification.updateMany(
-            { _id: { $in: mailIds }, "users._id": req.user.id, "users.read": false },
-            { $set: { "users.$.read": true } }
-        );
+        await Notification.updateMany({
+            _id: { $in: selected },
+            "users._id": req.user.id,
+            "users.read": false
+        }, {
+            $set: { "users.$.read": true }
+        });
 
         res.status(200).json({ msg: "Marked as read" });
     } catch (err) {
@@ -96,15 +96,16 @@ router.patch("/read-multiple", authMiddleware, async (req, res) => {
 });
 
 
-// mark all as read
-router.patch("/read-all", authMiddleware, async (req, res) => {
-    try {
-        await Notification.updateMany(
-            { "users._id": req.user.id, "users.read": false },
-            { $set: { "users.$.read": true } }
-        );
+// delete selected mails
+router.patch("/delete", authMiddleware, async (req, res) => {
+    const { selected } = req.body;
 
-        res.status(200).json({ msg: "Marked as read" });
+    try {
+        await Notification.deleteMany({
+            _id: { $in: selected },
+            "users._id": req.user.id
+        });
+        res.status(200).json({ msg: "Mails Deleted" });
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }

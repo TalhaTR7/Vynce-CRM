@@ -14,6 +14,7 @@ import okay_emoji from "../assets/moods/okay.svg";
 import vibing_emoji from "../assets/moods/vibing.svg";
 import happy_emoji from "../assets/moods/happy.svg";
 import chilling_emoji from "../assets/moods/chilling.svg";
+import Loading from "./Loading";
 
 export const mood = {
     ANGRY: angry_emoji,
@@ -35,9 +36,8 @@ function Header() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const token = localStorage.getItem("token");
                 const res = await axios.get("http://localhost:5000/api/users/user", {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
                 setUser(res.data);
             } catch (err) {
@@ -61,7 +61,7 @@ function Header() {
         return () => clearInterval(interval);
     }, [user]);
 
-    if (!user) return <p>Loading...</p>;
+    if (!user) return <Loading />;
 
     return (
         <header className={styles.Header}>

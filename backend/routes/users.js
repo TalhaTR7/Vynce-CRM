@@ -170,6 +170,7 @@ router.delete("/user", authMiddleware, async (req, res) => {
         archived.dueDate = null;
         archived.boardId = null;
         archived.assigneeId = null;
+        archived.isTimerRunning = false;
         archived.ethereum.assigned = 0;
 
         return archived;
@@ -186,9 +187,12 @@ router.delete("/user", authMiddleware, async (req, res) => {
 
     if (recepientIds.size > 0) {
       await Notification.create({
-        userIds: Array.from(recepientIds),
+        users: Array.from(recepientIds),
         type: "DELETED_ACCOUNT",
-        icon: { type: "USER", refId: user._id, url: formatImage(user.profileImage).url },
+        icon: {
+          type: "USER",
+          refId: user._id
+        },
         title: `${user.firstname} ${user.lastname} deleted their account. Their tasks have been archived.`,
         action: { type: "MESSAGE" }
       })

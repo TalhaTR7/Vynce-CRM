@@ -19,6 +19,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
 import axios from "axios";
 import SelectDate from "../components/modals/SelectDate";
+import Loading from "../components/Loading";
 
 
 
@@ -177,7 +178,7 @@ function Task() {
     }, [task?.activity]);
 
 
-    if (!task) return <p>Loading task ...</p>;
+    if (!task) return <Loading />;
 
 
     const saveTitle = async () => {

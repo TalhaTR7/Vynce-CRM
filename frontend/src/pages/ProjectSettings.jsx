@@ -185,7 +185,13 @@ function GeneralSettings({ project, setProject }) {
                     <div className={styles.box}>
                         <div className={styles.fields}>
                             <p>Leave this project notifying the owner</p>
-                            <button style={{ backgroundColor: "var(--red)", padding: "3px 15px" }}>
+                            <button style={{ backgroundColor: "var(--red)", padding: "3px 15px" }}
+                                onClick={() => openModal("LEAVE_PROJECT", {
+                                    project: {
+                                        _id: project._id,
+                                        name: project.name
+                                    }
+                                })}>
                                 <p style={{ color: "#fff" }}>Leave</p>
                             </button>
                         </div>
@@ -205,6 +211,7 @@ function MemberSettings({ project }) {
 
     const [searchValue, setSearchValue] = useState("");
     const members = project.memberships;
+    const { openModal } = useModal();
 
     return (
         <div className={styles.memberSettings}>
@@ -225,7 +232,7 @@ function MemberSettings({ project }) {
                         <button className={styles.button}>
                             <img src={selectAll_svg} />
                         </button>
-                        <button className={styles.invite}>
+                        <button className={styles.invite} onClick={() => openModal("INVITE_USER", { projectId: project._id })}>
                             <img src={add_svg} />
                             <p>Invite people</p>
                         </button>

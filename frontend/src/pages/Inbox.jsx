@@ -10,15 +10,18 @@ import right_svg from "../assets/icons/right.svg";
 import emptyBox_svg from "../assets/icons/emptyBox.svg";
 import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
+import { useModal } from "../context/ModalContext";
 import axios from "axios";
 
 
 function Inbox() {
-    const { notifications } = useOutletContext();
+    const { notifications, refreshNotifications } = useOutletContext();
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [selected, setSelected] = useState([]);
     const itemsPerPage = 10;
+
+    const { openModal } = useModal();
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -58,12 +61,32 @@ function Inbox() {
     const upper = Math.min(upperBound, totalCount);
 
     const handleClick = async (id) => {
-        await axios.patch(`http://localhost:5000/api/inbox/read/${id}`, null, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
-        });
+        try {
+            await axios.patch(`http://localhost:5000/api/inbox/read`, { mailId: id }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            refreshNotifications();
+        }
     };
+
+    const handleMultpleReads = async () => {
+        try {
+            await axios.patch(`http://localhost:5000/api/inbox/read-multiple`, { selected }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            refreshNotifications();
+        }
+    }
 
     const allSelected = notifications.length > 0 && selected.length === notifications.length;
 
@@ -91,10 +114,10 @@ function Inbox() {
                             <input type="checkbox" id="select-all" checked={allSelected} onChange={toggleSelectAll} />
                             <label htmlFor="select-all">Select all</label>
                         </div>
-                        <button className={styles.buttons} onClick={() => console.log(selected)}>
+                        <button className={styles.buttons} onClick={() => selected.length > 0 ? openModal("DELETE_MAILS", { selected }) : null}>
                             <img src={delete_svg} style={{ opacity: "0.7" }} />
                         </button>
-                        <button className={styles.buttons}>
+                        <button className={styles.buttons} onClick={() => handleMultpleReads()}>
                             <img src={read_svg} />
                         </button>
                         <div className={styles.search}>
@@ -107,8 +130,7 @@ function Inbox() {
                             <img src={right_svg} onClick={nextPage} />
                         </div>
                     </div>
-                    {
-                        totalCount &&
+                    {totalCount ?
                         <div className={styles.list}>
                             {
                                 currentMails.filter(mail => {
@@ -128,11 +150,25 @@ function Inbox() {
                                     });
                                     const userEntry = mail.users.find(user => user._id === localStorage.getItem("_id"));
                                     const isRead = userEntry.read;
+
+                                    const formatIcon = (icon) => {
+                                        switch (icon.type) {
+                                            case "USER": return `http://localhost:5000/api/uploads/users/${icon.refId}.png`;
+                                            case "PROJECT": return `http://localhost:5000/api/uploads/projects/${icon.refId}.png`;
+                                            case "SVG": return icon.url;
+                                            default: return null;
+                                        }
+                                    };
+
                                     return (
-                                        <Link key={mail._id} to={mail.action.type === "NAVIGATE" ? mail.action.url : ''} className={styles.mail} onClick={async () => await handleClick(mail._id)}>
+                                        <Link key={mail._id} to={mail.action.type === "NAVIGATE" && mail.action.url} className={styles.mail} onClick={async () => {
+                                            mail.type === "PROJECT_INVITATION" &&
+                                                openModal("INVITE_RESPONSE", { payload: mail.action.payload });
+                                            await handleClick(mail._id);
+                                        }}>
                                             <input type="checkbox" className={styles.checkbox} checked={selected.includes(mail._id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleSelect(mail._id)} />
                                             <div className={`${styles.icon} ${classname}`}>
-                                                <img src={mail.icon.url} />
+                                                <img src={formatIcon(mail.icon)} />
                                             </div>
                                             <div className={styles.info}>
                                                 <p className={styles.meta}>Payload</p>
@@ -145,9 +181,7 @@ function Inbox() {
                                 })
                             }
                         </div>
-                    }
-                    {
-                        !totalCount &&
+                        :
                         <div className={styles.emptyInbox}>
                             <img src={emptyBox_svg} />
                             <p>Nothing here yet. Seems to be your inbox chose peace</p>

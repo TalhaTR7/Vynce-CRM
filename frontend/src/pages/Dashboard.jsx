@@ -7,11 +7,13 @@ import comment_svg from "../assets/icons/comment.svg";
 import link_svg from "../assets/icons/link.svg";
 import boards_svg from "../assets/icons/boards.svg";
 import tasks_svg from "../assets/icons/tasks.svg";
+import emptyBox_svg from "../assets/icons/emptyBox.svg";
 import styles from "../css/Dashboard.module.scss";
 import { useModal } from "../context/ModalContext";
 import { useState, useEffect } from 'react';
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
+import Loading from "../components/Loading";
 
 function Dashboard() {
 
@@ -21,6 +23,9 @@ function Dashboard() {
     const [boards, setBoards] = useState([]);
     const [activeBoardId, setActiveBoardId] = useState(boards?.[0]?._id || null);
     const [tasks, setTasks] = useState([]);
+
+    const { notifications, refreshNotifications } = useOutletContext();
+    const topNotifications = notifications.slice(0, 5);
 
     const { openModal } = useModal();
 
@@ -111,8 +116,8 @@ function Dashboard() {
     }, [projects, boards]);
 
 
-    if (user === null) return <p>Loading user...</p>;
-    if (user === false) return <p>Unauthorized</p>;
+    if (user === null) return <Loading />;
+    if (user === false) return <p style={{ fontFamily: "monospace" }}>Unauthorized</p>;
 
     const createdAt = (task) => new Date(task.createdAt).toLocaleDateString("en-GB", {
         day: "numeric",
@@ -221,8 +226,68 @@ function Dashboard() {
                     <section className={styles.bottomLeft}>
                         <h1>Weekly leaderboards</h1>
                     </section>
-                    <section className={styles.bottomRight}>
+                    <section className={styles.notifications}>
                         <h1>Notifications</h1>
+                        {notifications.length !== 0 && <>
+                            <div className={styles.list}>
+                                {topNotifications.map(mail => {
+                                    const classname =
+                                        mail.icon.type === "PROJECT"
+                                            ? styles._project
+                                            : mail.icon.type === "USER"
+                                                ? styles._user
+                                                : "";
+                                    const createdAt = new Date(mail.createdAt).toLocaleDateString("en-GB", {
+                                        day: "numeric",
+                                        month: "short",
+                                    });
+                                    const userEntry = mail.users.find(user => user._id === localStorage.getItem("_id"));
+
+                                    const handleClick = async (id) => {
+                                        try {
+                                            await axios.patch(`http://localhost:5000/api/inbox/read`, { mailId: id }, {
+                                                headers: {
+                                                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                                                }
+                                            });
+                                        } catch (err) {
+                                            console.error(err);
+                                        } finally {
+                                            refreshNotifications();
+                                        }
+                                    };
+
+                                    return (
+                                        <Link key={mail._id} to={mail.action.type === "NAVIGATE" ? mail.action.url : ''} className={styles.mail} onClick={async () => {
+                                            mail.type === "PROJECT_INVITATION" &&
+                                                openModal("INVITE_RESPONSE", { payload: mail.action.payload });
+                                            await handleClick(mail._id)
+                                        }}>
+                                            <div className={`${styles.icon} ${classname}`}>
+                                                <img src={mail.icon.url} />
+                                            </div>
+                                            <p className={styles.title} style={{ fontWeight: userEntry.read ? 400 : 600 }}>{mail.title}</p>
+                                            <div style={{ flex: "1" }} />
+                                            <span className={styles.time}>{createdAt}</span>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                            <Link to={"/inbox"} className={styles.link}>
+                                <img src={link_svg} />
+                                <p>Open inbox</p>
+                            </Link>
+                        </>}
+                        {notifications.length === 0 &&
+                            <div className={styles.emptyContainer}>
+                                <img src={emptyBox_svg} />
+                                <label>Nothing here yet. Seems to be your inbox chose peace</label>
+                                <Link to={"/inbox"} className={styles.link}>
+                                    <img src={link_svg} />
+                                    <p>Open inbox</p>
+                                </Link>
+                            </div>
+                        }
                     </section>
                 </main>
             </div>

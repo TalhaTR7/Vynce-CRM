@@ -525,6 +525,7 @@
                         height: 18px;
                         opacity: 0.7;
                         user-select: none;
+                        cursor: pointer;
 
                         p {
                             font: 16px Roboto;
@@ -572,6 +573,7 @@
 
                     &::placeholder {
                         opacity: 0.7;
+                        user-select: none;
                     }
                 }
             }

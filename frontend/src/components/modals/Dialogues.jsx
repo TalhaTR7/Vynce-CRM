@@ -3,18 +3,19 @@ import hide_svg from "../../assets/icons/hide.svg";
 import { Dialogue } from "./Modal";
 import { useNavigate } from "react-router-dom";
 import styles from "./css/dialogues.module.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 
 export function Logout({ onClose }) {
     const navigate = useNavigate();
+
     const handleLogout = (handleClose) => {
         handleClose();
         localStorage.removeItem("token");
         navigate("/");
     }
-    console.log("MODAL RENDERED");
+
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
@@ -195,7 +196,7 @@ export function DeleteAccount({ onClose, user }) {
     )
 }
 
-export function FindMember({ onClose }) {
+export function FindUser({ onClose }) {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
 
@@ -379,6 +380,206 @@ export function DeleteTask({ onClose, task }) {
                     <div className={styles.buttons}>
                         <button className={styles.secondary} onClick={handleClose}>Cancel</button>
                         <button className={styles.primaryRed} onClick={() => submit(handleClose)}>Delete</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function InviteUser({ onClose, projectId }) {
+    const [email, setEmail] = useState("");
+
+    const submit = async (handleClose) => {
+        try {
+            await axios.post(`http://localhost:5000/api/invitations/invite`, { email, projectId }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success("Invitation sent");
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Invite a user</p>
+                    </div>
+                    <div className={styles.inputField}>
+                        <label className={styles.message}>Find and invite a user by email</label>
+                        <input type="text" onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Send invitation</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function InvitationResponse({ onClose, payload }) {
+    const navigate = useNavigate();
+    const [status, setStatus] = useState("");
+
+    useEffect(() => {
+        const fetchInvite = async () => {
+            const res = await axios.get(`http://localhost:5000/api/invitations/${payload.invitationId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            setStatus(res.data.status);
+        }
+        fetchInvite();
+    }, []);
+
+    const accept = async (handleClose) => {
+        try {
+            await axios.patch(`http://localhost:5000/api/invitations/accept`, {
+                invitationId: payload.invitationId,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success(`Welcome to ${payload.projectName}`);
+            navigate(`/project/${payload.projectId}`)
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+    const decline = async (handleClose) => {
+        try {
+            await axios.patch(`http://localhost:5000/api/invitations/decline`, {
+                invitationId: payload.invitationId,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success(`Declined ${payload.projectName} offer`);
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>An invitation</p>
+                    </div>
+                    <div className={styles.invitation}>
+                        <div className={styles.projectImage}>
+                            <img src={payload.projectImage} />
+                        </div>
+                        <div className={styles.content}>
+                            <span>{payload.inviter} invited you join</span>
+                            <p>{payload.projectName}</p>
+                        </div>
+                    </div>
+                    <div className={styles.buttons}>
+                        {status === "PENDING" ? <>
+                            <button className={styles.primaryRed} onClick={() => decline(handleClose)}>Decline</button>
+                            <button className={styles.primaryGreen} onClick={() => accept(handleClose)}>Accept</button>
+                        </> :
+                            <button className={styles.secondary} onClick={() => accept(handleClose)} style={{ pointerEvents: "none" }}>Invitation {status.toLowerCase()}</button>
+                        }
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function LeaveProject({ onClose, project }) {
+    const navigate = useNavigate();
+
+    const confirm = async (handleClose) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/memberships/leave`, {
+                data: { projectId: project._id },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success(`Left ${project.name}`);
+            navigate("/dashboard");
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Leaving the project</p>
+                    </div>
+                    <div className={styles.message} style={{ maxWidth: "300px" }}>
+                        You sure wanna leave? This will notify the owner and other admins.
+                    </div>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Leave</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    )
+}
+
+export function DeleteMails({ onClose, selected }) {
+
+    const confirm = async (handleClose) => {
+        try {
+            await axios.patch(`http://localhost:5000/api/inbox/delete`, { selected }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success(`Deletion in progress...`);
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Heads up!</p>
+                    </div>
+                    <div className={styles.message} style={{ maxWidth: "300px" }}>
+                        Some mails might not have been opened. Click the red one if you don't care.
+                    </div>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Delete</button>
                     </div>
                 </>
             )}

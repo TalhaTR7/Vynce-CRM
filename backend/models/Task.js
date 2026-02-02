@@ -29,6 +29,7 @@ const taskSchema = new mongoose.Schema({
                 "CREATED_TASK", // on task creation; creator
                 "CHANGED_TITLE", // on title edit; admin, owner
                 "CHANGED_ASSIGNEE", // on assignee change; admin, owner
+                "TRANSFERED_OWNERSHIP", // on assignee departure; owner, assignee
                 "CHANGED_DESCRIPTION", // on description edit; admin, owner
                 "CHANGED_DUE_DATE", // on due date edit; admin, owner
                 "STARTED_TIMER", // on timer start; assignee

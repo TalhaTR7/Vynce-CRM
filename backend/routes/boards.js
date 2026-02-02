@@ -62,9 +62,12 @@ router.post("/board", authMiddleware, async (req, res) => {
 
         if (userIds.length > 0) {
             await Notification.create({
-                userIds,
+                users: userIds,
                 type: "NEW_BOARD",
-                icon: { type: "PROJECT", refId: projectId },
+                icon: {
+                    type: "PROJECT",
+                    refId: projectId
+                },
                 title: `${creator.firstname} ${creator.lastname} created a new board [${name}]`,
                 action: {
                     type: "NAVIGATE",
@@ -166,9 +169,12 @@ router.patch("/board/:boardId", authMiddleware, async (req, res) => {
 
         if (userIds.length > 0) {
             await Notification.create({
-                userIds,
+                users: userIds,
                 type: "EDIT_BOARD",
-                icon: { type: "PROJECT", refId: projectId },
+                icon: {
+                    type: "PROJECT",
+                    refId: projectId
+                },
                 title: `${editor.firstname} ${editor.lastname} made edits to the board. Click to view changes!`,
                 action: {
                     type: "NAVIGATE",

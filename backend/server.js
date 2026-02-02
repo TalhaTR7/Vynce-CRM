@@ -11,6 +11,7 @@ import taskRoutes from "./routes/tasks.js";
 import archiveRoutes from "./routes/archives.js";
 import messageRoutes from "./routes/messages.js";
 import mailRoutes from "./routes/inbox.js";
+import inviteRoutes from "./routes/invitations.js";
 import "./cron/taskDueNotifications.js";
 import "./cron/cleanupNotifications.js";
 
@@ -30,6 +31,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/archives", archiveRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/inbox", mailRoutes);
+app.use("/api/invitations", inviteRoutes);
 app.use("/api/uploads", express.static("uploads"));
 
 mongoose.connect(process.env.MONGO_URI)

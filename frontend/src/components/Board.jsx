@@ -4,13 +4,13 @@ import add_svg from "../assets/icons/add.svg"
 import { Card } from "./Card";
 import { useModal } from "../context/ModalContext";
 import { useDroppable } from "@dnd-kit/core";
+import Loading from "./Loading";
 
 function Board({ board, tasks, role }) {
-    const { setNodeRef } = useDroppable({ id: board._id});
+    const { setNodeRef } = useDroppable({ id: board._id });
     const { openModal } = useModal();
 
-    if (!board) return <p>Loading board...</p>;
-
+    if (!board) return <Loading />
 
     const taskObj = {
         project: {
@@ -27,19 +27,16 @@ function Board({ board, tasks, role }) {
 
     return (
         <section className={styles.board} ref={setNodeRef}>
-            <div className={styles.boardInfo}>
+            <div className={styles.boardInfo}
+                style={role === "MEMBER" ? {
+                    backgroundColor: "#121212",
+                    border: "1px solid #181818",
+                    marginBottom: "10px",
+                } : undefined}>
                 <div className={styles.color} style={{ backgroundColor: board.color }} />
                 <h6>{board.name}</h6>
                 <p>{tasks.length}</p>
-                {
-                    (role === "OWNER" || role === "ADMIN") &&
-                    <img src={more_svg} />
-                }
             </div>
-            {
-                role === "MEMBER" &&
-                <div className={styles.boardColor} style={{ backgroundColor: board.color }} />
-            }
             <div className={styles.taskContainer}>
                 {
                     (role === "OWNER" || role === "ADMIN") &&

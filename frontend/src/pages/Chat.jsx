@@ -8,6 +8,7 @@ import styles from "../css/Chat.module.scss";
 import { useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import Loading from "../components/Loading";
 
 function Chat() {
     const { id } = useParams();
@@ -70,8 +71,7 @@ function Chat() {
         }
     }, [messages]);
 
-    if (!messages) return <p>Loading messages...</p>;
-    if (!otherUser) return <p>Loading other user...</p>;
+    if (!messages || !otherUser) return <Loading />;
 
     const sendMessage = async () => {
         if (!message.trim()) return;

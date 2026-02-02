@@ -115,6 +115,8 @@ router.get("/project/:id", authMiddleware, async (req, res) => {
             userId: req.user.id
         });
 
+        if (!membership) res.status(403).json({ msg: "Not a member" });
+
         res.status(200).json({
             ...project.toObject(),
             userRole: membership.role,
@@ -164,9 +166,12 @@ router.patch("/project/:id/edit", authMiddleware, imageUpload.single("image"), a
 
         if (userIds.length > 0) {
             await Notification.create({
-                userIds,
+                users: userIds,
                 type: "EDIT_PROJECT",
-                icon: { type: "PROJECT", refId: id },
+                icon: {
+                    type: "PROJECT",
+                    refId: id
+                },
                 title: `${editor.firstname} ${editor.lastname} made edits to the project. Click to view changes!`,
                 action: {
                     type: "NAVIGATE",

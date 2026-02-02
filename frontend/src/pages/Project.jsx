@@ -70,25 +70,29 @@ function Project() {
     }, [id, openModal]);
 
     useEffect(() => {
-        if (boards.length > 0) {
-            const fetchAllTasks = async (boards) => {
-                const results = await Promise.all(
-                    boards.map(board =>
-                        axios.get(`http://localhost:5000/api/tasks/board/${board._id}`, {
-                            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                        })
-                    )
-                );
+        try {
+            if (boards.length > 0) {
+                const fetchAllTasks = async (boards) => {
+                    const results = await Promise.all(
+                        boards.map(board =>
+                            axios.get(`http://localhost:5000/api/tasks/board/${board._id}`, {
+                                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                            })
+                        )
+                    );
 
-                const map = {};
-                boards.forEach((board, idx) => {
-                    map[board._id] = results[idx].data;
-                });
+                    const map = {};
+                    boards.forEach((board, idx) => {
+                        map[board._id] = results[idx].data;
+                    });
 
-                setTasksByBoard(map);
-            };
+                    setTasksByBoard(map);
+                };
 
-            fetchAllTasks(boards);
+                fetchAllTasks(boards);
+            }
+        } catch (err) {
+            console.error(err);
         }
     }, [boards]);
 

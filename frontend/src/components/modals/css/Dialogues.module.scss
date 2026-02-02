@@ -26,6 +26,51 @@
     pointer-events: none;
 }
 
+.invitation {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    margin: 20px;
+
+    .projectImage {
+        width: 45px;
+        height: 45px;
+        border-radius: 20%;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            user-select: none;
+            pointer-events: none;
+        }
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 3px;
+        user-select: none;
+
+        span {
+            font: 14px Roboto;
+            color: #777;
+            margin: 0;
+        }
+
+        p {
+            font: 21px Roboto;
+            color: #ccc;
+            margin: 0;
+        }
+
+    }
+}
+
 .inputField {
     display: flex;
     flex-direction: column;
@@ -142,6 +187,7 @@
     flex-direction: column;
     gap: 10px;
     padding: 20px 10px;
+
     .checkboxes {
         display: flex;
         flex-direction: row;
@@ -186,8 +232,9 @@
 
         label {
             font: 16px Roboto;
-            color: #999;
+            color: #ccc;
             margin: 0;
+            line-height: 1.5;
             max-width: 90%;
             text-align: left;
             user-select: none;

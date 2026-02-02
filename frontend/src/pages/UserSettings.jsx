@@ -15,6 +15,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
 import toast from "react-hot-toast";
+import Loading from "../components/Loading";
 
 
 function GeneralSettings({ user, setUser }) {
@@ -35,7 +36,7 @@ function GeneralSettings({ user, setUser }) {
     }, [user]);
 
 
-    if (!user) return <p>Loading user...</p>;
+    if (!user) return <Loading />;
 
 
     const handleDivClick = () => fileInputRef.current.click();
@@ -176,26 +177,32 @@ function ProjectSettings() {
             <p>My projects</p>
             <div className={styles.projectContainer}>
                 {
-                    projects.map(project => (
-                        <div key={project._id} className={styles.project}>
-                            <div className={styles.projectImage}>
-                                <img src={project.projectImage.url} />
+                    projects.map(project => {
+                        const projectObj = {
+                            _id: project._id,
+                            name: project.name
+                        }
+                        return (
+                            <div key={project._id} className={styles.project}>
+                                <div className={styles.projectImage}>
+                                    <img src={project.projectImage.url} />
+                                </div>
+                                <div className={styles.projectInfo}>
+                                    <Link to={`/project/${project._id}`}>{project.name}</Link>
+                                    <p>Project {project.role.toLowerCase()}</p>
+                                </div>
+                                {(project.role === "MEMBER") && <p className={styles.leave} onClick={() => openModal("LEAVE_PROJECT", { project: projectObj })}>Leave</p>}
+                                {(project.role !== "MEMBER") &&
+                                    <Link
+                                        to={`/settings/project/${project._id}`}
+                                        state={{ origin: `${project._id}` }}
+                                        className={styles.settings}>
+                                        Settings
+                                    </Link>
+                                }
                             </div>
-                            <div className={styles.projectInfo}>
-                                <Link to={`/project/${project._id}`}>{project.name}</Link>
-                                <p>Project {project.role.toLowerCase()}</p>
-                            </div>
-                            {(project.role === "MEMBER") && <p className={styles.leave}>Leave</p>}
-                            {(project.role !== "MEMBER") &&
-                                <Link
-                                    to={`/settings/project/${project._id}`}
-                                    state={{ origin: `${project._id}` }}
-                                    className={styles.settings}>
-                                    Settings
-                                </Link>
-                            }
-                        </div>
-                    ))
+                        )
+                    })
                 }
             </div>
             <div className={styles.create} onClick={() => openModal("CREATE_PROJECT")}>

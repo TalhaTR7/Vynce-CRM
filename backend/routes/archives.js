@@ -83,7 +83,7 @@ router.patch("/task/close", authMiddleware, async (req, res) => {
         // make notification
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create([{
-                userIds: recipients([task.assigneeId]),
+                users: recipients([task.assigneeId]),
                 type: "TASK_CLOSED",
                 icon: {
                     type: "PROJECT",
@@ -162,7 +162,7 @@ router.patch("/task/archive", authMiddleware, async (req, res) => {
         // make notification
         if (!task.assigneeId.equals(task.creatorId)) {
             await Notification.create([{
-                userIds: recipients([task.assigneeId]),
+                users: recipients([task.assigneeId]),
                 type: "TASK_DELETED",
                 icon: {
                     type: "PROJECT",
@@ -229,7 +229,7 @@ router.delete("/task/:taskId/", authMiddleware, async (req, res) => {
         const userIds = members.map(member => member.userId);
 
         if (userIds.length > 0) await Notification.create({
-            userIds,
+            users: userIds,
             type: "SHREDDING",
             icon: {
                 type: "PROJECT",
