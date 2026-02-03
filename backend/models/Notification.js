@@ -12,6 +12,7 @@ const notificationSchema = new mongoose.Schema(
                 "TASK_REASSIGNED",      // ✅ on task creation; assignee
                 "TASK_SUBMITTED",       // ✅ on task creation; creator
                 "TASK_RETURNED",        // ✅ on task return; assignee
+                "TASK_RESTORED",        // ✅ when the task is restored; assignee
                 "TASK_DELETED",         // ✅ on task deletion without assignee reward; assignee
                 "TASK_CLOSED",          // ✅ on task closure and assignee reward; assignee
                 "TASK_DUE_IN",          // ✅ when the task is 2 days away from due; assignee

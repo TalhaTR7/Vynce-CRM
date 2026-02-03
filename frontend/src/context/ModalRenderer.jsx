@@ -1,8 +1,8 @@
 import { useModal } from "./ModalContext";
 import ModalPortal from "./ModalPortal";
-import CreateProject from "../components/modals/CreateProject";
-import CreateBoard from "../components/modals/CreateBoard";
-import CreateTask from "../components/modals/CreateTask";
+import { CreateProject } from "../components/modals/CreateProject";
+import { CreateBoard } from "../components/modals/CreateBoard";
+import { CreateTask, RestoreTask } from "../components/modals/CreateTask";
 import { SetBounty, SetDifficulty } from "../components/modals/Popovers";
 import { CloseTask, DeleteAccount, DeleteMails, DeleteTask, FindUser, InvitationResponse, InviteUser, LeaveProject, Logout, ReturnTask, SubmitTask, UpdatePassword } from "../components/modals/Dialogues";
 
@@ -21,6 +21,7 @@ function ModalRenderer() {
             {modal?.type === "DELETE_TASK" && (<DeleteTask onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "SUBMIT_TASK" && (<SubmitTask onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "RETURN_TASK" && (<ReturnTask onClose={closeModal} task={modal.payload.task} />)}
+            {modal?.type === "RESTORE_TASK" && (<RestoreTask onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "LOGOUT" && (<Logout onClose={closeModal} />)}
             {modal?.type === "CHANGE_PASSWORD" && (<UpdatePassword onClose={closeModal} />)}
             {modal?.type === "DELETE_ACCOUNT" && (<DeleteAccount onClose={closeModal} user={modal.payload.user} />)}

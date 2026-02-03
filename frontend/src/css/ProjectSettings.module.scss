@@ -227,6 +227,7 @@
                     flex-direction: column;
                     gap: 7px;
                     overflow-y: auto;
+                    mask-image: linear-gradient(to bottom, var(--body) 60%, transparent 100%);
 
                     &::-webkit-scrollbar {
                         width: 3px;
@@ -370,7 +371,7 @@
                             gap: 3px;
                             padding: 3px 7px;
                             user-select: none;
-                            opacity: 0.7;
+                            opacity: 0.9;
                             cursor: pointer;
 
                             img {
@@ -389,7 +390,6 @@
                         }
                     }
                 }
-
             }
 
             .save {
@@ -405,7 +405,7 @@
                 background-color: var(--green);
                 font: 16px Roboto;
                 color: #181818;
-                opacity: 0.5;
+                opacity: 0.7;
                 user-select: none;
                 cursor: not-allowed;
                 transition: all 0.2s ease;
@@ -549,7 +549,7 @@
                 flex-direction: row;
                 justify-content: flex-start;
                 align-items: center;
-                background-color: #212121;
+                background-color: #181818;
                 border-radius: 10px;
                 width: 100%;
                 gap: 10px;
@@ -729,6 +729,160 @@
                             user-select: none;
                         }
                     }
+                }
+            }
+        }
+
+        .archiveSettings {
+            display: flex;
+            flex-direction: column;
+            width: 900px;
+            height: 660px;
+            padding: 10px 120px;
+            gap: 15px;
+
+            .project {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                max-width: 70%;
+
+                .projectImage {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 20%;
+                    overflow: hidden;
+                    user-select: none;
+                    flex-shrink: 0;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        display: block;
+                    }
+                }
+
+                h3 {
+                    font: 32px Roboto;
+                    color: #ccc;
+                    margin: 0 10px 0 20px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                img {
+                    width: 30px;
+                    user-select: none;
+                    flex-shrink: 0;
+                }
+            }
+
+            .description {
+                font: 16px Roboto;
+                color: #999;
+                margin: 0;
+                width: 60%;
+                text-align: left;
+                line-height: 1.5;
+            }
+
+            .actionPane {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+
+                .inputField {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    gap: 10px;
+                    background-color: #181818;
+                    border-radius: 7px;
+                    padding: 5px 15px;
+                    height: 25px;
+                    width: 100%;
+
+                    &:focus-within img {
+                        display: none;
+                    }
+
+                    img {
+                        width: 15px;
+                        user-select: none;
+                        opacity: 0.3;
+                    }
+
+                    input {
+                        font: 16px Roboto;
+                        color: #ccc;
+                        background-color: transparent;
+                        border: none;
+                        outline: none;
+                        width: 100%;
+
+                        &::placeholder {
+                            opacity: 0.7;
+                            user-select: none;
+                        }
+
+                        &:focus::placeholder {
+                            color: transparent;
+                        }
+                    }
+                }
+
+                button {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
+                    width: 35px;
+                    height: 35px;
+                    background-color: #242424;
+                    border: none;
+                    border-radius: 7px;
+                    opacity: 0.8;
+                    user-select: none;
+                    flex-shrink: 0;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+
+                    img {
+                        width: 18px;
+                    }
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+
+                .delete {
+                    img {
+                        opacity: 0.7;
+                    }
+
+                    &:hover img {
+                        opacity: 1;
+                    }
+                }
+            }
+
+            .taskContainer {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                width: 100%;
+                mask-image: linear-gradient(to bottom, var(--body) 80%, transparent 100%);
+                overflow: auto;
+
+
+                &::-webkit-scrollbar {
+                    display: none;
                 }
             }
         }

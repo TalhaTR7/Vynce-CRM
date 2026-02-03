@@ -78,7 +78,6 @@ router.delete("/leave", authMiddleware, async (req, res) => {
                 archived.dueDate = null;
                 archived.boardId = null;
                 archived.assigneeId = null;
-                archived.ethereum.assigned = 0;
                 archived.isTimerRunning = false;
                 archived.activity.push({
                     userId,
@@ -111,7 +110,6 @@ router.delete("/leave", authMiddleware, async (req, res) => {
                 archived.dueDate = null;
                 archived.boardId = null;
                 archived.assigneeId = null;
-                archived.ethereum.assigned = 0;
                 archived.isTimerRunning = false;
                 archived.activity.push({
                     userId,

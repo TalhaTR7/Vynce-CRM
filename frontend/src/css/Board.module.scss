@@ -5,6 +5,7 @@
     height: 98%;
     overflow-y: hidden;
     background-color: transparent;
+    mask-image: linear-gradient(to bottom, var(--body) 80%, transparent 100%);
 
     &:hover .boardInfo img {
         visibility: visible;
@@ -18,7 +19,7 @@
         align-items: center;
         gap: 10px;
         padding: 5px 10px;
-        margin: 5px 0;
+        margin: 5px 0px;
         border-radius: 7px;
 
         .color {
@@ -35,11 +36,14 @@
             cursor: default;
         }
 
-        p {
+        span {
             font: 14px Roboto;
-            color: #777;
+            color: #999;
             margin: 0;
             cursor: default;
+            padding: 0 5px;
+            background-color: #242424;
+            border-radius: 5px;
         }
 
         img {
@@ -86,7 +90,7 @@
             align-items: center;
             background-color: #181818;
             padding: 5px;
-            border-radius: 10px;
+            border-radius: 7px;
             cursor: pointer;
             user-select: none;
 

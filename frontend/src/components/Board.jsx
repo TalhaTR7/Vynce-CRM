@@ -35,7 +35,11 @@ function Board({ board, tasks, role }) {
                 } : undefined}>
                 <div className={styles.color} style={{ backgroundColor: board.color }} />
                 <h6>{board.name}</h6>
-                <p>{tasks.length}</p>
+                <span>{tasks.length}</span>
+                {
+                    role !== "MEMBER" &&
+                    <img src={more_svg} />
+                }
             </div>
             <div className={styles.taskContainer}>
                 {
@@ -50,7 +54,7 @@ function Board({ board, tasks, role }) {
                 {tasks.map(task => (
                     !task.closed &&
                     <div key={task._id} to={`/task/${task._id}`} className={styles.task}>
-                        <Card task={task} />
+                        <Card task={task} status={board.name} />
                     </div>
                 ))}
             </div>

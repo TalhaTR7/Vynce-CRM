@@ -59,7 +59,7 @@ function Header() {
         const interval = setInterval(updateTime, 1000 * 60);
 
         return () => clearInterval(interval);
-    }, [user]);
+    }, []);
 
     if (!user) return <Loading />;
 

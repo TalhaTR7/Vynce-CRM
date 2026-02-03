@@ -14,7 +14,7 @@ const DEFAULT_COLORS = ["#cccccc", "#00FFFF", "#00ff00",
     "#FF0066", "#0077FF", "#00ffaa",
     "#444444", "#ffffff"];
 
-function CreateBoard({ onClose, project }) {
+export function CreateBoard({ onClose, project }) {
     const [name, setName] = useState("");
     const [colors, setColors] = useState(DEFAULT_COLORS);
     const [selectedColor, setSelectedColor] = useState(DEFAULT_COLORS[0]);
@@ -102,4 +102,3 @@ function CreateBoard({ onClose, project }) {
     );
 }
 
-export default CreateBoard;

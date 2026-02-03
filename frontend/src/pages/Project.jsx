@@ -103,7 +103,8 @@ function Project() {
         document.title = `Vynce | ${project?.name}`;
     });
 
-    if (!project || !user) return <Loading />;
+    if (!user) return <Loading />;
+    if (!project) return <p>403: Unauthorized</p>;
 
     const userRole = project.memberships.find(member => member.user._id === user._id).role;
 
@@ -155,7 +156,6 @@ function Project() {
         name: project.name,
         image: project.projectImage.url
     }
-
 
     return (
         <div className={styles.canvas}>

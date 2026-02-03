@@ -5,6 +5,7 @@ import Sidebar from "../components/Sidebar";
 import back_svg from "../assets/icons/back.svg";
 import settings_svg from "../assets/icons/settings.svg";
 import team_svg from "../assets/icons/team.svg";
+import archive_svg from "../assets/icons/archive.svg";
 import owner_svg from "../assets/icons/owner.svg";
 import admin_svg from "../assets/icons/admin.svg";
 import drag_svg from "../assets/icons/drag.svg";
@@ -19,6 +20,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom"
 import { useModal } from "../context/ModalContext";
+import { ArchivedCard } from "../components/Card";
 
 import angry_emoji from "../assets/moods/angry.svg";
 import exhausted_emoji from "../assets/moods/exhausted.svg";
@@ -30,6 +32,7 @@ import vibing_emoji from "../assets/moods/vibing.svg";
 import happy_emoji from "../assets/moods/happy.svg";
 import chilling_emoji from "../assets/moods/chilling.svg";
 import toast from "react-hot-toast";
+import Loading from "../components/Loading";
 
 
 function GeneralSettings({ project, setProject }) {
@@ -198,7 +201,6 @@ function GeneralSettings({ project, setProject }) {
                     </div>
                 </div>
             }
-
             <button className={`${styles.save} ${saveNeeded ? styles.active : ""}`} disabled={!saveNeeded} onClick={saveProject}>
                 Save
             </button>
@@ -208,8 +210,8 @@ function GeneralSettings({ project, setProject }) {
 
 
 function MemberSettings({ project }) {
-
     const [searchValue, setSearchValue] = useState("");
+    const [selected, setSelected] = useState([]);
     const members = project.memberships;
     const { openModal } = useModal();
 
@@ -280,7 +282,7 @@ function MemberSettings({ project }) {
                             }
 
                             return (
-                                <div className={styles.member}>
+                                <div className={styles.member} key={member._id}>
                                     {
                                         (project.userRole === "OWNER") &&
                                         <input type="checkbox" />
@@ -304,6 +306,78 @@ function MemberSettings({ project }) {
                         })
                     }
                 </div>
+            </div>
+        </div>
+    )
+}
+
+
+function ArchiveSettings({ project }) {
+    const [searchValue, setSearchValue] = useState("");
+    const [cards, setCards] = useState([]);
+    const [selected, setSelected] = useState([]);
+    const { openModal } = useModal();
+
+    useEffect(() => {
+        const fetchCards = async () => {
+            const res = await axios.get(`http://localhost:5000/api/archives/project/${project._id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            setCards(res.data);
+        }
+        fetchCards();
+    }, []);
+
+    const allSelected = cards.length > 0 && selected.length === cards.length;
+    const toggleSelectAll = () => {
+        if (allSelected) setSelected([]);
+        else setSelected(cards.map(mail => mail._id));
+    };
+
+    const toggleSelect = (id) => {
+        setSelected(prev => prev.includes(id)
+            ? prev.filter(_id => _id !== id)
+            : [...prev, id]
+        );
+    };
+
+    return (
+        <div className={styles.archiveSettings}>
+            <div className={styles.infoPane}>
+                <div className={styles.project}>
+                    <div className={styles.projectImage}>
+                        <img src={project.projectImage.url} />
+                    </div>
+                    <h3>{project.name}</h3>
+                    <img src={project.userRole === "OWNER" ? owner_svg : admin_svg} />
+                </div>
+            </div>
+            <p className={styles.description}>
+                This is the records room of this project. All these tasks are sorted by the time of closing. Click on a card to select. Double click to open options.
+            </p>
+            <div className={styles.actionPane}>
+                <div className={styles.inputField}>
+                    <img src={search_svg} />
+                    <input type="text" onChange={(e) => setSearchValue(e.target.value)} placeholder="Search by title" />
+                </div>
+                <button className={styles.selectAll} onClick={() => toggleSelectAll()}>
+                    <img src={selectAll_svg} />
+                </button>
+                <button className={styles.delete} style={{ backgroundColor: selected.length === 0 ? "#242424" : "var(--red)" }}>
+                    <img src={delete_svg} />
+                </button>
+            </div>
+            <div className={styles.taskContainer}>
+                {cards.map(card => (
+                    <ArchivedCard
+                        key={card._id}
+                        task={card}
+                        onClick={() => toggleSelect(card._id)}
+                        isSelected={selected.includes(card._id)}
+                    />
+                ))}
             </div>
         </div>
     )
@@ -341,12 +415,13 @@ function ProjectSettings() {
         document.title = `Settings | ${project?.name}`;
     });
 
-    if (!project) return <p>Loading project...</p>;
+    if (!project) return <Loading />
 
     const renderContent = () => {
         switch (activeTab) {
             case "general": return <GeneralSettings project={project} setProject={setProject} />;
             case "team": return <MemberSettings project={project} />;
+            case "archive": return <ArchiveSettings project={project} />;
             default: return <GeneralSettings project={project} setProject={setProject} />;
         }
     };
@@ -371,6 +446,7 @@ function ProjectSettings() {
                         <p>All Settings</p>
                         <Button img={settings_svg} size={15} text="General" onSelect="general" active="general" />
                         <Button img={team_svg} size={15} text="Team" onSelect="team" active="team" />
+                        <Button img={archive_svg} size={15} text="Archives" onSelect="archive" active="archive" />
                     </aside>
                     {renderContent(activeTab)}
                 </main>

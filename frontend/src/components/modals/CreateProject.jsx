@@ -7,7 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 
-function CreateProject({ onClose }) {
+export function CreateProject({ onClose }) {
     const [name, setName] = useState("");
     const [file, setFile] = useState(null);
     const [projectImage, setProjectImage] = useState("/assets/project.png");
@@ -96,5 +96,3 @@ function CreateProject({ onClose }) {
         </Modal>
     );
 }
-
-export default CreateProject;

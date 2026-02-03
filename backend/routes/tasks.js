@@ -19,6 +19,11 @@ function formatImage(image) {
     else return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
+export async function createTask({ projectId, boardId, title, description = "", creatorId, assigneeId, dueDate = null, ethereum = 1, difficulty = 1, activity = [] }) {
+    const task = await Task.create({ projectId, boardId, title, description, creatorId, assigneeId, dueDate, ethereum, difficulty, worktime: 0, motivation: 0, activity });
+    return task;
+}
+
 
 // create a task
 router.post("/create", authMiddleware, async (req, res) => {
@@ -37,7 +42,7 @@ router.post("/create", authMiddleware, async (req, res) => {
         // validations and checks
 
         if (!projectId || !boardId || !title || !assigneeId)
-            return res.status(400).json({ msg: "projectId, boardId, title, and assigneeId are required" });
+            return res.status(400).json({ msg: "Required fields are missing" });
 
         const projectExists = await Project.exists({ _id: projectId });
         if (!projectExists) return res.status(404).json({ msg: "Project not found" });
@@ -50,18 +55,14 @@ router.post("/create", authMiddleware, async (req, res) => {
             userId: req.user.id,
         }).select("role");
 
-        if (!membership) return res.status(403).json({ msg: "Creator is not a member of this project" });
+        if (!membership) return res.status(403).json({ msg: "Not a member of this project" });
 
         if (!["OWNER", "ADMIN"].includes(membership.role))
-            return res.status(403).json({ msg: "Creator is not an OWNER or ADMIN" });
+            return res.status(403).json({ msg: "Not an OWNER or ADMIN" });
 
-        const creator = await User.findById(req.user.id)
-            .select("firstname lastname");
-        const creatorId = req.user.id;
+        const creator = await User.findById(req.user.id).select("firstname lastname");
 
-        const assignee = await User.findById(assigneeId)
-            .select("_id currentMood");
-
+        const assignee = await User.findById(assigneeId).select("currentMood");
         if (!assignee) return res.status(404).json({ msg: "Assignee not found" });
 
         membership = await Membership.findOne({
@@ -92,26 +93,23 @@ router.post("/create", authMiddleware, async (req, res) => {
             boardId,
             title,
             description,
-            creatorId,
+            creatorId: req.user.id,
             assigneeId,
-            dueDate: dueDate,
+            dueDate,
+            difficulty,
             ethereum: {
                 assigned: setReward,
-                calculated: calculatedReward
+                calculated: calculatedReward,
             },
-            difficulty: difficulty,
-            worktime: 0,
-            motivation: 0,
-            // create an activity
             activity: [{
                 type: "ACTION",
-                userId: creatorId,
+                userId: req.user.id,
                 action: "CREATED_TASK",
                 content: `${creator.firstname} ${creator.lastname} created this task`
             }]
         });
 
-        // make notification
+        // notify assignee
         if (assigneeId !== req.user.id) {
             await Notification.create({
                 users: recipients([assigneeId]),
@@ -125,14 +123,14 @@ router.post("/create", authMiddleware, async (req, res) => {
                     type: "NAVIGATE",
                     url: `/task/${task._id}`
                 },
-            })
+            });
         }
 
         res.status(201).json(task);
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
-})
+});
 
 
 // get tasks of a board
@@ -153,21 +151,35 @@ router.get("/board/:boardId", authMiddleware, async (req, res) => {
         let tasks = await Task
             .find({ boardId })
             .sort({ createdAt: 1 })
+            .select("projectId boardId assigneeId creatorId title ethereum worktime difficulty dueDate activity")
             .populate("projectId", "_id projectImage name")
-            .populate("assigneeId", "profileImage firstname lastname");
+            .populate("boardId", "name color")
+            .populate("assigneeId", "profileImage firstname lastname")
+            .populate("creatorId", "profileImage firstname lastname");
+
 
         tasks = tasks.map(task => {
             task = task.toObject();
+            const comment_count = task?.activity?.filter(action => action.type === "COMMENT").length || 0;
             if (task.projectId?.projectImage?.url)
                 task.projectId.projectImage = formatImage(task.projectId.projectImage);
             if (task.assigneeId?.profileImage?.url)
                 task.assigneeId.profileImage = formatImage(task.assigneeId.profileImage);
+            if (task.creatorId?.profileImage?.url)
+                task.creatorId.profileImage = formatImage(task.creatorId.profileImage);
+
             return {
-                ...task,
+                _id: task._id,
+                title: task.title,
+                ethereum: task.ethereum,
+                worktime: task.worktime,
+                difficulty: task.difficulty,
+                dueDate: task.dueDate,
                 project: task.projectId,
+                board: task.boardId,
+                creator: task.creatorId,
                 assignee: task.assigneeId,
-                projectId: undefined,
-                assigneeId: undefined
+                comments: comment_count
             };
         });
 
@@ -175,7 +187,7 @@ router.get("/board/:boardId", authMiddleware, async (req, res) => {
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
-})
+});
 
 
 // get tasks for dashboard
@@ -801,7 +813,7 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
             .select("firstname lastname");
 
         await Notification.create({
-            users: commentor._id.equals(task.assigneeId) ? [task.creatorId] : [task.assigneeId],
+            users: [{ _id: commentor._id.equals(task.assigneeId) ? task.creatorId : task.assigneeId }],
             type: "COMMENT",
             icon: {
                 type: "PROJECT",

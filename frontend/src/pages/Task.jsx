@@ -73,15 +73,12 @@ function Task() {
     }, [task]);
 
     useEffect(() => {
-        if (task?.title !== undefined) {
+        if (task?.title !== undefined)
             setTitle(task.title);
-        }
-        if (task?.description !== undefined) {
+        if (task?.description !== undefined)
             setDescription(task.description);
-        }
-        if (task?.dueDate != null) {
+        if (task?.dueDate != null)
             setDueDate(task.dueDate);
-        }
     }, [task]);
 
     useEffect(() => {

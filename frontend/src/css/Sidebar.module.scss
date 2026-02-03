@@ -76,6 +76,7 @@
         span {
             font: 14px Roboto;
             margin-bottom: 10px;
+            user-select: none;
         }
 
         .listContainer {
@@ -181,6 +182,7 @@
             opacity: 0.7;
             background-color: transparent;
             border: none;
+            user-select: none;
 
             p {
                 font: 14px Roboto;

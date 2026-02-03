@@ -27,8 +27,8 @@ function formatImage(image) {
 router.get("/user", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-passwordHash");
-    user.profileImage = formatImage(user.profileImage);
     if (!user) return res.status(404).json({ msg: "User couldn't found" });
+    user.profileImage = formatImage(user.profileImage);
     res.json(user);
   } catch (err) {
     res.status(500).json({ msg: err.message });

@@ -13,6 +13,55 @@ function recipients(ids) {
     return ids.map(id => ({ _id: id }));
 }
 
+function formatImage(image) {
+    const url = image?.url;
+    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
+    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+}
+
+
+// get archived tasks of a project
+router.get("/project/:projectId", authMiddleware, async (req, res) => {
+    const { projectId } = req.params;
+    if (!projectId) return res.status(404).json({ msg: "projectId is required" });
+
+    try {
+        const membership = await Membership.findOne({ projectId, userId: req.user.id });
+        if (membership.role === "MEMBER") return res.status(403).json({ msg: "Not accessable" });
+
+        let archives = await Archived
+            .find({ projectId })
+            .sort({ createdAt: 1 })
+            .select("projectId creatorId title ethereum worktime difficulty activity")
+            .populate("projectId", "_id projectImage name")
+            .populate("creatorId", "profileImage firstname lastname");
+
+        archives = archives.map(task => {
+            task = task.toObject();
+            const comment_count = task?.activity?.filter(action => action.type === "COMMENT").length || 0;
+            if (task.projectId?.projectImage?.url)
+                task.projectId.projectImage = formatImage(task.projectId.projectImage);
+            if (task.creatorId?.profileImage?.url)
+                task.creatorId.profileImage = formatImage(task.creatorId.profileImage);
+
+            return {
+                _id: task._id,
+                title: task.title,
+                ethereum: task.ethereum,
+                worktime: task.worktime,
+                difficulty: task.difficulty,
+                project: task.projectId,
+                creator: task.creatorId,
+                comments: comment_count
+            };
+        });
+
+        res.status(200).json(archives);
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
 
 // close a task
 router.patch("/task/close", authMiddleware, async (req, res) => {
@@ -179,7 +228,6 @@ router.patch("/task/archive", authMiddleware, async (req, res) => {
         task.dueDate = null;
         task.boardId = null;
         task.assigneeId = null;
-        task.ethereum.assigned = 0;
         task.isTimerRunning = false;
 
         const archived = task.toObject();
@@ -194,6 +242,116 @@ router.patch("/task/archive", authMiddleware, async (req, res) => {
             closed: task.closed,
             activity: task.activity.at(-1)
         });
+    } catch (err) {
+        await session.abortTransaction();
+        res.status(500).json({ msg: err.message });
+    } finally {
+        session.endSession();
+    }
+});
+
+
+// restore a task
+router.post("/restore/:taskId", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const {
+        boardId,
+        title,
+        assigneeId,
+        dueDate = null,
+        ethereum = 1,
+        difficulty = 1,
+        description = ""
+    } = req.body;
+
+    if (!boardId || !title || !assigneeId)
+        return res.status(400).json({ msg: "Required fields are missing" });
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        let archived = await Archived.findById(taskId).session(session);
+        if (!archived) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Archived task not found" });
+        }
+
+        const archivedObj = archived.toObject();
+        delete archived._id;
+
+        const assignee = await User.findById(assigneeId).select("currentMood").session(session);
+        if (!assignee) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Assignee task not found" });
+        }
+
+        const creator = await User.findById(req.user.id).select("firstname lastname").session(session);
+
+        const membership = await Membership.findOne({
+            projectId: archived.projectId,
+            userId: assignee._id,
+        }).select("role").session(session);
+
+        if (!membership) {
+            await session.abortTransaction();
+            return res.status(403).json({ msg: "Assignee is not a member of this project" })
+        };
+
+        const setReward = Math.max(1, Number(ethereum) || 1);
+        const multiplier = {
+            ANGRY: 2,
+            EXHAUSTED: 1.8,
+            SICK: 1.6,
+            SAD: 1.5,
+            NORMAL: 1.5,
+            OKAY: 1.5,
+            VIBING: 1.4,
+            HAPPY: 1.2,
+            CHILLING: 1
+        }[assignee.currentMood] || 1;
+        const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
+
+        const [task] = await Task.create([{
+            ...archivedObj,
+            boardId,
+            title,
+            creatorId: req.user.id,
+            assigneeId,
+            dueDate,
+            ethereum: {
+                assigned: setReward,
+                calculated: calculatedReward
+            },
+            difficulty,
+            description,
+            activity: [...archived.activity, {
+                type: "ACTION",
+                userId: req.user.id,
+                action: "TASK_RESTORED",
+                content: "Task was restored from archive"
+            }]
+        }], { session });
+
+        if (assigneeId !== req.user.id) {
+            await Notification.create([{
+                users: [{ _id: assigneeId }],
+                type: "TASK_RESTORED",
+                icon: {
+                    type: "PROJECT",
+                    refId: archived.projectId
+                },
+                title: `${creator.firstname} ${creator.lastname} restored this task`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            }], { session });
+        }
+
+        await Archived.deleteOne({ _id: archived._id }).session(session);
+        await session.commitTransaction();
+        res.status(201).json(task);
     } catch (err) {
         await session.abortTransaction();
         res.status(500).json({ msg: err.message });
