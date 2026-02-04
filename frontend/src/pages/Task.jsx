@@ -15,7 +15,7 @@ import points_svg from "../assets/icons/points.svg";
 import comment_svg from "../assets/icons/comment.svg";
 import send_svg from "../assets/icons/send.svg";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
 import axios from "axios";
 import SelectDate from "../components/modals/SelectDate";
@@ -324,7 +324,7 @@ function Task() {
                         <div className={styles.projectImage}>
                             <img src={task.project.projectImage.url} />
                         </div>
-                        <h1 className={styles.projectName}>{task.project.name}</h1>
+                        <Link to={`/project/${task.project._id}`} className={styles.projectName}>{task.project.name}</Link>
                     </div>
                     <div className={styles.titlePane}>
                         {(editing !== "title" || !canEdit) ? (

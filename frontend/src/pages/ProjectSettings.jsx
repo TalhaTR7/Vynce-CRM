@@ -43,13 +43,38 @@ function GeneralSettings({ project, setProject }) {
     const fileInputRef = useRef();
     const { openModal } = useModal();
     const boards = project.boards;
+    const [admins, setAdmins] = useState([]);
+    const [owner, setOwner] = useState(null);
+    const [openDropdown, setOpenDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+    const [searchValue, setSearchValue] = useState("");
 
     const saveNeeded = projectName !== project.name || file !== null;
 
     useEffect(() => {
         setProjectName(project.name);
         setProjectImage(project.projectImage.url);
+        const fetchAdmins = async () => {
+            const res = await axios.get(`http://localhost:5000/api/memberships/project/${project._id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            setAdmins(res.data.filter(member => member.role === "ADMIN"));
+            setOwner(res.data.find(member => member.role === "OWNER"));
+        };
+        fetchAdmins();
     }, [project]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+                setOpenDropdown(null);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        setSearchValue("");
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openDropdown]);
 
     const createdOn = new Date(project.createdAt).toLocaleString("en-GB", {
         day: "numeric",
@@ -115,6 +140,8 @@ function GeneralSettings({ project, setProject }) {
         image: project.projectImage.url
     }
 
+    // console.log(project._id);
+
     return (
         <div className={styles.general}>
             <div className={styles.projectPane} >
@@ -164,14 +191,62 @@ function GeneralSettings({ project, setProject }) {
                 <div className={styles.dangerZone}>
                     <label>Danger zone</label>
                     <div className={styles.box}>
-                        <div className={styles.fields}>
+                        <div className={styles.transfer}>
                             <p>Transfer ownership</p>
-                            <button style={{ backgroundColor: "#303030" }}>
-                                <p style={{ color: "#ccc" }}>Transfer</p>
-                            </button>
+                            <div className={styles.wrapper} ref={dropdownRef}>
+                                <button style={{ backgroundColor: "#303030" }} onClick={() => setOpenDropdown(openDropdown ? false : true)} className={styles.transfer}>
+                                    <p style={{ color: "#ccc" }}>Transfer</p>
+                                </button>
+                                {
+                                    openDropdown &&
+                                    <ul className={styles.dropdown}>
+                                        {
+                                            admins.filter(admin => {
+                                                if (!searchValue) return true;
+                                                const fullName = `${admin.firstname} ${admin.lastname}`.toLowerCase();
+                                                return fullName.startsWith(searchValue.toLowerCase())
+                                                    || admin.firstname.toLowerCase().startsWith(searchValue.toLowerCase())
+                                                    || admin.lastname.toLowerCase().startsWith(searchValue.toLowerCase());
+                                            }).map(admin => {
+                                                const payload = {
+                                                    project: {
+                                                        _id: project._id,
+                                                        name: project.name,
+                                                        projectImage: project.projectImage
+                                                    },
+                                                    admin: {
+                                                        _id: admin._id,
+                                                        firstname: admin.firstname,
+                                                        lastname: admin.lastname,
+                                                        profileImage: admin.profileImage
+                                                    },
+                                                    owner: {
+                                                        _id: owner._id,
+                                                        firstname: owner.firstname,
+                                                        lastname: owner.lastname,
+                                                        profileImage: owner.profileImage
+                                                    }
+                                                }
+                                                return (
+                                                    <li key={admin._id} className={styles.option} onClick={() => { openModal("TRANSFER_OWNERSHIP", { payload }); setOpenDropdown(false) }}>
+                                                        <div className={styles.profileImage}>
+                                                            <img src={admin.profileImage.url} />
+                                                        </div>
+                                                        <span>{admin.firstname} {admin.lastname}</span>
+                                                    </li>
+                                                )
+                                            })
+                                        }
+                                        <div className={styles.searchField}>
+                                            <img src={search_svg} />
+                                            <input type="text" placeholder="Search member" onChange={(e) => setSearchValue(e.target.value)} />
+                                        </div>
+                                    </ul>
+                                }
+                            </div>
                         </div>
                         <div style={{ borderTop: "1px solid #333" }} />
-                        <div className={styles.fields}>
+                        <div className={styles.delete}>
                             <p>Delete this project</p>
                             <button style={{ backgroundColor: "var(--red)" }}>
                                 <img src={delete_svg} />
@@ -215,6 +290,33 @@ function MemberSettings({ project }) {
     const members = project.memberships;
     const { openModal } = useModal();
 
+    const allSelected = selected.length === members.length - 1;
+    const toggleSelectAll = () => {
+        if (allSelected) setSelected([]);
+        else setSelected(members
+            .filter(member => {
+                if (!searchValue) return true;
+                const fullName = `${member.user.firstname} ${member.user.lastname}`;
+                return fullName.toLowerCase().startsWith(searchValue.toLowerCase())
+                    || member.user.lastname.toLowerCase().startsWith(searchValue.toLowerCase());
+            })
+            .filter(member => member.role !== "OWNER")
+            .map(member => member._id)
+        );
+    };
+
+    const toggleSelect = (id) => {
+        setSelected(prev => prev.includes(id)
+            ? prev.filter(_id => _id !== id)
+            : [...prev, id]
+        );
+    };
+
+    const memberIds = {
+        projectId: project._id,
+        memberships: selected
+    }
+
     return (
         <div className={styles.memberSettings}>
             <div className={styles.infoPane}>
@@ -228,10 +330,10 @@ function MemberSettings({ project }) {
                 {
                     (project.userRole === "OWNER") &&
                     <div className={styles.buttons}>
-                        <button className={styles.button}>
+                        <button className={styles.button} onClick={() => openModal("REMOVE_MEMBERS", { memberIds })}>
                             <img src={remove_svg} />
                         </button>
-                        <button className={styles.button}>
+                        <button className={styles.button} onClick={() => toggleSelectAll()}>
                             <img src={selectAll_svg} />
                         </button>
                         <button className={styles.invite} onClick={() => openModal("INVITE_USER", { projectId: project._id })}>
@@ -259,8 +361,10 @@ function MemberSettings({ project }) {
                     {
                         members.filter(member => {
                             if (!searchValue) return true;
-                            const fullName = `${member.user.firstname} ${member.user.lastname}`.toLowerCase();
-                            return fullName.startsWith(searchValue.toLowerCase());
+                            const fullName = `${member.user.firstname} ${member.user.lastname}`;
+                            const lastName = member.user.lastname;
+                            return fullName.toLowerCase().startsWith(searchValue.toLowerCase())
+                                || lastName.toLowerCase().startsWith(searchValue.toLowerCase());
                         }).map(member => {
                             const joinDate = () => {
                                 const month = new Date(member.createdAt).toLocaleString("en-GB", { month: "2-digit" });
@@ -284,8 +388,12 @@ function MemberSettings({ project }) {
                             return (
                                 <div className={styles.member} key={member._id}>
                                     {
-                                        (project.userRole === "OWNER") &&
-                                        <input type="checkbox" />
+                                        (project.userRole === "OWNER" && member.role !== "OWNER") &&
+                                        <input
+                                            type="checkbox"
+                                            checked={selected.includes(member._id)}
+                                            onChange={() => toggleSelect(member._id)}
+                                        />
                                     }
                                     <div className={styles.memberInfo}>
                                         <div className={styles.profileImage}>
@@ -328,12 +436,16 @@ function ArchiveSettings({ project }) {
             setCards(res.data);
         }
         fetchCards();
-    }, []);
+    }, [openModal]);
 
     const allSelected = cards.length > 0 && selected.length === cards.length;
     const toggleSelectAll = () => {
         if (allSelected) setSelected([]);
-        else setSelected(cards.map(mail => mail._id));
+        else setSelected(cards.filter(card =>
+            searchValue
+                ? card.title.toLowerCase().startsWith(searchValue.toLowerCase())
+                : true
+        ).map(card => card._id));
     };
 
     const toggleSelect = (id) => {
@@ -365,12 +477,19 @@ function ArchiveSettings({ project }) {
                 <button className={styles.selectAll} onClick={() => toggleSelectAll()}>
                     <img src={selectAll_svg} />
                 </button>
-                <button className={styles.delete} style={{ backgroundColor: selected.length === 0 ? "#242424" : "var(--red)" }}>
+                <button className={styles.delete}
+                    style={{ backgroundColor: selected.length === 0 ? "#242424" : "var(--red)" }}
+                    onClick={() => openModal("ARCHIVE_CLEANUP", { taskIds: selected, projectId: project._id })}
+                    disabled={selected.length === 0}>
                     <img src={delete_svg} />
                 </button>
             </div>
             <div className={styles.taskContainer}>
-                {cards.map(card => (
+                {cards.filter(card => {
+                    return searchValue
+                        ? card.title.toLowerCase().startsWith(searchValue.toLowerCase())
+                        : true;
+                }).map(card => (
                     <ArchivedCard
                         key={card._id}
                         task={card}

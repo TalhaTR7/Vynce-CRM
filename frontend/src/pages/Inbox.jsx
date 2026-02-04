@@ -164,6 +164,8 @@ function Inbox() {
                                         <Link key={mail._id} to={mail.action.type === "NAVIGATE" && mail.action.url} className={styles.mail} onClick={async () => {
                                             mail.type === "PROJECT_INVITATION" &&
                                                 openModal("INVITE_RESPONSE", { payload: mail.action.payload });
+                                            mail.type === "OWNERSHIP_REQUEST" &&
+                                                openModal("OWNERSHIP_RESPONSE", { payload: mail.action.payload });                                                
                                             await handleClick(mail._id);
                                         }}>
                                             <input type="checkbox" className={styles.checkbox} checked={selected.includes(mail._id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleSelect(mail._id)} />

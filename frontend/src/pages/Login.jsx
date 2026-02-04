@@ -75,7 +75,7 @@ function Login() {
                     <div className={styles.misc}>
                         <div className={styles.checkboxContainer}>
                             <input type="checkbox" id="remember-me" className={styles.checkbox} />
-                            <label htmlFor="remember-me" className={styles.checkmark}>Remember me</label>
+                            <span htmlFor="remember-me" className={styles.checkmark}>Remember me</span>
                         </div>
                         <a className={styles.highlight}>Forgot Password?</a>
                     </div>

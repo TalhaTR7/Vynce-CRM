@@ -171,7 +171,7 @@ function ProjectSettings() {
         };
         fetchProjects();
     }, []);
-
+    
     return (
         <div className={styles.projects}>
             <p>My projects</p>

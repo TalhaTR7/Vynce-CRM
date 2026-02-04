@@ -522,31 +522,6 @@
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .description {
     display: flex;
     flex-direction: column;
@@ -617,6 +592,48 @@
 
         &:hover {
             opacity: 1;
+        }
+    }
+}
+
+
+.decisionPane {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    button {
+        border: none;
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        border-radius: 7px;
+        margin: 0;
+        opacity: 0.9;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    .delete {
+        background-color: var(--red);
+        padding: 5px;
+
+        img {
+            width: 20px;
+        }
+    }
+
+    .submission {
+        background-color: var(--green);
+        padding: 5px 10px;
+
+        p {
+            font: 16px Roboto;
+            color: #111;
         }
     }
 }

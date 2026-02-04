@@ -1,5 +1,6 @@
 import show_svg from "../../assets/icons/show.svg";
 import hide_svg from "../../assets/icons/hide.svg";
+import arrowRight_svg from "../../assets/icons/arrowRight.svg";
 import { Dialogue } from "./Modal";
 import { useNavigate } from "react-router-dom";
 import styles from "./css/dialogues.module.scss";
@@ -14,7 +15,7 @@ export function Logout({ onClose }) {
         handleClose();
         localStorage.removeItem("token");
         navigate("/");
-    }
+    };
 
     return (
         <Dialogue onClose={onClose}>
@@ -31,7 +32,7 @@ export function Logout({ onClose }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function UpdatePassword({ onClose }) {
@@ -78,7 +79,7 @@ export function UpdatePassword({ onClose }) {
             console.error(err);
             toast.error(err.response.data.msg || "Something went wrong");
         }
-    }
+    };
 
     return (
         <Dialogue onClose={onClose}>
@@ -126,7 +127,7 @@ export function UpdatePassword({ onClose }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function DeleteAccount({ onClose, user }) {
@@ -162,7 +163,7 @@ export function DeleteAccount({ onClose, user }) {
             console.log(err);
             toast.error(err.response.data.msg);
         }
-    }
+    };
 
     return (
         <Dialogue onClose={onClose}>
@@ -193,7 +194,7 @@ export function DeleteAccount({ onClose, user }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function FindUser({ onClose }) {
@@ -240,7 +241,7 @@ export function FindUser({ onClose }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function SubmitTask({ onClose, task }) {
@@ -275,7 +276,7 @@ export function SubmitTask({ onClose, task }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function ReturnTask({ onClose, task }) {
@@ -310,7 +311,7 @@ export function ReturnTask({ onClose, task }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function CloseTask({ onClose, task }) {
@@ -347,7 +348,7 @@ export function CloseTask({ onClose, task }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function DeleteTask({ onClose, task }) {
@@ -384,7 +385,42 @@ export function DeleteTask({ onClose, task }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
+}
+
+export function DeleteTasks({ onClose, taskIds, projectId }) {
+    const confirm = async (handleClose) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/archives/tasks`, {
+                data: { taskIds, projectId },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success("Tasks permanently deleted");
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Clearing out the archives</p>
+                    </div>
+                    <p className={styles.message}>The selected tasks will be sent for shredding and never be recovered</p>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Confirm</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    );
 }
 
 export function InviteUser({ onClose, projectId }) {
@@ -423,7 +459,7 @@ export function InviteUser({ onClose, projectId }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function InvitationResponse({ onClose, payload }) {
@@ -505,7 +541,7 @@ export function InvitationResponse({ onClose, payload }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
 }
 
 export function LeaveProject({ onClose, project }) {
@@ -546,7 +582,75 @@ export function LeaveProject({ onClose, project }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
+}
+
+export function RemoveMembers({ onClose, memberIds }) {
+
+    const [confirmation, setConfirmation] = useState({ first: false, second: false });
+
+    if (!memberIds.memberships.length) {
+        toast.error("Invalid arguments");
+        return null;
+    }
+
+    const projectId = memberIds.projectId;
+    const membershipIds = memberIds.memberships;
+    const single = membershipIds.length === 1;
+
+    const confirm = async (handleClose) => {
+        if (!confirmation.first || !confirmation.second) {
+            toast.error("Confirmation required");
+            return;
+        }
+
+        await axios.delete("http://localhost:5000/api/memberships/remove", {
+            data: { projectId, memberIds: membershipIds },
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        toast.success("success");
+        handleClose();
+    };
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Removing {single ? "a member" : "members"}</p>
+                    </div>
+                    <div>
+                        <div className={styles.checkboxContainer}>
+                            <div className={styles.checkboxes}>
+                                <input type="checkbox"
+                                    className={styles.checkbox}
+                                    checked={confirmation.first}
+                                    onChange={() => setConfirmation(prev => ({ ...prev, first: !prev.first }))} />
+                                <span className={styles.checkmark}>I understand that by removing a member, his assigned tasks will be archived</span>
+                            </div>
+                            <div className={styles.checkboxes}>
+                                <input type="checkbox"
+                                    className={styles.checkbox}
+                                    checked={confirmation.second}
+                                    onChange={() => setConfirmation(prev => ({ ...prev, second: !prev.second }))} />
+                                <span className={styles.checkmark}>I understand that by removing a member, his created tasks will now be owned by me</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={styles.message} style={{ maxWidth: "100%", textAlign: "left", margin: "7px 15px" }}>
+                        You sure you wanna remove {single ? "this member" : "these members"}?
+                    </div>
+                    <div className={styles.buttons}>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
+                        <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Remove member{single ? '' : 's'}</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    );
 }
 
 export function DeleteMails({ onClose, selected }) {
@@ -584,5 +688,179 @@ export function DeleteMails({ onClose, selected }) {
                 </>
             )}
         </Dialogue>
-    )
+    );
+}
+
+export function TransferOwnership({ onClose, payload }) {
+    const [confirmation, setConfirmation] = useState({ first: false, second: false });
+    const [confirmationValue, setConfirmationValue] = useState("");
+
+    const transfer = async (handleClose) => {
+        if (!confirmation.first || !confirmation.second) {
+            toast.error("Confirmation required");
+            return;
+        }
+
+        const confirmationText = `${payload.owner.firstname.trim()}/${payload.project.name.trim()}`;
+        if (confirmationValue.trim() !== confirmationText) {
+            toast.error("Confirmation string doesn't match.");
+            return;
+        }
+
+        try {
+            await axios.post("http://localhost:5000/api/memberships/transfer-ownership/offer", {
+                projectId: payload.project._id,
+                adminId: payload.admin._id
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            toast.success("Offer sent");
+            handleClose();
+        } catch (err) {
+            console.log(err);
+            toast.error(err.response.data.msg);
+        }
+    }
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Transfering ownership</p>
+                    </div>
+                    <div className={styles.images}>
+                        <div className={styles.profileImage}>
+                            <img src={payload.owner.profileImage.url} />
+                        </div>
+                        <img src={arrowRight_svg} className={styles.arrow} />
+                        <div className={styles.projectImage}>
+                            <img src={payload.project.projectImage.url} />
+                        </div>
+                        <img src={arrowRight_svg} className={styles.arrow} />
+                        <div className={styles.profileImage}>
+                            <img src={payload.admin.profileImage.url} />
+                        </div>
+                    </div>
+                    <div className={styles.checkboxContainer}>
+                        <div className={styles.checkboxes}>
+                            <input type="checkbox"
+                                id="confirmation"
+                                className={styles.checkbox}
+                                checked={confirmation.first}
+                                onChange={() => setConfirmation(prev => ({ ...prev, first: !prev.first }))} />
+                            <label htmlFor="confirmation" className={styles.checkmark}>
+                                I believe this person might be the best candidate for ownership
+                            </label>
+                        </div>
+                        <div className={styles.checkboxes}>
+                            <input type="checkbox"
+                                id="confirmation"
+                                className={styles.checkbox}
+                                checked={confirmation.second}
+                                onChange={() => setConfirmation(prev => ({ ...prev, second: !prev.second }))} />
+                            <label htmlFor="confirmation" className={styles.checkmark}>
+                                After giving away the ownership, I'll lose ultimate access to the project and become an admin
+                            </label>
+                        </div>
+                    </div>
+                    <div className={styles.inputField} style={{ margin: 0 }}>
+                        <label>Confirm by typing "{payload.owner.firstname}/{payload.project.name}"</label>
+                        <input type="text" onChange={(e) => setConfirmationValue(e.target.value)} />
+                    </div>
+                    <div className={styles.buttons}>
+                        <button className={styles.primaryRed} onClick={() => transfer(handleClose)}>Transfer ownership</button>
+                    </div>
+                </>
+            )}
+        </Dialogue>
+    );
+}
+
+export function OwnershipResponse({ onClose, payload }) {
+    const [status, setStatus] = useState("");
+
+    useEffect(() => {
+        const fetchInvite = async () => {
+            const res = await axios.get(`http://localhost:5000/api/memberships/transfer-ownership/${payload.offerId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            setStatus(res.data.status);
+        }
+        fetchInvite();
+    }, []);
+
+    const accept = async (handleClose) => {
+        try {
+            // await axios.post("http://localhost:5000/api/memberships/transfer-ownership/accept", {
+            //     projectId: payload.project._id,
+            //     adminId: payload.admin._id
+            // }, {
+            //     headers: {
+            //         Authorization: `Bearer ${localStorage.getItem("token")}`
+            //     }
+            // });
+            toast.success("Offer accepted");
+            handleClose();
+        } catch (err) {
+            console.log(err);
+            toast.error(err.response.data.msg);
+        }
+    }
+
+    const decline = async (handleClose) => {
+        try {
+            await axios.patch("http://localhost:5000/api/memberships/transfer-ownership/decline", { offerId: payload.offerId }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            toast.success("Offer declined");
+            handleClose();
+        } catch (err) {
+            console.log(err);
+            toast.error(err.response.data.msg);
+        }
+    }
+
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <>
+                    <div className={styles.title}>
+                        <p>Transfering ownership</p>
+                    </div>
+                    <div className={styles.images}>
+                        <div className={styles.profileImage}>
+                            <img src={payload.owner.profileImage.url} />
+                        </div>
+                        <img src={arrowRight_svg} className={styles.arrow} />
+                        <div className={styles.projectImage}>
+                            <img src={payload.project.projectImage.url} />
+                        </div>
+                        <img src={arrowRight_svg} className={styles.arrow} />
+                        <div className={styles.profileImage}>
+                            <img src={payload.admin.profileImage.url} />
+                        </div>
+                    </div>
+                    <p className={styles.message}>
+                        {payload.owner.name} has offered you the ownership of {payload.project.name}
+                    </p>
+                    <div className={styles.buttons}>
+                        {status === "PENDING" ? <>
+                            <button className={styles.primaryRed} onClick={() => decline(handleClose)}>Decline</button>
+                            <button className={styles.primaryGreen} onClick={() => accept(handleClose)}>Accept</button>
+                        </> :
+                            <button className={styles.secondary} onClick={() => accept(handleClose)} style={{ pointerEvents: "none" }}>Invitation {status.toLowerCase()}</button>
+                        }
+                    </div>
+                </>
+            )}
+        </Dialogue >
+    );
 }

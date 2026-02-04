@@ -48,9 +48,13 @@
                 }
             }
 
-            h1 {
+            a {
                 font: 28px Roboto;
                 color: #ccc;
+                text-decoration: none;
+                &:hover {
+                    text-decoration: underline;
+                }
             }
         }
 

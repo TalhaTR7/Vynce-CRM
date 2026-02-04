@@ -90,6 +90,7 @@ export function Card({ task, status="...", isOverlay }) {
 
 
 export function ArchivedCard({ task, onClick, isSelected }) {
+    const { openModal } = useModal();
     const motivation = task.worktime * 2;
 
     let dueIn = null;
@@ -101,8 +102,6 @@ export function ArchivedCard({ task, onClick, isSelected }) {
         else if (difference < 0) dueIn = "overdue";
         else dueIn = `${difference} day${difference > 1 ? "s" : ""}`;
     }
-
-    const { openModal } = useModal();
 
     return (
         <div className={`${styles.archive} ${isSelected ? styles.selected : ""}`} onClick={onClick} onDoubleClick={() => openModal("RESTORE_TASK", {task: task})}>
@@ -130,7 +129,7 @@ export function ArchivedCard({ task, onClick, isSelected }) {
                 <div className={styles.misc}>
                     <div className={styles.ethereum}>
                         <img src={coin_svg} />
-                        <p>{task.ethereum.calculated}</p>
+                        <p>{task.ethereum.assigned}</p>
                     </div>
                     <div className={styles.motivation}>
                         <img src={points_svg} />
@@ -140,7 +139,7 @@ export function ArchivedCard({ task, onClick, isSelected }) {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 export default Card;

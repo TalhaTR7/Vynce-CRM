@@ -35,7 +35,7 @@ const notificationSchema = new mongoose.Schema(
                 "ACCEPTED_INVITATION",  // ✅ when user accepts the invitation; owner
                 "DECLINED_INVITATION",  // ✅ when user rejects the invitation; owner
                 "WELCOME",              // ✅ when a user joins a project; admins
-                "REMOVED_FROM_PROJECT", // when a member/admin is kicked out by owner; removed user
+                "REMOVED_FROM_PROJECT", // ✅ when a member/admin is kicked out by owner; removed user
                 "LEFT_PROJECT",         // ✅ when a member leaves the project; user that left
                 "DELETED_ACCOUNT"       // ✅ when a member deletes his account; owner
             ], required: true

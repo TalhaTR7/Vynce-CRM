@@ -7,6 +7,7 @@ import search_svg from "../../assets/icons/search.svg";
 import coin_svg from "../../assets/icons/coin.svg";
 import add_svg from "../../assets/icons/add.svg";
 import remove_svg from "../../assets/icons/remove.svg";
+import delete_svg from "../../assets/icons/delete.svg";
 import difficultyOn_svg from "../../assets/icons/difficultyOn.svg";
 import difficultyOff_svg from "../../assets/icons/difficultyOff.svg";
 import toast from "react-hot-toast";
@@ -413,6 +414,16 @@ export function RestoreTask({ onClose, task }) {
         setDifficulty(index + 1);
     };
 
+    const remove = async (handleClose) => {
+        await axios.delete(`http://localhost:5000/api/archives/task/${task._id}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        handleClose();
+        toast.success("Task deleted permanently");
+    }
+
     const submit = async (handleClose) => {
         if (!title) {
             toast.error("Task title is required");
@@ -499,11 +510,9 @@ export function RestoreTask({ onClose, task }) {
                                         }
                                     </ul>
                                 }
-
                             </div>
                         </div>
                     </div>
-
                     <div className={styles.taskInfo}>
                         {/* set assignee */}
                         <div className={styles.assignee} ref={openDropdown === "assignee" ? dropdownRef : null}>
@@ -596,8 +605,11 @@ export function RestoreTask({ onClose, task }) {
                         <label>Description</label>
                         <textarea onChange={(e) => setDescription(e.target.value)} />
                     </div>
-                    <div className={styles.submission}>
-                        <button type="submit">Create task</button>
+                    <div className={styles.decisionPane}>
+                        <button type="button" className={styles.delete} onClick={() => remove(handleClose)}>
+                            <img src={delete_svg} />
+                        </button>
+                        <button type="submit" className={styles.submission}>Restore</button>
                     </div>
                 </form>
             )}
