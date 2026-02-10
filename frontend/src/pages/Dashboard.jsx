@@ -5,8 +5,11 @@ import add_svg from "../assets/icons/add.svg";
 import coin_svg from "../assets/icons/coin.svg";
 import comment_svg from "../assets/icons/comment.svg";
 import link_svg from "../assets/icons/link.svg";
+import noProject_svg from "../assets/icons/noProject.svg";
 import boards_svg from "../assets/icons/boards.svg";
 import tasks_svg from "../assets/icons/tasks.svg";
+import leaderboard_svg from "../assets/icons/leaderboard.svg";
+import info_svg from "../assets/icons/info.svg";
 import emptyBox_svg from "../assets/icons/emptyBox.svg";
 import styles from "../css/Dashboard.module.scss";
 import { useModal } from "../context/ModalContext";
@@ -222,9 +225,29 @@ function Dashboard() {
                                 </Link>
                             }
                         </>}
+                        {projects.length === 0 &&
+                            <div className={styles.emptyContainer}>
+                                <img src={noProject_svg} />
+                                <p>Looks empty… how about we get started?</p>
+                                <button onClick={() => openModal("CREATE_PROJECT")}>
+                                    <img src={add_svg} />
+                                    <p>Create your first project</p>
+                                </button>
+                            </div>
+                        }
                     </section>
-                    <section className={styles.bottomLeft}>
+                    <section className={styles.leaderboards}>
                         <h1>Weekly leaderboards</h1>
+                        {/* {projects.length === 0 && */}
+                        <div className={styles.emptyContainer}>
+                            <img src={leaderboard_svg} />
+                            <p>There's nothing to show here at the moment. Check back later to see if anything appears.</p>
+                            <div className={styles.info}>
+                                <img src={info_svg} />
+                                <p>Join or create a project to come alive</p>
+                            </div>
+                        </div>
+                        {/* } */}
                     </section>
                     <section className={styles.notifications}>
                         <h1>Notifications</h1>
@@ -257,14 +280,24 @@ function Dashboard() {
                                         }
                                     };
 
+                                    function formatIcon(icon) {
+                                        if (icon.type === "SVG") return icon.refId;
+                                        const build = (type, refId) => `http://localhost:5000/api/uploads/${type}/${refId}.png`;
+                                        return icon.type === "USER"
+                                            ? build("users", icon.refId)
+                                            : build("projects", icon.refId);
+                                    }
+
                                     return (
                                         <Link key={mail._id} to={mail.action.type === "NAVIGATE" ? mail.action.url : ''} className={styles.mail} onClick={async () => {
                                             mail.type === "PROJECT_INVITATION" &&
-                                                openModal("INVITE_RESPONSE", { payload: mail.action.payload });
+                                                openModal("INVITE_RESPONSE", { payload: mail.payload });
+                                            mail.type === "OWNERSHIP_REQUEST" &&
+                                                openModal("TRANSFER_OWNERSHIP", { payload: mail.payload });
                                             await handleClick(mail._id)
                                         }}>
                                             <div className={`${styles.icon} ${classname}`}>
-                                                <img src={mail.icon.url} />
+                                                <img src={formatIcon(mail.icon)} />
                                             </div>
                                             <p className={styles.title} style={{ fontWeight: userEntry.read ? 400 : 600 }}>{mail.title}</p>
                                             <div style={{ flex: "1" }} />

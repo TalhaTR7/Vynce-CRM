@@ -11,28 +11,27 @@ import admin_svg from "../assets/icons/admin.svg";
 import drag_svg from "../assets/icons/drag.svg";
 import more_svg from "../assets/icons/more.svg";
 import delete_svg from "../assets/icons/delete.svg";
+import deleteForever_svg from "../assets/icons/deleteForever.svg";
+import message_svg from "../assets/icons/comment.svg";
+import promote_svg from "../assets/icons/promote.svg";
+import demote_svg from "../assets/icons/demote.svg";
 import add_svg from "../assets/icons/add.svg";
 import remove_svg from "../assets/icons/close.svg";
 import selectAll_svg from "../assets/icons/selectAll.svg";
 import search_svg from "../assets/icons/search.svg";
+
+import Loading from "../components/Loading";
+import mood from "../context/MoodContext";
 import styles from "../css/ProjectSettings.module.scss";
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom"
 import { useModal } from "../context/ModalContext";
 import { ArchivedCard } from "../components/Card";
-
-import angry_emoji from "../assets/moods/angry.svg";
-import exhausted_emoji from "../assets/moods/exhausted.svg";
-import sick_emoji from "../assets/moods/sick.svg";
-import sad_emoji from "../assets/moods/sad.svg";
-import normal_emoji from "../assets/moods/normal.svg";
-import okay_emoji from "../assets/moods/okay.svg";
-import vibing_emoji from "../assets/moods/vibing.svg";
-import happy_emoji from "../assets/moods/happy.svg";
-import chilling_emoji from "../assets/moods/chilling.svg";
+import axios from "axios";
 import toast from "react-hot-toast";
-import Loading from "../components/Loading";
+import { closestCenter, DndContext } from "@dnd-kit/core";
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 
 function GeneralSettings({ project, setProject }) {
@@ -42,7 +41,7 @@ function GeneralSettings({ project, setProject }) {
     const [file, setFile] = useState(null);
     const fileInputRef = useRef();
     const { openModal } = useModal();
-    const boards = project.boards;
+    const [boards, setBoards] = useState([]);
     const [admins, setAdmins] = useState([]);
     const [owner, setOwner] = useState(null);
     const [openDropdown, setOpenDropdown] = useState(false);
@@ -54,6 +53,7 @@ function GeneralSettings({ project, setProject }) {
     useEffect(() => {
         setProjectName(project.name);
         setProjectImage(project.projectImage.url);
+        setBoards(project.boards);
         const fetchAdmins = async () => {
             const res = await axios.get(`http://localhost:5000/api/memberships/project/${project._id}`, {
                 headers: {
@@ -116,7 +116,7 @@ function GeneralSettings({ project, setProject }) {
             formData.append("name", projectName);
             if (file) formData.append("image", file);
 
-            const res = await axios.patch(`http://localhost:5000/api/projects/project/${project._id}/edit`, formData, { headers });
+            const res = await axios.patch(`http://localhost:5000/api/projects/project/${project._id}`, formData, { headers });
 
             setProject(prev => ({
                 ...prev,
@@ -137,10 +137,49 @@ function GeneralSettings({ project, setProject }) {
     const projectObj = {
         _id: project._id,
         name: project.name,
-        image: project.projectImage.url
+        projectImage: project.projectImage
     }
 
-    // console.log(project._id);
+    function SortableBoard({ board }) {
+        const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: board._id });
+        const style = {
+            transform: CSS.Transform.toString(transform),
+            transition,
+        };
+
+        return (
+            <div ref={setNodeRef} style={style} className={styles.board}>
+                <img src={drag_svg} className={styles.drag} {...listeners} {...attributes} />
+                <div className={styles.boardColor} style={{ backgroundColor: board.color }} />
+                <p>{board.name}</p>
+            </div>
+        );
+    }
+
+    const handleDragEnd = async ({ active, over }) => {
+        if (!over || active.id === over.id) return;
+
+        const oldPosition = boards.findIndex(board => board._id === active.id);
+        const newPosition = boards.findIndex(board => board._id === over.id);
+        const repositioned = arrayMove(boards, oldPosition, newPosition);
+        setBoards(repositioned);
+
+        try {
+            await Promise.all(repositioned.map((board, index) =>
+                axios.patch(`http://localhost:5000/api/boards/move/${board._id}`, {
+                    projectId: project._id,
+                    newPosition: index
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                })
+            ));
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
 
     return (
         <div className={styles.general}>
@@ -169,18 +208,15 @@ function GeneralSettings({ project, setProject }) {
             </div>
             <div className={styles.boardsContainer}>
                 <label>Boards</label>
-                <div className={styles.boards}>
-                    {
-                        boards.map(board => (
-                            <div key={board._id} className={styles.board}>
-                                <img src={drag_svg} className={styles.drag} />
-                                <div className={styles.boardColor} style={{ backgroundColor: board.color }} />
-                                <p>{board.name}</p>
-                                <img src={more_svg} className={styles.more} />
-                            </div>
-                        ))
-                    }
-                </div>
+                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={boards.map(board => board._id)} strategy={verticalListSortingStrategy}>
+                        <div className={styles.boards}>
+                            {boards.map(board => (
+                                <SortableBoard key={board._id} board={board} />
+                            ))}
+                        </div>
+                    </SortableContext>
+                </DndContext>
                 <div className={styles.create} onClick={() => openModal("CREATE_BOARD", { project: projectObj })}>
                     <img src={add_svg} />
                     <p>Create new board</p>
@@ -248,7 +284,7 @@ function GeneralSettings({ project, setProject }) {
                         <div style={{ borderTop: "1px solid #333" }} />
                         <div className={styles.delete}>
                             <p>Delete this project</p>
-                            <button style={{ backgroundColor: "var(--red)" }}>
+                            <button style={{ backgroundColor: "var(--red)" }} onClick={() => openModal("DELETE_PROJECT", { project: projectObj })}>
                                 <img src={delete_svg} />
                                 <p style={{ color: "#fff" }}>Delete project</p>
                             </button>
@@ -261,7 +297,7 @@ function GeneralSettings({ project, setProject }) {
                 <div className={styles.dangerZone}>
                     <label>Danger zone</label>
                     <div className={styles.box}>
-                        <div className={styles.fields}>
+                        <div className={styles.leave}>
                             <p>Leave this project notifying the owner</p>
                             <button style={{ backgroundColor: "var(--red)", padding: "3px 15px" }}
                                 onClick={() => openModal("LEAVE_PROJECT", {
@@ -287,8 +323,20 @@ function GeneralSettings({ project, setProject }) {
 function MemberSettings({ project }) {
     const [searchValue, setSearchValue] = useState("");
     const [selected, setSelected] = useState([]);
+    const [openDropdownId, setOpenDropdownId] = useState(null);
+    const dropdownRefs = useRef({});
     const members = project.memberships;
     const { openModal } = useModal();
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!openDropdownId) return;
+            const ref = dropdownRefs.current[openDropdownId];
+            if (ref && !ref.contains(e.target)) setOpenDropdownId(null);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openDropdownId]);
 
     const allSelected = selected.length === members.length - 1;
     const toggleSelectAll = () => {
@@ -358,61 +406,70 @@ function MemberSettings({ project }) {
                     <label style={{ textAlign: "center" }}>Joined on</label>
                 </div>
                 <div className={styles.membersContainer}>
-                    {
-                        members.filter(member => {
-                            if (!searchValue) return true;
-                            const fullName = `${member.user.firstname} ${member.user.lastname}`;
-                            const lastName = member.user.lastname;
-                            return fullName.toLowerCase().startsWith(searchValue.toLowerCase())
-                                || lastName.toLowerCase().startsWith(searchValue.toLowerCase());
-                        }).map(member => {
-                            const joinDate = () => {
-                                const month = new Date(member.createdAt).toLocaleString("en-GB", { month: "2-digit" });
-                                const day = new Date(member.createdAt).toLocaleString("en-GB", { day: "2-digit" });
-                                const year = new Date(member.createdAt).toLocaleString("en-GB", { year: "numeric" });
-                                return `${month}/${day}/${year}`;
-                            }
+                    {members.filter(member => {
+                        if (!searchValue) return true;
+                        const fullName = `${member.user.firstname} ${member.user.lastname}`;
+                        const lastName = member.user.lastname;
+                        return fullName.toLowerCase().startsWith(searchValue.toLowerCase())
+                            || lastName.toLowerCase().startsWith(searchValue.toLowerCase());
+                    }).map(member => {
+                        const joinDate = () => {
+                            const month = new Date(member.createdAt).toLocaleString("en-GB", { month: "2-digit" });
+                            const day = new Date(member.createdAt).toLocaleString("en-GB", { day: "2-digit" });
+                            const year = new Date(member.createdAt).toLocaleString("en-GB", { year: "numeric" });
+                            return `${month}/${day}/${year}`;
+                        }
 
-                            const mood = {
-                                ANGRY: angry_emoji,
-                                EXHAUSTED: exhausted_emoji,
-                                SICK: sick_emoji,
-                                SAD: sad_emoji,
-                                NORMAL: normal_emoji,
-                                OKAY: okay_emoji,
-                                VIBING: vibing_emoji,
-                                HAPPY: happy_emoji,
-                                CHILLING: chilling_emoji
-                            }
-
-                            return (
-                                <div className={styles.member} key={member._id}>
-                                    {
-                                        (project.userRole === "OWNER" && member.role !== "OWNER") &&
-                                        <input
-                                            type="checkbox"
-                                            checked={selected.includes(member._id)}
-                                            onChange={() => toggleSelect(member._id)}
-                                        />
-                                    }
-                                    <div className={styles.memberInfo}>
-                                        <div className={styles.profileImage}>
-                                            <img src={member.user.profileImage.url} />
-                                        </div>
-                                        <p style={{ textAlign: "left" }}>{member.user.firstname} {member.user.lastname}</p>
+                        return (
+                            <div className={styles.member} key={member._id}>
+                                {
+                                    (project.userRole === "OWNER" && member.role !== "OWNER") &&
+                                    <input
+                                        type="checkbox"
+                                        checked={selected.includes(member._id)}
+                                        onChange={() => toggleSelect(member._id)} />
+                                }
+                                <div className={styles.memberInfo}>
+                                    <div className={styles.profileImage}>
+                                        <img src={member.user.profileImage.url} />
                                     </div>
-                                    <p style={{ textAlign: "left" }}>{member.user.email}</p>
-                                    <p style={{ textTransform: "capitalize" }}>{member.role.toLowerCase()}</p>
-                                    <img src={mood[member.user.currentMood]} className={styles.mood} />
-                                    <p style={{ textAlign: "center" }}>{joinDate()}</p>
-                                    {
-                                        (project.userRole === "OWNER") &&
-                                        <img src={more_svg} className={styles.more} />
-                                    }
+                                    <p style={{ textAlign: "left" }}>{member.user.firstname} {member.user.lastname}</p>
                                 </div>
-                            )
-                        })
-                    }
+                                <p style={{ textAlign: "left" }}>{member.user.email}</p>
+                                <p style={{ textTransform: "capitalize" }}>{member.role.toLowerCase()}</p>
+                                <img src={mood[member.user.currentMood]} className={styles.mood} />
+                                <p style={{ textAlign: "center" }}>{joinDate()}</p>
+                                {
+                                    (project.userRole === "OWNER" && member.role !== "OWNER") &&
+                                    <div className={styles.options} ref={e => dropdownRefs.current[member._id] = e}>
+                                        <img src={more_svg} className={styles.more} onClick={() => setOpenDropdownId(openDropdownId === member._id ? null : member._id)} />
+                                        <ul className={`${styles.dropdown} ${openDropdownId === member._id ? styles.dropdownOpen : styles.dropdownClosed}`}>
+                                            <li className={styles.option}>
+                                                <img src={message_svg} />
+                                                <span>Message</span>
+                                            </li>
+                                            {member.role === "ADMIN" &&
+                                                <li className={styles.option}>
+                                                    <img src={demote_svg} />
+                                                    <span>Demote to member</span>
+                                                </li>
+                                            }
+                                            {member.role === "MEMBER" &&
+                                                <li className={styles.option}>
+                                                    <img src={promote_svg} />
+                                                    <span>Promote to admin</span>
+                                                </li>
+                                            }
+                                            <li className={`${styles.option} ${styles.remove}`}>
+                                                <img src={remove_svg} />
+                                                <span>Remove from project</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
@@ -467,7 +524,7 @@ function ArchiveSettings({ project }) {
                 </div>
             </div>
             <p className={styles.description}>
-                This is the records room of this project. All these tasks are sorted by the time of closing. Click on a card to select. Double click to open options.
+                This is the records room of this project. All these tasks are sorted by the time of closing. Click on a card to select. Right click to open options.
             </p>
             <div className={styles.actionPane}>
                 <div className={styles.inputField}>
@@ -481,7 +538,7 @@ function ArchiveSettings({ project }) {
                     style={{ backgroundColor: selected.length === 0 ? "#242424" : "var(--red)" }}
                     onClick={() => openModal("ARCHIVE_CLEANUP", { taskIds: selected, projectId: project._id })}
                     disabled={selected.length === 0}>
-                    <img src={delete_svg} />
+                    <img src={deleteForever_svg} />
                 </button>
             </div>
             <div className={styles.taskContainer}>
@@ -505,7 +562,7 @@ function ArchiveSettings({ project }) {
 
 function ProjectSettings() {
 
-    const { id } = useParams();
+    const { id, tab } = useParams();
     const [project, setProject] = useState(null);
     const [activeTab, setActiveTab] = useState("general");
     const navigate = useNavigate();
@@ -526,6 +583,7 @@ function ProjectSettings() {
         };
 
         fetchProject();
+        if (tab) setActiveTab(tab);
     }, []);
 
     useEffect(() => {

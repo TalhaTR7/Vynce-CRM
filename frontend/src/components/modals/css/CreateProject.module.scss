@@ -27,7 +27,8 @@
     .projectImage {
         width: 60px;
         height: 60px;
-        border-radius: 20%;
+        border-radius: 50%;
+        corner-shape: squircle;
         flex-shrink: 0;
         overflow: hidden;
         position: relative;
@@ -138,5 +139,17 @@
                 opacity: 1;
             }
         }
+    }
+}
+
+.loading {
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    img {
+        width: 100px;
     }
 }

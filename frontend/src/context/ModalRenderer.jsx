@@ -1,10 +1,10 @@
 import { useModal } from "./ModalContext";
 import ModalPortal from "./ModalPortal";
 import { CreateProject } from "../components/modals/CreateProject";
-import { CreateBoard } from "../components/modals/CreateBoard";
+import { CreateBoard, EditBoard } from "../components/modals/CreateBoard";
 import { CreateTask, RestoreTask } from "../components/modals/CreateTask";
 import { SetBounty, SetDifficulty } from "../components/modals/Popovers";
-import { CloseTask, DeleteAccount, DeleteMails, DeleteTask, DeleteTasks, FindUser, InvitationResponse, InviteUser, LeaveProject, Logout, OwnershipResponse, RemoveMembers, ReturnTask, SubmitTask, TransferOwnership, UpdatePassword } from "../components/modals/Dialogues";
+import { CloseTask, DeleteAccount, DeleteBoard, DeleteMails, DeleteProject, DeleteTask, DeleteTasks, DemoteAdmin, FindUser, InvitationResponse, InviteUser, LeaveProject, Logout, OwnershipResponse, PromoteMember, RemoveMembers, ReturnTask, SubmitTask, TransferOwnership, UpdatePassword } from "../components/modals/Dialogues";
 
 
 function ModalRenderer() {
@@ -15,6 +15,8 @@ function ModalRenderer() {
             {modal?.type === "CREATE_PROJECT" && (<CreateProject onClose={closeModal} />)}
             {modal?.type === "CREATE_BOARD" && (<CreateBoard onClose={closeModal} project={modal.payload.project} />)}
             {modal?.type === "CREATE_TASK" && (<CreateTask onClose={closeModal} project={modal.payload.project} board={modal.payload.board} />)}
+            {modal?.type === "EDIT_BOARD" && (<EditBoard onClose={closeModal} project={modal.payload.project} board={modal.payload.board} />)}
+            {modal?.type === "DELETE_BOARD" && (<DeleteBoard onClose={closeModal} boardId={modal.payload.boardId} />)}
             {modal?.type === "SET_BOUNTY" && (<SetBounty onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "SET_DIFFICULTY" && (<SetDifficulty onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "REMOVE_MEMBERS" && (<RemoveMembers onClose={closeModal} memberIds={modal.payload.memberIds} />)}
@@ -34,6 +36,9 @@ function ModalRenderer() {
             {modal?.type === "LEAVE_PROJECT" && (<LeaveProject onClose={closeModal} project={modal.payload.project} />)}
             {modal?.type === "TRANSFER_OWNERSHIP" && (<TransferOwnership onClose={closeModal} payload={modal.payload.payload} />)}
             {modal?.type === "OWNERSHIP_RESPONSE" && (<OwnershipResponse onClose={closeModal} payload={modal.payload.payload} />)}
+            {modal?.type === "DELETE_PROJECT" && (<DeleteProject onClose={closeModal} project={modal.payload.project} />)}
+            {modal?.type === "PROMOTE_MEMBER" && (<PromoteMember onClose={closeModal} project={modal.payload.project} />)}
+            {modal?.type === "DEMOTE_ADMIN" && (<DemoteAdmin onClose={closeModal} project={modal.payload.project} />)}
         </ModalPortal>
     );
 }

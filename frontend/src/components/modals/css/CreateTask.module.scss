@@ -124,7 +124,8 @@
     .projectImage {
         width: 25px;
         height: 25px;
-        border-radius: 20%;
+        border-radius: 50%;
+        corner-shape: squircle;
         overflow: hidden;
         cursor: pointer;
         flex-shrink: 0;
@@ -629,11 +630,23 @@
 
     .submission {
         background-color: var(--green);
-        padding: 5px 10px;
+        padding: 5px 15px;
 
         p {
             font: 16px Roboto;
             color: #111;
         }
+    }
+}
+
+.loading {
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    img {
+        width: 100px;
     }
 }

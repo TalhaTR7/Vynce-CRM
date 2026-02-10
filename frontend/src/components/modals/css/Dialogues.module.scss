@@ -36,7 +36,8 @@
     .projectImage {
         width: 45px;
         height: 45px;
-        border-radius: 20%;
+        border-radius: 50%;
+        corner-shape: squircle;
         overflow: hidden;
 
         img {
@@ -289,6 +290,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     margin: 20px auto;
     user-select: none;
@@ -298,6 +300,7 @@
         width: 45px;
         height: 45px;
         overflow: hidden;
+        border-radius: 50%;
 
         img {
             width: 100%;
@@ -309,14 +312,22 @@
     }
 
     .projectImage {
-        border-radius: 20%;
-    }
-
-    .profileImage {
-        border-radius: 50%;
+        corner-shape: squircle;
     }
 
     .arrow {
         width: 20px;
+    }
+}
+
+.loading {
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    img {
+        width: 100px;
     }
 }

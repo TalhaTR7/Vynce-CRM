@@ -15,7 +15,6 @@ import inviteRoutes from "./routes/invitations.js";
 import "./cron/taskDueNotifications.js";
 import "./cron/cleanupNotifications.js";
 
-
 dotenv.config();
 const app = express();
 

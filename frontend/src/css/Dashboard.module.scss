@@ -18,7 +18,7 @@
             "left right";
 
         .myWork,
-        .bottomLeft,
+        .leaderboards,
         .notifications {
             background: #151515;
             border-radius: 10px;
@@ -33,7 +33,7 @@
             }
         }
 
-        .bottomLeft {
+        .leaderboards {
             grid-area: left;
         }
 
@@ -89,7 +89,8 @@
                     .projectImage {
                         width: 25px;
                         height: 25px;
-                        border-radius: 20%;
+                        border-radius: 50%;
+                        corner-shape: squircle;
                         overflow: hidden;
 
                         img {
@@ -224,7 +225,8 @@
                         .projectImage {
                             width: 30px;
                             height: 30px;
-                            border-radius: 20%;
+                            border-radius: 50%;
+                            corner-shape: squircle;
                             overflow: hidden;
                             user-select: none;
 
@@ -303,6 +305,60 @@
                     }
                 }
             }
+
+            .emptyContainer {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin: auto;
+
+                img {
+                    width: 120px;
+                    opacity: 0.2;
+                    user-select: none;
+                    margin-bottom: 10px;
+                }
+
+                p {
+                    font: 16px Roboto;
+                    color: #777;
+                    margin: 0;
+                    user-select: none;
+                }
+
+                button {
+                    font: 16px Roboto;
+                    color: #999;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 3px;
+                    margin: 20px;
+                    padding: 5px 10px;
+                    background-color: #212121;
+                    border: none;
+                    border-radius: 7px;
+                    opacity: 0.7;
+                    cursor: pointer;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+
+                    img {
+                        width: 21px;
+                        opacity: 0.8;
+                        margin: 0;
+                    }
+
+                    p {
+                        font: 16px Roboto;
+                        color: #ccc;
+                        margin: 0;
+                    }
+                }
+            }
         }
 
         .notifications {
@@ -354,6 +410,7 @@
                         width: 30px;
                         height: 30px;
                         overflow: hidden;
+                        border-radius: 50%;
 
                         img {
                             width: 100%;
@@ -365,11 +422,7 @@
                     }
 
                     ._project {
-                        border-radius: 20%;
-                    }
-
-                    ._user {
-                        border-radius: 50%;
+                        corner-shape: squircle;
                     }
 
                     .title {
@@ -474,6 +527,61 @@
 
             &:hover {
                 opacity: 1;
+            }
+        }
+
+        .leaderboards {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+
+            .emptyContainer {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin: auto;
+
+                img {
+                    width: 100px;
+                    opacity: 0.2;
+                    user-select: none;
+                    margin-bottom: 20px;
+                }
+
+                p {
+                    font: 16px Roboto;
+                    color: #777;
+                    text-align: center;
+                    margin: 10px;
+                    width: 400px;
+                    user-select: none;
+                }
+
+                .info {
+                    font: 16px Roboto;
+                    color: #999;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 5px;
+                    margin: 20px;
+                    user-select: none;
+
+                    img {
+                        width: 21px;
+                        opacity: 1;
+                        margin: 0;
+                    }
+
+                    p {
+                        all: unset;
+                        font: 16px Roboto;
+                        color: #777;
+                        margin: 0;
+                    }
+                }
+
             }
         }
     }

@@ -8,8 +8,7 @@ const router = express.Router();
 
 function formatImage(image) {
     const url = image?.url;
-    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
-    else return `http://localhost:${process.env.PORT}/api${url}`;
+    return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
 

@@ -15,13 +15,7 @@ function recipients(ids) {
 
 function formatImage(image) {
     const url = image?.url;
-    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
-    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
-}
-
-export async function createTask({ projectId, boardId, title, description = "", creatorId, assigneeId, dueDate = null, ethereum = 1, difficulty = 1, activity = [] }) {
-    const task = await Task.create({ projectId, boardId, title, description, creatorId, assigneeId, dueDate, ethereum, difficulty, worktime: 0, motivation: 0, activity });
-    return task;
+    return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
 
@@ -77,14 +71,12 @@ router.post("/create", authMiddleware, async (req, res) => {
         const setReward = Math.max(1, Number(ethereum) || 1);
         const multiplier = {
             ANGRY: 2,
-            EXHAUSTED: 1.8,
-            SICK: 1.6,
-            SAD: 1.5,
-            NORMAL: 1.5,
-            OKAY: 1.5,
-            VIBING: 1.4,
-            HAPPY: 1.2,
-            CHILLING: 1
+            CRYING: 1.7,
+            SAD: 1.3,
+            NORMAL: 1,
+            OKAY: 1.3,
+            HAPPY: 1.7,
+            ECSTATIC: 1
         }[assignee.currentMood] || 1;
         const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
 
@@ -161,12 +153,9 @@ router.get("/board/:boardId", authMiddleware, async (req, res) => {
         tasks = tasks.map(task => {
             task = task.toObject();
             const comment_count = task?.activity?.filter(action => action.type === "COMMENT").length || 0;
-            if (task.projectId?.projectImage?.url)
-                task.projectId.projectImage = formatImage(task.projectId.projectImage);
-            if (task.assigneeId?.profileImage?.url)
-                task.assigneeId.profileImage = formatImage(task.assigneeId.profileImage);
-            if (task.creatorId?.profileImage?.url)
-                task.creatorId.profileImage = formatImage(task.creatorId.profileImage);
+            task.projectId.projectImage = formatImage(task.projectId.projectImage);
+            task.assigneeId.profileImage = formatImage(task.assigneeId.profileImage);
+            task.creatorId.profileImage = formatImage(task.creatorId.profileImage);
 
             return {
                 _id: task._id,
@@ -195,23 +184,23 @@ router.get("/dashboard/:boardId", authMiddleware, async (req, res) => {
     const { boardId } = req.params;
 
     try {
+        const board = await Board.findById(boardId).populate("projectId");
+        if (!board) return res.status(404).json({ msg: "Board could not found" });
+        const projectImage = formatImage(board.projectId.projectImage);
+
         const tasks = await Task
             .find({
                 boardId: boardId,
                 assigneeId: req.user.id
             })
             .select("projectId title ethereum activity createdAt dueDate worktime")
-            .populate("projectId", "projectImage")
             .sort({ dueDate: 1 })
             .limit(3);
 
-
         const response = tasks.map(task => {
-            task.projectId.projectImage = formatImage(task.projectId.projectImage);
-
             return ({
                 _id: task._id,
-                projectImage: task.projectId.projectImage,
+                projectImage,
                 title: task.title,
                 ethereum: task.ethereum.calculated,
                 comments: task.activity.filter(a => a.type === "COMMENT").length,

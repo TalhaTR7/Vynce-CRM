@@ -1,7 +1,7 @@
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import styles from "./css/SelectDate.module.scss";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 function SelectDate({ dueDate, onChange, placeholder = "None", disabled }) {
     const [isOpen, setIsOpen] = useState(false);

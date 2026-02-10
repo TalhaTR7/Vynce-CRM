@@ -4,7 +4,7 @@
     flex-direction: column;
     gap: 5px;
     background: linear-gradient(45deg, #151515, #181818);
-    border: 1px solid #1c1c1c;
+    border: 1px solid #1f1f1f;
     box-sizing: border-box;
     border-radius: 7px;
     position: relative;
@@ -44,7 +44,6 @@
         color: #ccc;
         line-height: 1.5;
         cursor: pointer;
-        width: fit-content;
         text-decoration: none;
         margin: 0 10px;
 
@@ -175,7 +174,8 @@
             .projectImage {
                 width: 20px;
                 height: 20px;
-                border-radius: 20%;
+                border-radius: 50%;
+                corner-shape: squircle;
                 overflow: hidden;
                 user-select: none;
                 flex-shrink: 0;

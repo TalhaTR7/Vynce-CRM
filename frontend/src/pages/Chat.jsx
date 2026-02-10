@@ -3,6 +3,8 @@ import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import more_svg from "../assets/icons/more.svg";
+import clear_svg from "../assets/icons/clear.svg";
+import delete_svg from "../assets/icons/delete.svg";
 import send_svg from "../assets/icons/send.svg";
 import styles from "../css/Chat.module.scss";
 import { useParams } from "react-router-dom";
@@ -16,6 +18,8 @@ function Chat() {
     const [otherUser, setOtherUser] = useState(null);
     const [message, setMessage] = useState("");
     const scrollRef = useRef(null);
+    const [openDropdown, setOpenDropdown] = useState(false);
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -35,6 +39,14 @@ function Chat() {
         return () => clearInterval(interval);
     }, [id]);
 
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+                setOpenDropdown(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openDropdown]);
 
     const deleteEmptyChat = async () => {
         try {
@@ -103,7 +115,19 @@ function Chat() {
                             </div>
                             <p>{otherUser.firstname} {otherUser.lastname}</p>
                         </div>
-                        <img className={styles.more} src={more_svg} />
+                        <div className={styles.options} ref={dropdownRef}>
+                            <img src={more_svg} className={styles.more} onClick={() => setOpenDropdown(openDropdown ? false : true)} />
+                            <ul className={`${styles.dropdown} ${openDropdown ? styles.dropdownOpen : styles.dropdownClosed}`}>
+                                <li className={styles.option}>
+                                    <img src={clear_svg} />
+                                    <span>Clear chat</span>
+                                </li>
+                                <li className={`${styles.option} ${styles.delete}`}>
+                                    <img src={delete_svg} />
+                                    <span>Delete chat</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                     <div className={styles.messageContainer} ref={scrollRef}>
                         {messages.map((message, index) => {

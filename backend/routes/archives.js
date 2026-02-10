@@ -15,8 +15,7 @@ function recipients(ids) {
 
 function formatImage(image) {
     const url = image?.url;
-    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
-    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+    return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
 
@@ -301,14 +300,12 @@ router.post("/restore/:taskId", authMiddleware, async (req, res) => {
         const setReward = Math.max(1, Number(ethereum) || 1);
         const multiplier = {
             ANGRY: 2,
-            EXHAUSTED: 1.8,
-            SICK: 1.6,
-            SAD: 1.5,
-            NORMAL: 1.5,
-            OKAY: 1.5,
-            VIBING: 1.4,
-            HAPPY: 1.2,
-            CHILLING: 1
+            CRYING: 1.7,
+            SAD: 1.3,
+            NORMAL: 1,
+            OKAY: 1.3,
+            HAPPY: 1.7,
+            ECSTATIC: 1
         }[assignee.currentMood] || 1;
         const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
 

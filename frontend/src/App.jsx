@@ -32,8 +32,8 @@ function App() {
           <Route path="/project/:id" element={<Project />} />
           <Route path="/task/:id" element={<Task />} />
           <Route path="/chat/:id" element={<Chat />} />
-          <Route path="/settings/user" element={<UserSettings />} />
-          <Route path="/settings/project/:id" element={<ProjectSettings />} />
+          <Route path="/settings/user/:tab?" element={<UserSettings />} />
+          <Route path="/settings/project/:id/:tab?" element={<ProjectSettings />} />
         </Route>
       </Routes>
       <ModalRenderer />

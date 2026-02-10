@@ -36,7 +36,8 @@
             .projectImage {
                 width: 60px;
                 height: 60px;
-                border-radius: 20%;
+                border-radius: 50%;
+                corner-shape: squircle;
                 overflow: hidden;
                 user-select: none;
 
@@ -52,6 +53,7 @@
                 font: 28px Roboto;
                 color: #ccc;
                 text-decoration: none;
+
                 &:hover {
                     text-decoration: underline;
                 }
@@ -122,7 +124,8 @@
                     user-select: none;
                 }
 
-                &:hover, &:active {
+                &:hover,
+                &:active {
                     filter: brightness(1.1);
                 }
             }

@@ -2,36 +2,25 @@
 import styles from "../css/Header.module.scss";
 import coin_svg from "../assets/icons/coin.svg"
 import level_svg from "../assets/icons/level.svg"
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-
-import angry_emoji from "../assets/moods/angry.svg";
-import exhausted_emoji from "../assets/moods/exhausted.svg";
-import sick_emoji from "../assets/moods/sick.svg";
-import sad_emoji from "../assets/moods/sad.svg";
-import normal_emoji from "../assets/moods/normal.svg";
-import okay_emoji from "../assets/moods/okay.svg";
-import vibing_emoji from "../assets/moods/vibing.svg";
-import happy_emoji from "../assets/moods/happy.svg";
-import chilling_emoji from "../assets/moods/chilling.svg";
 import Loading from "./Loading";
+import settings_svg from "../assets/icons/settings.svg";
+import mood_svg from "../assets/icons/mood.svg";
+import add_svg from "../assets/icons/add.svg";
+import logout_svg from "../assets/icons/logout.svg";
+import mood from "../context/MoodContext";
+import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from "react-router-dom";
+import { useModal } from "../context/ModalContext";
 
-export const mood = {
-    ANGRY: angry_emoji,
-    EXHAUSTED: exhausted_emoji,
-    SICK: sick_emoji,
-    SAD: sad_emoji,
-    NORMAL: normal_emoji,
-    OKAY: okay_emoji,
-    VIBING: vibing_emoji,
-    HAPPY: happy_emoji,
-    CHILLING: chilling_emoji
-}
 
 function Header() {
 
     const [user, setUser] = useState(null);
     const [dateTime, setDateTime] = useState("");
+    const [openDropdown, setOpenDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+    const { openModal } = useModal();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -61,6 +50,15 @@ function Header() {
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+                setOpenDropdown(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openDropdown]);
+
     if (!user) return <Loading />;
 
     return (
@@ -73,18 +71,39 @@ function Header() {
             </div>
             <div className={styles.userElements}>
                 <div className={styles.ethereum}>
-                    <img src={coin_svg} style={{width: "20px"}} />
+                    <img src={coin_svg} style={{ width: "20px" }} />
                     <p>{user.ethereum}</p>
                 </div>
                 <div className={styles.motivation}>
                     <div className={styles.wrapper}>
-                        <img src={level_svg} style={{width: "30px"}} />
+                        <img src={level_svg} style={{ width: "30px" }} />
                         <span>{user.motivationLevel}</span>
                     </div>
                     <p>{user.motivationScore.toLocaleString()}</p>
                 </div>
-                <div className={styles.profileImage}>
-                    <img src={user.profileImage.url} />
+                <div className={styles.menu} ref={dropdownRef}>
+                    <div className={styles.profileImage} onClick={() => setOpenDropdown(openDropdown ? false : true)}>
+                        <img src={user.profileImage.url} />
+                    </div>
+                    <ul className={`${styles.dropdown} ${openDropdown ? styles.dropdownOpen : styles.dropdownClosed}`}>
+                        <Link to={"/settings/user"} className={styles.option}>
+                            <img src={settings_svg} />
+                            <span>Settings</span>
+                        </Link>
+                        <li className={styles.option}>
+                            <img src={mood_svg} />
+                            <span>Mood swing</span>
+                        </li>
+                        <li className={styles.option} onClick={() => { openModal("CREATE_PROJECT"); setOpenDropdown(false) }}>
+                            <img src={add_svg} />
+                            <span>Create project</span>
+                        </li>
+                        <div className={styles.divider} />
+                        <li className={styles.option} onClick={() => { openModal("LOGOUT"); setOpenDropdown(false) }}>
+                            <img src={logout_svg} style={{ width: "18px" }} />
+                            <span>Logout</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </header>

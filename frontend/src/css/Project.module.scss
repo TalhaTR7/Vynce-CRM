@@ -28,7 +28,8 @@
                 .projectImage {
                     width: 60px;
                     height: 60px;
-                    border-radius: 20%;
+                    border-radius: 50%;
+                    corner-shape: squircle;
                     overflow: hidden;
                     user-select: none;
 
@@ -68,17 +69,76 @@
                 align-items: center;
                 border-radius: 7px;
                 cursor: pointer;
-                opacity: 0.7;
                 user-select: none;
 
-                img {
+                .moreIcon {
                     width: 27px;
                     height: auto;
                     display: block;
+                    opacity: 0.7;
                 }
 
-                &:hover {
+                .dropdown {
+                    position: absolute;
+                    display: flex;
+                    flex-direction: column;
+                    top: 10%;
+                    right: 3%;
+                    z-index: 10;
+                    background: linear-gradient(45deg, #212121, #181818);
+                    border: 1px solid #444;
+                    border-radius: 7px;
+                    width: 175px;
+                    padding: 10px 7px;
+                    opacity: 0;
+                    transform: translateY(-6px);
+                    pointer-events: none;
+                    transition:
+                        opacity 0.1s ease,
+                        transform 0.1s ease;
+
+                    .option {
+                        display: flex;
+                        flex-direction: row;
+                        gap: 10px;
+                        user-select: none;
+                        padding: 5px;
+                        cursor: pointer;
+                        text-decoration: none;
+
+                        img {
+                            width: 21px;
+                            object-fit: contain;
+                        }
+
+                        span {
+                            font: 16px Roboto;
+                            color: #ccc;
+                            margin: 0;
+                        }
+
+                        &:hover {
+                            background-color: #333;
+                            border-radius: 7px;
+                        }
+                    }
+
+                    .divider {
+                        border-top: 1px solid #444;
+                        margin: 5px;
+                    }
+                }
+
+                .dropdownOpen {
                     opacity: 1;
+                    transform: translateY(0);
+                    pointer-events: auto;
+                }
+
+                .dropdownClosed {
+                    opacity: 0;
+                    transform: translateY(-6px);
+                    pointer-events: none;
                 }
             }
         }

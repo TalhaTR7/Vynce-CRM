@@ -1,15 +1,13 @@
 import express from "express";
 import authMiddleware from "../middleware/auth.js";
-import User from "../models/User.js"
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
 
 const router = express.Router();
 
-function formatImage(profileImage) {
-    const url = profileImage?.url;
-    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
-    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+function formatImage(image) {
+    const url = image?.url;
+    return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
 

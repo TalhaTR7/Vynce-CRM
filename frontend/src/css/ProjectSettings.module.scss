@@ -107,7 +107,8 @@
                 .projectImage {
                     width: 60px;
                     height: 60px;
-                    border-radius: 20%;
+                    border-radius: 50%;
+                    corner-shape: squircle;
                     overflow: hidden;
                     user-select: none;
                     position: relative;
@@ -248,7 +249,6 @@
                         flex-direction: row;
                         align-items: center;
                         gap: 3px;
-                        position: relative;
                         width: 85%;
                         border: 1px solid #555;
                         border-radius: 7px;
@@ -277,22 +277,8 @@
                             text-overflow: ellipsis;
                         }
 
-                        .more {
-                            position: absolute;
-                            width: 18px;
-                            user-select: none;
-                            right: 2%;
-                            padding: 5px;
-                            cursor: pointer;
-                            visibility: hidden;
-                        }
-
                         &:hover {
                             background-color: #151515;
-
-                            .more {
-                                visibility: visible;
-                            }
                         }
                     }
                 }
@@ -347,7 +333,8 @@
                     gap: 10px;
 
                     .transfer,
-                    .delete {
+                    .delete,
+                    .leave {
                         display: flex;
                         flex-direction: row;
                         justify-content: space-between;
@@ -552,7 +539,8 @@
                     .projectImage {
                         width: 50px;
                         height: 50px;
-                        border-radius: 20%;
+                        border-radius: 50%;
+                        corner-shape: squircle;
                         overflow: hidden;
                         user-select: none;
                         flex-shrink: 0;
@@ -693,7 +681,6 @@
                     gap: 15px;
                 }
 
-
                 .head label {
                     font: 14px Roboto;
                     color: #777;
@@ -719,17 +706,17 @@
                             border-top: 1px solid #333;
                         }
 
-                        &:hover {
+                        &:hover:not(:has(.dropdown:hover)) {
                             background-color: #181818;
                             border-radius: 10px;
                             border: 1px solid #333;
-
-                            .more {
-                                visibility: visible;
-                            }
                         }
 
-                        &:has(+ .member:hover) {
+                        &:hover .more {
+                            visibility: visible;
+                        }
+
+                        &:has(+ .member:hover:not(:has(.dropdown:hover))) {
                             border-bottom-color: transparent;
                         }
 
@@ -769,19 +756,6 @@
                                     background-repeat: no-repeat;
                                     background-position: center;
                                 }
-                            }
-                        }
-
-                        .more {
-                            position: absolute;
-                            right: 1%;
-                            padding: 5px;
-                            width: 21px;
-                            visibility: hidden;
-                            cursor: pointer;
-
-                            &:hover {
-                                filter: brightness(1.5);
                             }
                         }
 
@@ -828,6 +802,103 @@
                             justify-self: center;
                             user-select: none;
                         }
+
+                        .options {
+                            position: absolute;
+                            visibility: visible;
+                            right: 1%;
+                            width: 40px;
+                            height: 20px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            border-radius: 7px;
+                            cursor: pointer;
+                            user-select: none;
+
+                            .more {
+                                width: 21px;
+                                height: auto;
+                                display: block;
+                                opacity: 0.7;
+                                padding: 10px;
+
+                                &:hover {
+                                    filter: brightness(1.5);
+                                }
+                            }
+
+                            .dropdown {
+                                position: absolute;
+                                display: flex;
+                                flex-direction: column;
+                                top: 10%;
+                                right: 3%;
+                                z-index: 10;
+                                background: linear-gradient(45deg, #212121, #181818);
+                                border: 1px solid #444;
+                                border-radius: 7px;
+                                width: 200px;
+                                padding: 5px;
+                                opacity: 0;
+                                transform: translateY(-6px);
+                                pointer-events: none;
+                                transition:
+                                    opacity 0.1s ease,
+                                    transform 0.1s ease;
+
+                                .option {
+                                    display: flex;
+                                    flex-direction: row;
+                                    align-items: center;
+                                    gap: 10px;
+                                    user-select: none;
+                                    padding: 5px 10px;
+                                    cursor: pointer;
+                                    text-decoration: none;
+
+                                    img {
+                                        height: 12px;
+                                        object-fit: contain;
+                                    }
+
+                                    span {
+                                        font: 16px Roboto;
+                                        color: #ccc;
+                                        margin: 0;
+                                    }
+
+                                    &:hover {
+                                        background-color: #333;
+                                        border-radius: 7px;
+                                    }
+                                }
+
+                                .remove:hover {
+                                    background-color: var(--red);
+
+                                    span {
+                                        color: #fff;
+                                    }
+
+                                    img {
+                                        filter: brightness(1.5);
+                                    }
+                                }
+                            }
+
+                            .dropdownOpen {
+                                opacity: 1;
+                                transform: translateY(0);
+                                pointer-events: auto;
+                            }
+
+                            .dropdownClosed {
+                                opacity: 0;
+                                transform: translateY(-6px);
+                                pointer-events: none;
+                            }
+                        }
                     }
                 }
             }
@@ -851,7 +922,8 @@
                 .projectImage {
                     width: 50px;
                     height: 50px;
-                    border-radius: 20%;
+                    border-radius: 50%;
+                    corner-shape: squircle;
                     overflow: hidden;
                     user-select: none;
                     flex-shrink: 0;

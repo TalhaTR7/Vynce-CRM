@@ -7,14 +7,14 @@ import Archived from "../models/Archived.js";
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import mongoose from "mongoose";
-import OwnershipTransfer from "../models/OwnershipTransfer.js";
+import OwnershipLedger from "../models/OwnershipLedger.js";
+import RoleLedger from "../models/RoleLedger.js";
 
 const router = express.Router();
 
 function formatImage(image) {
     const url = image?.url;
-    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
-    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+    return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
 
@@ -314,7 +314,7 @@ router.get("/project/:id", authMiddleware, async (req, res) => {
 // get ownership offer by id
 router.get("/transfer-ownership/:offerId", authMiddleware, async (req, res) => {
     try {
-        const offer = await OwnershipTransfer.findById(req.params.inviteId);
+        const offer = await OwnershipLedger.findById(req.params.offerId);
         if (!offer) return res.status(404).json({ msg: "Offer couldn't found" });
         res.status(201).json(offer);
     } catch (err) {
@@ -351,47 +351,41 @@ router.post("/transfer-ownership/offer", authMiddleware, async (req, res) => {
         if (adminMembership.role !== "ADMIN") return res.status(403).json({ msg: "Selected user is not an ADMIN" });
         const admin = adminMembership.userId;
 
-        const existingTransfer = await OwnershipTransfer.findOne({
+        const existingTransfer = await OwnershipLedger.findOne({
             projectId,
             status: "PENDING"
         });
         if (existingTransfer) return res.status(409).json({ msg: "There is already a pending request" });
 
-        const offer = await OwnershipTransfer.create({
+        const offer = await OwnershipLedger.create({
             projectId,
             ownerId,
             adminId,
             status: "PENDING"
         });
 
-        project.projectImage = formatImage(project.projectImage);
-        owner.profileImage = formatImage(owner.profileImage);
-        admin.profileImage = formatImage(admin.profileImage);
-
         await Notification.create({
             users: [{ _id: adminId }],
             type: "OWNERSHIP_REQUEST",
             icon: { type: "PROJECT", refId: projectId },
             title: `${owner.firstname} ${owner.lastname} offered you the ownership of "${project.name}"`,
-            action: {
-                type: "MESSAGE",
-                payload: {
-                    offerId: offer._id,
-                    project: {
-                        _id: projectId,
-                        name: project.name,
-                        projectImage: project.projectImage,
-                    },
-                    owner: {
-                        name: `${owner.firstname} ${owner.lastname}`,
-                        profileImage: owner.profileImage
-                    },
-                    admin: {
-                        name: `${admin.firstname} ${admin.lastname}`,
-                        profileImage: admin.profileImage
-                    },
-                    status: offer.status
-                }
+            action: { type: "DIALOGUE" },
+            payload: {
+                offerId: offer._id,
+                project: {
+                    _id: projectId,
+                    name: project.name,
+                    projectImage: formatImage(project.projectImage),
+                },
+                owner: {
+                    fullname: `${owner.firstname} ${owner.lastname}`,
+                    profileImage: formatImage(owner.profileImage)
+                },
+                admin: {
+                    fullname: `${admin.firstname} ${admin.lastname}`,
+                    profileImage: formatImage(admin.profileImage)
+                },
+                status: offer.status
             }
         });
 
@@ -407,8 +401,110 @@ router.patch("/transfer-ownership/accept", authMiddleware, async (req, res) => {
     const { offerId } = req.body;
     if (!offerId) return res.status(400).json({ msg: "offerId is required" });
 
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        const offer = await OwnershipTransfer.findById(offerId)
+        const offer = await OwnershipLedger.findById(offerId)
+            .populate("projectId", "name")
+            .populate("adminId", "firstname lastname")
+            .populate("ownerId", "firstname lastname")
+            .session(session);
+        if (!offer) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Invalid offer" });
+        }
+        if (offer.status !== "PENDING") {
+            await session.abortTransaction();
+            return res.status(409).json({ msg: `Offer already ${offer.status.toLowerCase()}` });
+        }
+
+        const project = offer.projectId;
+        const admin = offer.adminId;
+        const owner = offer.ownerId;
+
+        if (!admin._id.equals(req.user.id)) {
+            await session.abortTransaction();
+            return res.status(403).json({ msg: "Not authorized" });
+        }
+
+        const ownerMembership = await Membership.findOne({
+            projectId: project._id,
+            userId: owner._id
+        }).session(session);
+        const adminMembership = await Membership.findOne({
+            projectId: project._id,
+            userId: admin._id
+        }).session(session);
+
+        if (!ownerMembership || !adminMembership) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Memberships not found" });
+        }
+        if (ownerMembership.role !== "OWNER" || adminMembership.role !== "ADMIN") {
+            await session.abortTransaction();
+            return res.status(409).json({ msg: "Invalid membership roles for transfer" });
+        }
+
+        ownerMembership.role = "ADMIN";
+        adminMembership.role = "OWNER";
+        await Promise.all([
+            ownerMembership.save({ session }),
+            adminMembership.save({ session })
+        ]);
+
+        offer.status = "ACCEPTED";
+        await offer.save({ session });
+
+        await Notification.create([{
+            users: [{ _id: owner._id }],
+            type: "OWNERSHIP_RESPONSE",
+            icon: { type: "PROJECT", refId: project._id },
+            title: `${admin.firstname} ${admin.lastname} has accepted your offer for the ownership of "${project.name}"`,
+            action: { type: "MESSAGE" }
+        }], { session });
+
+        await Notification.create([{
+            users: [{ _id: owner._id }],
+            type: "OWNERSHIP_ALERT",
+            icon: { type: "PROJECT", refId: project._id },
+            title: `Look at you! You're now the owner of ${project.name}`,
+            action: { type: "MESSAGE" }
+        }], { session });
+
+        const members = await Membership.find({
+            projectId: project._id,
+            userId: { $nin: [offer.adminId, offer.ownerId] }
+        }).session(session);
+
+        await Promise.all(members.map(member =>
+            Notification.create([{
+                users: [{ _id: member.userId }],
+                type: "OWNERSHIP_ALERT",
+                icon: { type: "PROJECT", refId: project._id },
+                title: `${admin.firstname} ${admin.lastname} is now the owner of ${project.name}`,
+                action: { type: "MESSAGE" }
+            }], { session })
+        ));
+
+        await session.commitTransaction();
+        res.status(200).json({ msg: "Ownership offer accepted" });
+    } catch (err) {
+        await session.abortTransaction();
+        res.status(500).json({ msg: err.message });
+    } finally {
+        session.endSession();
+    }
+});
+
+
+// decline ownership
+router.patch("/transfer-ownership/decline", authMiddleware, async (req, res) => {
+    const { offerId } = req.body;
+    if (!offerId) return res.status(400).json({ msg: "offerId is required" });
+
+    try {
+        const offer = await OwnershipLedger.findById(offerId)
             .populate("projectId", "name")
             .populate("adminId", "firstname lastname");
         if (!offer) return res.status(404).json({ msg: "Invalid offer" });
@@ -437,35 +533,103 @@ router.patch("/transfer-ownership/accept", authMiddleware, async (req, res) => {
 });
 
 
-// decline ownership
-router.patch("/transfer-ownership/decline", authMiddleware, async (req, res) => {
-    const { offerId } = req.body;
-    if (!offerId) return res.status(400).json({ msg: "offerId is required" });
+// promote a member
+router.patch("/change-role/promote", authMiddleware, async (req, res) => {
+    const { membershipId } = req.body;
+    if (!membershipId) return res.status(400).json({ msg: "membershipId is required" });
 
     try {
-        const offer = await OwnershipTransfer.findById(offerId)
-            .populate("projectId", "name")
-            .populate("adminId", "firstname lastname");
-        if (!offer) return res.status(404).json({ msg: "Invalid offer" });
-        if (offer.status !== "PENDING") return res.status(409).json({ msg: `Offer already ${offer.status.toLowerCase()}` });
+        const membership = await Membership
+            .findById(membershipId)
+            .populate("projectId");
+        if (!membership) return res.status(404).json({ msg: "Not a member" });
+        if (membership.role === "ADMIN") return res.status(400).json({ msg: "User is already an admin" });
 
-        const project = offer.projectId;
-        const admin = offer.adminId;
+        const ownership = await Membership.findOne({
+            projectId: membership.projectId,
+            userId: req.user.id
+        }).populate("userId", "firstname lastname profileImage");
+        if (!ownership) return res.status(403).json({ msg: "Unauthorized: outsider" });
+        if (ownership.role !== "OWNER") return res.status(403).json({ msg: "Unauthorized: not the OWNER" });
 
-        if (!admin._id.equals(req.user.id)) return res.status(403).json({ msg: "Not authorized" });
+        const project = membership.projectId;
+        const owner = ownership.userId;
 
-        offer.status = "DECLINED";
-        await offer.save();
+        const oldRole = membership.role;
+        membership.role = "ADMIN";
+        await membership.save();
+        const newRole = membership.role;
 
-        await Notification.create({
-            users: [{ _id: offer.ownerId }],
-            type: "OWNERSHIP_RESPONSE",
-            icon: { type: "PROJECT", refId: project._id },
-            title: `${admin.firstname} ${admin.lastname} has declined your offer for the ownership of "${project.name}"`,
-            action: { type: "MESSAGE" }
+        await RoleLedger.create({
+            membershipId,
+            actor: req.user.id,
+            action: "PROMOTION",
+            oldRole,
+            newRole
         });
 
-        res.status(200).json({ msg: "Ownership offer declined" });
+        await Notification.create({
+            users: [{ _id: membership.userId }],
+            type: "PROMOTION",
+            icon: { type: "PROJECT", refId: project._id },
+            title: `Hey you! You're now an Admin of "${project.name}", ${owner.firstname} ${owner.lastname} made you one`,
+            action: { type: "MESSAGE" }
+        })
+
+        res.status(200).json({ msg: "Member promoted to admin", membership });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// demote an admin
+router.patch("/change-role/demote", authMiddleware, async (req, res) => {
+    const { membershipId } = req.body;
+    if (!membershipId) return res.status(400).json({ msg: "membershipId is required" });
+
+    try {
+        const membership = await Membership.findById(membershipId);
+        if (!membership) return res.status(404).json({ msg: "Not a member" });
+        if (membership.role === "MEMBER") return res.status(400).json({ msg: "User is already a member" });
+
+        const ownership = await Membership.findOne({
+            projectId: membership.projectId,
+            userId: req.user.id
+        }).populate("userId", "firstname lastname profileImage");
+        if (!ownership) return res.status(403).json({ msg: "Unauthorized: outsider" });
+        if (ownership.role !== "OWNER") return res.status(403).json({ msg: "Unauthorized: not the OWNER" });
+        const owner = ownership.userId;
+
+        const oldRole = membership.role;
+        membership.role = "MEMBER";
+        await membership.save();
+        const newRole = membership.role;
+
+        await RoleLedger.create({
+            membershipId,
+            actor: req.user.id,
+            action: "DEMOTION",
+            oldRole,
+            newRole
+        });
+
+        await Task.updateMany({
+            creatorId: membership.userId,
+            projectId: membership.projectId
+        }, {
+            $set: { creatorId: owner._id }
+        });
+
+        await Notification.create({
+            users: [{ _id: membership.userId }],
+            type: "DEMOTION",
+            icon: { type: "PROJECT", refId: membership.projectId },
+            title: `Plot twist! Enjoy a simpler life as a Member again, ${owner.firstname} ${owner.lastname} made you one"`,
+            action: { type: "MESSAGE" }
+        })
+
+        res.status(200).json({ msg: "Admin demoted to member" });
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }

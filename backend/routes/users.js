@@ -8,8 +8,13 @@ import Archived from "../models/Archived.js";
 import Membership from "../models/Membership.js";
 import Notification from "../models/Notification.js";
 import createUploader from "../middleware/multer.js";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const imageUpload = createUploader({
   folder: "users",
@@ -18,8 +23,7 @@ const imageUpload = createUploader({
 
 function formatImage(image) {
   const url = image?.url;
-  if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
-  else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+  return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
 
@@ -118,7 +122,7 @@ router.patch("/user/change-password", authMiddleware, async (req, res) => {
       email: user.email,
     };
 
-    res.status(201).json({ token, user: userResponse });
+    res.status(201).json({ msg: "Password changed sccessfully" });
   }
   catch (err) {
     res.status(500).json({ error: err.message });
@@ -184,6 +188,14 @@ router.delete("/user", authMiddleware, async (req, res) => {
     // deleting his projects won't matter since user is forced
     // to delete owned projects first before deleting account
     await User.findByIdAndDelete(req.user.id);
+
+    const uploadsDir = path.resolve(__dirname, "..", "uploads", "users");
+    const imagePath = path.join(uploadsDir, `${user._id}.png`);
+    try {
+      await fs.unlink(imagePath);
+    } catch (fileErr) {
+      if (fileErr.code !== "ENOENT") throw fileErr;
+    }
 
     if (recepientIds.size > 0) {
       await Notification.create({

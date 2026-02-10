@@ -1,4 +1,5 @@
 import Modal from "./Modal";
+import mood from "../../context/MoodContext";
 import { useState, useRef, useEffect } from "react";
 import close_svg from "../../assets/icons/close.svg";
 import calendar_svg from "../../assets/icons/calendar.svg";
@@ -7,24 +8,15 @@ import search_svg from "../../assets/icons/search.svg";
 import coin_svg from "../../assets/icons/coin.svg";
 import add_svg from "../../assets/icons/add.svg";
 import remove_svg from "../../assets/icons/remove.svg";
-import delete_svg from "../../assets/icons/delete.svg";
+import delete_svg from "../../assets/icons/deleteforever.svg";
 import difficultyOn_svg from "../../assets/icons/difficultyOn.svg";
 import difficultyOff_svg from "../../assets/icons/difficultyOff.svg";
+import loading_svg from "../../assets/icons/loading.svg";
 import toast from "react-hot-toast";
 import axios from "axios";
 import styles from "./css/CreateTask.module.scss";
 import SelectDate from "./SelectDate";
 import { useNavigate } from "react-router-dom";
-
-import angry_emoji from "../../assets/moods/angry.svg";
-import exhausted_emoji from "../../assets/moods/exhausted.svg";
-import sick_emoji from "../../assets/moods/sick.svg";
-import sad_emoji from "../../assets/moods/sad.svg";
-import normal_emoji from "../../assets/moods/normal.svg";
-import okay_emoji from "../../assets/moods/okay.svg";
-import vibing_emoji from "../../assets/moods/vibing.svg";
-import happy_emoji from "../../assets/moods/happy.svg";
-import chilling_emoji from "../../assets/moods/chilling.svg";
 
 
 export function CreateTask({ onClose, project, board }) {
@@ -38,9 +30,10 @@ export function CreateTask({ onClose, project, board }) {
 
     const [members, setMembers] = useState([]);
     const [boards, seBoards] = useState([]);
-    const [openDropdown, setOpenDropdown] = useState(null);
+    const [openDropdown, setOpenDropdown] = useState(false);
     const dropdownRef = useRef(null);
     const [searchValue, setSearchValue] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -61,6 +54,7 @@ export function CreateTask({ onClose, project, board }) {
     useEffect(() => {
         const fetchMembers = async () => {
             try {
+                setLoading(true);
                 const res = await axios.get(`http://localhost:5000/api/memberships/project/${project._id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -70,6 +64,8 @@ export function CreateTask({ onClose, project, board }) {
                 setMembers(res.data);
             } catch (err) {
                 console.error("Failed to fetch members", err);
+            } finally {
+                setLoading(false);
             }
         };
         fetchMembers();
@@ -77,6 +73,7 @@ export function CreateTask({ onClose, project, board }) {
 
         const fetchBoards = async () => {
             try {
+                setLoading(true);
                 const res = await axios.get(`http://localhost:5000/api/boards/project/${project._id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -86,6 +83,8 @@ export function CreateTask({ onClose, project, board }) {
                 seBoards(res.data);
             } catch (err) {
                 console.error("Failed to fetch boards", err);
+            } finally {
+                setLoading(false);
             }
         };
         fetchBoards();
@@ -99,18 +98,6 @@ export function CreateTask({ onClose, project, board }) {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [openDropdown]);
-
-    const mood = {
-        ANGRY: angry_emoji,
-        EXHAUSTED: exhausted_emoji,
-        SICK: sick_emoji,
-        SAD: sad_emoji,
-        NORMAL: normal_emoji,
-        OKAY: okay_emoji,
-        VIBING: vibing_emoji,
-        HAPPY: happy_emoji,
-        CHILLING: chilling_emoji
-    }
 
     const increaseBounty = () => {
         setBounty((prev) => Number(prev) + 1);
@@ -139,6 +126,7 @@ export function CreateTask({ onClose, project, board }) {
         }
 
         try {
+            setLoading(true);
             const res = await axios.post("http://localhost:5000/api/tasks/create", {
                 projectId: project._id,
                 boardId: status._id,
@@ -159,13 +147,18 @@ export function CreateTask({ onClose, project, board }) {
         } catch (err) {
             console.error(err);
             toast.error(err.response?.data?.msg);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <Modal onClose={onClose}>
-            {({ handleClose }) => (
-                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }}>
+            {({ handleClose }) => (<>
+                <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
+                    <img src={loading_svg} />
+                </div>
+                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }} style={{ visibility: loading ? "hidden" : "visible" }}>
                     <div className={styles.titlePane}>
                         <label>Task creation</label>
                         <img src={close_svg} onClick={handleClose} />
@@ -180,7 +173,7 @@ export function CreateTask({ onClose, project, board }) {
                             <label>Project</label>
                             <div className={styles.inputField}>
                                 <div className={styles.projectImage}>
-                                    <img src={project.image} />
+                                    <img src={project.projectImage.url} />
                                 </div>
                                 <input disabled value={project.name} />
                             </div>
@@ -306,7 +299,7 @@ export function CreateTask({ onClose, project, board }) {
                         <button type="submit">Create task</button>
                     </div>
                 </form>
-            )}
+            </>)}
         </Modal>
     );
 }
@@ -325,6 +318,7 @@ export function RestoreTask({ onClose, task }) {
     const [boards, seBoards] = useState([]);
     const [openDropdown, setOpenDropdown] = useState(null);
     const [searchValue, setSearchValue] = useState("");
+    const [loading, setLoading] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
@@ -339,6 +333,7 @@ export function RestoreTask({ onClose, task }) {
 
         const fetchMembers = async () => {
             try {
+                setLoading(true);
                 const res = await axios.get(`http://localhost:5000/api/memberships/project/${task.project._id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -347,12 +342,15 @@ export function RestoreTask({ onClose, task }) {
                 setMembers(res.data);
             } catch (err) {
                 console.error("Failed to fetch members", err);
+            } finally {
+                setLoading(false);
             }
         };
         fetchMembers();
 
         const fetchBoards = async () => {
             try {
+                setLoading(true);
                 const res = await axios.get(`http://localhost:5000/api/boards/project/${task.project._id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -362,6 +360,8 @@ export function RestoreTask({ onClose, task }) {
                 seBoards(res.data);
             } catch (err) {
                 console.error("Failed to fetch boards", err);
+            } finally {
+                setLoading(false);
             }
         };
         fetchBoards();
@@ -386,18 +386,6 @@ export function RestoreTask({ onClose, task }) {
         setOpenDropdown(null);
     };
 
-    const mood = {
-        ANGRY: angry_emoji,
-        EXHAUSTED: exhausted_emoji,
-        SICK: sick_emoji,
-        SAD: sad_emoji,
-        NORMAL: normal_emoji,
-        OKAY: okay_emoji,
-        VIBING: vibing_emoji,
-        HAPPY: happy_emoji,
-        CHILLING: chilling_emoji
-    }
-
     const increaseBounty = () => {
         setBounty((prev) => Number(prev) + 1);
     };
@@ -415,13 +403,20 @@ export function RestoreTask({ onClose, task }) {
     };
 
     const remove = async (handleClose) => {
-        await axios.delete(`http://localhost:5000/api/archives/task/${task._id}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
-        });
-        handleClose();
-        toast.success("Task deleted permanently");
+        try {
+            setLoading(true);
+            await axios.delete(`http://localhost:5000/api/archives/task/${task._id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            handleClose();
+            toast.success("Task deleted permanently");
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const submit = async (handleClose) => {
@@ -438,13 +433,8 @@ export function RestoreTask({ onClose, task }) {
             return;
         }
 
-        console.log({
-            boardId: status._id,
-            title: title,
-            assigneeId: assignee._id,
-        });
-
         try {
+            setLoading(true);
             const res = await axios.post(`http://localhost:5000/api/archives/restore/${task._id}`, {
                 boardId: status._id,
                 title: title,
@@ -464,13 +454,18 @@ export function RestoreTask({ onClose, task }) {
         } catch (err) {
             console.error(err);
             toast.error(err.response?.data?.msg);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <Modal onClose={onClose}>
-            {({ handleClose }) => (
-                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }}>
+            {({ handleClose }) => (<>
+                <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
+                    <img src={loading_svg} />
+                </div>
+                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }} style={{ visibility: loading ? "hidden" : "visible" }}>
                     <div className={styles.titlePane}>
                         <label>Task restoration</label>
                         <img src={close_svg} onClick={handleClose} />
@@ -612,7 +607,7 @@ export function RestoreTask({ onClose, task }) {
                         <button type="submit" className={styles.submission}>Restore</button>
                     </div>
                 </form>
-            )}
+            </>)}
         </Modal>
     );
 }

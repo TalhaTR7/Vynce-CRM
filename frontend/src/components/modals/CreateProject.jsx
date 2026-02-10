@@ -2,6 +2,7 @@ import Modal from "./Modal";
 import { useState, useRef } from "react";
 import styles from "./css/CreateProject.module.scss";
 import close_svg from "../../assets/icons/close.svg";
+import loading_svg from "../../assets/icons/loading.svg";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,7 @@ export function CreateProject({ onClose }) {
     const [file, setFile] = useState(null);
     const [projectImage, setProjectImage] = useState("/assets/project.png");
     const fileInputRef = useRef();
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleDivClick = () => fileInputRef.current.click();
@@ -47,6 +49,7 @@ export function CreateProject({ onClose }) {
             formData.append("name", name);
             if (file) formData.append("image", file);
 
+            setLoading(true);
             const res = await axios.post("http://localhost:5000/api/projects", formData, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -58,13 +61,18 @@ export function CreateProject({ onClose }) {
             toast.success("Project successfully created")
         } catch (err) {
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <Modal onClose={onClose}>
-            {({ handleClose }) => (
-                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }}>
+            {({ handleClose }) => (<>
+                <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
+                    <img src={loading_svg} />
+                </div>
+                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }} style={{ visibility: loading ? "hidden" : "visible" }}>
                     <div className={styles.titlePane}>
                         <label>Project creation</label>
                         <img src={close_svg} onClick={handleClose} />
@@ -92,7 +100,7 @@ export function CreateProject({ onClose }) {
                         </div>
                     </div>
                 </form>
-            )}
+            </>)}
         </Modal>
     );
 }

@@ -1,9 +1,14 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 import User from "../models/User.js";
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 router.post("/signup", async (req, res) => {
@@ -15,12 +20,23 @@ router.post("/signup", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
+    const uploadsDir = path.resolve(__dirname, "..", "uploads", "users");
+    const defaultImagePath = path.resolve(__dirname, "..", "..", "frontend", "public", "assets", "profile.png");
+
     const newUser = new User({
       firstname,
       lastname,
       email,
       passwordHash
     });
+
+    const userId = newUser._id.toString();
+    newUser.profileImage = { url: `/uploads/users/${userId}.png` };
+
+    await fs.mkdir(uploadsDir, { recursive: true });
+    const destImagePath = path.join(uploadsDir, `${userId}.png`);
+    await fs.copyFile(defaultImagePath, destImagePath);
+
     await newUser.save();
 
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "1d" });

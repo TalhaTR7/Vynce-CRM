@@ -8,6 +8,7 @@ import search_svg from "../assets/icons/search.svg";
 import left_svg from "../assets/icons/left.svg";
 import right_svg from "../assets/icons/right.svg";
 import emptyBox_svg from "../assets/icons/emptyBox.svg";
+import sponsor from "../assets/sponsors/sponsor-0.png"
 import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
@@ -151,21 +152,20 @@ function Inbox() {
                                     const userEntry = mail.users.find(user => user._id === localStorage.getItem("_id"));
                                     const isRead = userEntry.read;
 
-                                    const formatIcon = (icon) => {
-                                        switch (icon.type) {
-                                            case "USER": return `http://localhost:5000/api/uploads/users/${icon.refId}.png`;
-                                            case "PROJECT": return `http://localhost:5000/api/uploads/projects/${icon.refId}.png`;
-                                            case "SVG": return icon.url;
-                                            default: return null;
-                                        }
-                                    };
+                                    function formatIcon(icon) {
+                                        if (icon.type === "SVG") return icon.refId;
+                                        const build = (type, refId) => `http://localhost:5000/api/uploads/${type}/${refId}.png`;
+                                        return icon.type === "USER"
+                                            ? build("users", icon.refId)
+                                            : build("projects", icon.refId);
+                                    }
 
                                     return (
                                         <Link key={mail._id} to={mail.action.type === "NAVIGATE" && mail.action.url} className={styles.mail} onClick={async () => {
                                             mail.type === "PROJECT_INVITATION" &&
-                                                openModal("INVITE_RESPONSE", { payload: mail.action.payload });
+                                                openModal("INVITE_RESPONSE", { payload: mail.payload });
                                             mail.type === "OWNERSHIP_REQUEST" &&
-                                                openModal("OWNERSHIP_RESPONSE", { payload: mail.action.payload });                                                
+                                                openModal("OWNERSHIP_RESPONSE", { payload: mail.payload });
                                             await handleClick(mail._id);
                                         }}>
                                             <input type="checkbox" className={styles.checkbox} checked={selected.includes(mail._id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleSelect(mail._id)} />
@@ -189,6 +189,10 @@ function Inbox() {
                             <p>Nothing here yet. Seems to be your inbox chose peace</p>
                         </div>
                     }
+                    <div className={styles.sponsor}>
+                        <p>Powered by</p>
+                        <img src={sponsor} />
+                    </div>
                 </main>
             </div>
         </div>

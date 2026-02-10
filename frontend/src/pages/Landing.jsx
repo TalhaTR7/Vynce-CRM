@@ -26,7 +26,7 @@ function Landing() {
             <div className={styles.frontContent}>
                 <h1>Productivity that Rewards You</h1>
                 <Link to={"/signup"}><button>Get started for free!</button></Link>
-                <p>A modern next-gen project management software that understands tasks, teams, and emotions – turning everyday work into a motivating experience</p>
+                <p>A modern next-gen project management software that understands tasks, teams, and emotions - turning everyday work into a motivating experience</p>
             </div>
             <img src={object} className={styles.object} />
             <Footer />

@@ -104,7 +104,7 @@ export function ArchivedCard({ task, onClick, isSelected }) {
     }
 
     return (
-        <div className={`${styles.archive} ${isSelected ? styles.selected : ""}`} onClick={onClick} onDoubleClick={() => openModal("RESTORE_TASK", {task: task})}>
+        <div className={`${styles.archive} ${isSelected ? styles.selected : ""}`} onClick={onClick} onContextMenu={(e) => { openModal("RESTORE_TASK", { task: task }); e.preventDefault() }}>
             <div className={styles.infoPane}>
                 <div className={styles.project}>
                     <div className={styles.projectImage}>

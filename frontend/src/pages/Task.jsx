@@ -22,14 +22,11 @@ import SelectDate from "../components/modals/SelectDate";
 import Loading from "../components/Loading";
 
 
-
 function Task() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [openDropdown, setOpenDropdown] = useState(null);
     const textareaRef = useRef(null);
     const activityEndRef = useRef(null);
-    const dropdownRef = useRef(null);
 
     const [task, setTask] = useState(null);
     const [description, setDescription] = useState("");
@@ -39,6 +36,9 @@ function Task() {
     const [worktime, setWorktime] = useState(0);
     const [comment, setComment] = useState("");
 
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const statusDropdownRef = useRef(null);
+    const assigneeDropdownRef = useRef(null);
     const [members, setMembers] = useState([]);
     const [boards, setBoards] = useState([]);
     const [activeBoard, setActiveBoard] = useState(null);
@@ -83,12 +83,20 @@ function Task() {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (openDropdown && dropdownRef.current && !dropdownRef.current.contains(e.target))
-                setOpenDropdown(null);
+            if (openDropdown === "status") {
+                if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target)) {
+                    setOpenDropdown(null);
+                }
+            } else if (openDropdown === "assignee") {
+                if (assigneeDropdownRef.current && !assigneeDropdownRef.current.contains(e.target)) {
+                    setOpenDropdown(null);
+                }
+            }
         };
         document.addEventListener("mousedown", handleClickOutside);
+        setSearchValue("");
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    }, [openDropdown]);
 
     useEffect(() => {
         if (editing && textareaRef.current) {
@@ -401,8 +409,8 @@ function Task() {
                             {/* task status */}
                             <div className={styles.pair}>
                                 <p className={styles.key}>Status</p>
-                                <div className={`${styles.value} ${styles.boards}`} ref={dropdownRef} onClick={() => setOpenDropdown(openDropdown === "status" ? null : "status")}>
-                                    <div className={styles.board} style={{ backgroundColor: openDropdown === "status" ? "#181818" : "" }}>
+                                <div className={`${styles.value} ${styles.boards}`} ref={statusDropdownRef} >
+                                    <div className={styles.board} style={{ backgroundColor: openDropdown === "status" ? "#181818" : "" }} onClick={() => setOpenDropdown(openDropdown === "status" ? null : "status")}>
                                         <div className={styles.boardColor} style={{ backgroundColor: activeBoard.color }} />
                                         <p>{activeBoard.name}</p>
                                     </div>
@@ -431,8 +439,8 @@ function Task() {
                             {/* assignee */}
                             <div className={styles.pair}>
                                 <p className={styles.key}>Assignee</p>
-                                <div className={`${styles.value} ${styles.members}`} ref={dropdownRef} onClick={() => { if (canEdit) { setOpenDropdown(openDropdown === "assignee" ? null : "assignee"); setSearchValue(""); } }} style={{ pointerEvents: canEdit ? "" : "none" }}>
-                                    <div className={styles.member} style={{ backgroundColor: openDropdown === "assignee" ? "#181818" : "" }}>
+                                <div className={`${styles.value} ${styles.members}`} ref={assigneeDropdownRef} style={{ pointerEvents: canEdit ? "" : "none" }}>
+                                    <div className={styles.member} style={{ backgroundColor: openDropdown === "assignee" ? "#181818" : "" }} onClick={() => { if (canEdit) { setOpenDropdown(openDropdown === "assignee" ? null : "assignee"); setSearchValue(""); } }}>
                                         <div className={styles.profileImage}>
                                             <img src={activeAssignee.profileImage.url} />
                                         </div>

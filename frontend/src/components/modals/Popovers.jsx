@@ -1,13 +1,16 @@
-import { Popover } from "./Modal";
+import { Popover, Dialogue } from "./Modal";
 import { useEffect, useState } from "react";
+import axios from "axios";
+
 import styles from "./css/Popovers.module.scss";
+import mood from "../../context/MoodContext";
 import close_svg from "../../assets/icons/close.svg";
 import coin_svg from "../../assets/icons/coin.svg";
 import add_svg from "../../assets/icons/add.svg";
 import remove_svg from "../../assets/icons/remove.svg";
 import difficultyOn_svg from "../../assets/icons/difficultyOn.svg";
 import difficultyOff_svg from "../../assets/icons/difficultyOff.svg";
-import axios from "axios";
+import toast from "react-hot-toast";
 
 
 export function SetDifficulty({ onClose, task }) {
@@ -130,5 +133,38 @@ export function SetBounty({ onClose, task }) {
     );
 }
 
+export function MoodPrompt({ onClose }) {
 
-export default Popover;
+    const confirm = async () => {
+
+        try {
+            handleClose();
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response.data.msg)
+        }
+    };
+
+    function getTimeGreeting(date = new Date()) {
+        const hour = date.getHours();
+        if (hour >= 5 && hour < 12) return { h1: "Good morning!", p: "How's your morning vibe?" };
+        if (hour >= 12 && hour < 17) return { h1: "Good afternoon!", p: "How's you day going?" };
+        if (hour >= 17 && hour < 21) return { h1: "Good evening!", p: "How's your evening treating you?" };
+        return { h1: "Hey night owl!", p: "How was your day?" };
+    }
+
+
+    return (
+        <Dialogue onClose={onClose}>
+            {({ handleClose }) => (
+                <form onSubmit={(e) => { e.preventDefault(); confirm(handleClose); }}>
+                    <h1>{getTimeGreeting().h1}</h1>
+                    <p>{getTimeGreeting().p}</p>
+                    <div className={styles.container}>
+                    </div>
+                    <button type="submit" className={styles.submission}>Confirm</button>
+                </form>
+            )}
+        </Dialogue>
+    )
+}

@@ -9,6 +9,11 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
+function formatImage(image) {
+    const url = image?.url;
+    return { url: `http://localhost:${process.env.PORT}/api${url}` };
+}
+
 
 // get the invitation data
 router.get("/:inviteId", authMiddleware, async (req, res) => {
@@ -41,7 +46,7 @@ router.post("/invite", authMiddleware, async (req, res) => {
 
         const inviter = await User
             .findById(inviterId)
-            .select("firstname lastname")
+            .select("firstname lastname profileImage")
             .session(session);
 
         const inviterMembership = await Membership.findOne({
@@ -95,9 +100,6 @@ router.post("/invite", authMiddleware, async (req, res) => {
         });
         await invitation.save({ session });
 
-        const url = (project.projectImage.url.startsWith("/assets") || project.projectImage.url.startsWith("http"))
-            ? project.projectImage.url : `http://localhost:${process.env.PORT}/api${project.projectImage.url}`;
-
         await Notification.create([{
             users: [{ _id: invitee._id }],
             type: "PROJECT_INVITATION",
@@ -106,16 +108,19 @@ router.post("/invite", authMiddleware, async (req, res) => {
                 refId: project._id
             },
             title: `${inviter.firstname} ${inviter.lastname} invited you to their project: ${project.name}`,
-            action: {
-                type: "MESSAGE",
-                payload: {
-                    invitationId: invitation._id,
-                    inviter: `${inviter.firstname} ${inviter.lastname}`,
-                    projectId: project._id,
-                    projectName: project.name,
-                    projectImage: url,
-                    status: invitation.status
-                }
+            action: { type: "DIALOGUE" },
+            payload: {
+                invitationId: invitation._id,
+                inviter: {
+                    fullname: `${inviter.firstname} ${inviter.lastname}`,
+                    profileImage: formatImage(inviter.profileImage)
+                },
+                project: {
+                    _id: project._id,
+                    name: project.name,
+                    projectImage: formatImage(project.projectImage)
+                },
+                status: invitation.status
             }
         }], { session });
 

@@ -26,10 +26,11 @@ const notificationSchema = new mongoose.Schema(
                 "BID_FROM_USER",        // when reciever is AFK and a bid is offered; receiver
                 "WEEKLY_MP",            // every sunday when the leaderboards reset with rewards; all
                 "LEVEL_UP",             // every time when user levels up; all
-                "PROMOTION",            // promoted admin; members
-                "DEMOTION",             // demoted member; admins
-                "OWNERSHIP_REQUEST",    // to targeted admin; admins
-                "OWNERSHIP_RESPONSE",   // response in yes or no by targeted admin; owner
+                "PROMOTION",            // ✅ promoted admin; members
+                "DEMOTION",             // ✅ demoted member; admins
+                "OWNERSHIP_REQUEST",    // ✅ to targeted admin; admins
+                "OWNERSHIP_RESPONSE",   // ✅ response in yes or no by targeted admin; owner
+                "OWNERSHIP_ALERT",      // ✅ to all memmbers of the project on a change of OWNER; all
                 "NEW_TO_PROJECT",       // ✅ to member when he joins a project; member
                 "PROJECT_INVITATION",   // ✅ to user when an admin/owner invites a user; user 
                 "ACCEPTED_INVITATION",  // ✅ when user accepts the invitation; owner
@@ -47,16 +48,16 @@ const notificationSchema = new mongoose.Schema(
         },
         title: { type: String, required: true },
         action: {
-            type: { type: String, enum: ["NAVIGATE", "MESSAGE"], required: true },
-            url: { type: String, default: null },
-            payload: { type: mongoose.Schema.Types.Mixed, default: null }
+            type: { type: String, enum: ["NAVIGATE", "MESSAGE", "DIALOGUE"], required: true },
+            url: { type: String, required: function () { return this.action.type === "NAVIGATE" } },
         },
+        payload: { type: mongoose.Schema.Types.Mixed, required: function () { return this.action.type === "DIALOGUE" } }
     },
     { timestamps: true }
 );
 
 notificationSchema.index({
-    "users.user": 1,
+    "users._id": 1,
     "users.read": 1,
     createdAt: -1
 });

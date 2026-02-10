@@ -6,8 +6,15 @@ import Board from "../models/Board.js";
 import createUploader from "../middleware/multer.js";
 import Membership from "../models/Membership.js";
 import Notification from "../models/Notification.js";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+import mongoose from "mongoose";
+import Task from "../models/Task.js";
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const imageUpload = createUploader({
     folder: "projects",
@@ -16,8 +23,7 @@ const imageUpload = createUploader({
 
 function formatImage(image) {
     const url = image?.url;
-    if (url.startsWith("/assets") || url.startsWith("http")) return { url: url };
-    else return { url: `http://localhost:${process.env.PORT}/api${url}` };
+    return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
 
@@ -26,14 +32,22 @@ router.post("/", authMiddleware, imageUpload.single("image"), async (req, res) =
     const { name } = req.body;
 
     try {
-        const project = await Project.create({
-            name,
-            projectImage: {
-                url: req.file
-                    ? `/uploads/projects/${req.file.filename}`
-                    : "/assets/project.png"
-            }
-        });
+        const uploadsDir = path.resolve(__dirname, "..", "uploads", "projects");
+        const defaultImagePath = path.resolve(__dirname, "..", "..", "frontend", "public", "assets", "project.png");
+
+        const project = await Project.create({ name });
+
+        if (req.file) {
+            project.projectImage = { url: `/uploads/projects/${req.file.filename}` };
+        } else {
+            await fs.mkdir(uploadsDir, { recursive: true });
+            const projectId = project._id.toString();
+            const destImagePath = path.join(uploadsDir, `${projectId}.png`);
+            await fs.copyFile(defaultImagePath, destImagePath);
+            project.projectImage = { url: `/uploads/projects/${projectId}.png` };
+        }
+
+        await project.save();
 
         await Member.create({
             projectId: project._id,
@@ -94,7 +108,7 @@ router.get("/project/:id", authMiddleware, async (req, res) => {
         if (!project) return res.status(404).json({ msg: "Project not found" });
         project.projectImage = formatImage(project.projectImage);
 
-        const boards = await Board.find({ projectId: id });
+        const boards = await Board.find({ projectId: id }).sort({ position: 1 });
 
         let memberships = await Member.find({ projectId: id })
             .populate("userId", "firstname lastname email currentMood profileImage");
@@ -130,7 +144,7 @@ router.get("/project/:id", authMiddleware, async (req, res) => {
 
 
 // edit project meta
-router.patch("/project/:id/edit", authMiddleware, imageUpload.single("image"), async (req, res) => {
+router.patch("/project/:id/", authMiddleware, imageUpload.single("image"), async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
 
@@ -183,6 +197,54 @@ router.patch("/project/:id/edit", authMiddleware, imageUpload.single("image"), a
         res.status(200).json(project);
     } catch (err) {
         res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// delete a project
+router.delete("/project/:id", authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const project = await Project.findById(id).session(session);
+        if (!project) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Project could not found" });
+        }
+
+        const membership = await Membership.findOne({
+            projectId: project._id,
+            userId: req.user.id
+        }).session(session);
+        if (!membership) {
+            await session.abortTransaction();
+            return res.status(403).json({ msg: "Not a member of the project" });
+        }
+        if (membership.role !== "OWNER") {
+            await session.abortTransaction();
+            return res.status(403).json({ msg: "Not the OWNER" });
+        }
+
+        const memberCount = await Membership.countDocuments({ projectId: project._id }).session(session);
+        if (memberCount > 1) {
+            await session.abortTransaction();
+            return res.status(403).json({ msg: "Remove every member and admin first" });
+        }
+
+        await Task.deleteMany({ projectId: project._id }).session(session);
+        await Board.deleteMany({ projectId: project._id }).session(session);
+        await Membership.deleteOne({ _id: membership._id }).session(session);
+        await Project.deleteOne({ _id: id }).session(session);
+
+        await session.commitTransaction();
+        res.status(200).json({ msg: "Project deleted successfully" });
+    } catch (err) {
+        await session.abortTransaction();
+        res.status(500).json({ msg: err.message });
+    } finally {
+        session.endSession()
     }
 });
 

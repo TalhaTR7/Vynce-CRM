@@ -2,7 +2,6 @@ import dashboard_svg from "../assets/icons/dashboard.svg";
 import inbox_svg from "../assets/icons/inbox.svg";
 import leaderboard_svg from "../assets/icons/leaderboard.svg";
 import add_svg from "../assets/icons/add.svg";
-import more_svg from "../assets/icons/more.svg";
 import shop_svg from "../assets/icons/shop.svg";
 import styles from "../css/Sidebar.module.scss";
 import axios from "axios";
@@ -13,14 +12,11 @@ import Loading from "./Loading";
 
 
 function Sidebar() {
-
     const [user, setUser] = useState(null);
     const [projects, setProjects] = useState([]);
     const [chats, setChats] = useState([]);
-
     const { openModal } = useModal();
     const { notifications } = useOutletContext();
-
 
     const userEntry = notifications.map(mail => mail.users.find(user => user._id === localStorage.getItem("_id")));
     const unreadCount = userEntry.filter(u => u.read === false).length;
@@ -107,7 +103,6 @@ function Sidebar() {
                                 <img src={project.projectImage.url} />
                             </div>
                             <p className={styles.name}>{project.name}</p>
-                            <img src={more_svg} className={styles.more} />
                         </Link>
                     ))}
                 </div>
@@ -116,7 +111,7 @@ function Sidebar() {
                     <p>Create project</p>
                 </button>
             </div>
-            <Link className={styles.shop} to={"/settings/user"}>
+            <Link to={"/shop"} className={styles.shop}>
                 <img src={shop_svg} />
                 <p>Shop</p>
             </Link>
