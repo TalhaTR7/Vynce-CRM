@@ -60,7 +60,7 @@
                 }
             }
 
-            .more {
+            .options {
                 width: 40px;
                 height: 20px;
                 padding: 10px;
@@ -71,7 +71,7 @@
                 cursor: pointer;
                 user-select: none;
 
-                .moreIcon {
+                .more {
                     width: 27px;
                     height: auto;
                     display: block;
@@ -121,11 +121,6 @@
                             background-color: #333;
                             border-radius: 7px;
                         }
-                    }
-
-                    .divider {
-                        border-top: 1px solid #444;
-                        margin: 5px;
                     }
                 }
 

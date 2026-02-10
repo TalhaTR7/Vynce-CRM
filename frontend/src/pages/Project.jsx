@@ -2,14 +2,18 @@ import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Board from "../components/Board";
-import styles from "../css/Project.module.scss"
-import owner_svg from "../assets/icons/owner.svg"
-import admin_svg from "../assets/icons/admin.svg"
-import more_svg from "../assets/icons/more.svg"
-import boards_svg from "../assets/icons/boards.svg"
-import add_svg from "../assets/icons/add.svg"
-import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import styles from "../css/Project.module.scss";
+import owner_svg from "../assets/icons/owner.svg";
+import admin_svg from "../assets/icons/admin.svg";
+import more_svg from "../assets/icons/more.svg";
+import person_svg from "../assets/icons/person.svg";
+import team_svg from "../assets/icons/team.svg";
+import archive_svg from "../assets/icons/archive.svg";
+import settings_svg from "../assets/icons/settings.svg";
+import boards_svg from "../assets/icons/boards.svg";
+import add_svg from "../assets/icons/add.svg";
+import { Link, useParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import { useModal } from "../context/ModalContext";
 import { Card } from '../components/Card';
 import axios from "axios";
@@ -24,7 +28,9 @@ function Project() {
     const [boards, setBoards] = useState([]);
     const [tasksByBoard, setTasksByBoard] = useState({});
     const [activeTask, setActiveTask] = useState(null);
-
+    const [openDropdown, setOpenDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+    const [mineOnly, setMineOnly] = useState(false);
     const { openModal } = useModal();
 
     useEffect(() => {
@@ -96,6 +102,15 @@ function Project() {
     }, [boards]);
 
     useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+                setOpenDropdown(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openDropdown]);
+
+    useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
         link.href = favicon;
         document.title = `Vynce | ${project?.name}`;
@@ -152,8 +167,17 @@ function Project() {
     const projectObj = {
         _id: project._id,
         name: project.name,
-        image: project.projectImage.url
+        projectImage: project.projectImage
     }
+
+    const filteredTasks = (tasks = []) => {
+        if (!mineOnly) return tasks;
+        const myId = localStorage.getItem("_id");
+        if (!myId) return tasks;
+        return tasks.filter(task => task.assignee?._id === myId);
+    };
+
+
 
     return (
         <div className={styles.canvas}>
@@ -171,8 +195,37 @@ function Project() {
                                 {project.userRole !== "MEMBER" && <img src={project.userRole === "OWNER" ? owner_svg : admin_svg} />}
                             </div>
                         </div>
-                        <div className={styles.more}>
-                            <img src={more_svg} />
+                        <div className={styles.options} ref={dropdownRef}>
+                            <img src={more_svg} className={styles.more} onClick={() => setOpenDropdown(openDropdown ? false : true)} />
+                            <ul className={`${styles.dropdown} ${openDropdown ? styles.dropdownOpen : styles.dropdownClosed}`}>
+                                {project.userRole !== "MEMBER" &&
+                                    <li className={styles.option} onClick={() => { openModal("CREATE_BOARD", { project: projectObj }); setOpenDropdown(false) }}>
+                                        <img src={add_svg} />
+                                        <span>Create board</span>
+                                    </li>
+                                }
+                                <li className={styles.option} onClick={() => { setMineOnly(prev => !prev); setOpenDropdown(false) }}>
+                                    <img src={person_svg} />
+                                    {mineOnly
+                                        ? <span>All tasks</span>
+                                        : <span>My tasks</span>
+                                    }
+                                </li>
+                                <Link to={`/settings/project/${project._id}/team`} className={styles.option}>
+                                    <img src={team_svg} />
+                                    <span>People</span>
+                                </Link>
+                                {project.userRole !== "MEMBER" && <>
+                                    <Link to={`/settings/project/${project._id}/archive`} className={styles.option}>
+                                        <img src={archive_svg} />
+                                        <span>Archives</span>
+                                    </Link>
+                                    <Link to={`/settings/project/${project._id}/`} className={styles.option}>
+                                        <img src={settings_svg} />
+                                        <span>Settings</span>
+                                    </Link>
+                                </>}
+                            </ul>
                         </div>
                     </div>
                     <div style={{ height: "25px" }}>
@@ -195,7 +248,7 @@ function Project() {
                                     </div>
                                 )}
                                 {boards.map((board) => (
-                                    <Board key={board._id} board={board} tasks={tasksByBoard[board._id] || []} role={userRole} />
+                                    <Board key={board._id} board={board} tasks={filteredTasks(tasksByBoard[board._id]) || []} role={userRole} />
                                 ))}
                                 <DragOverlay>
                                     {activeTask ? (

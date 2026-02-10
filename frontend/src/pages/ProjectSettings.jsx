@@ -19,6 +19,7 @@ import add_svg from "../assets/icons/add.svg";
 import remove_svg from "../assets/icons/close.svg";
 import selectAll_svg from "../assets/icons/selectAll.svg";
 import search_svg from "../assets/icons/search.svg";
+import unauthorized_svg from "../assets/icons/unauthorized.svg";
 
 import Loading from "../components/Loading";
 import mood from "../context/MoodContext";
@@ -35,6 +36,14 @@ import { CSS } from "@dnd-kit/utilities";
 
 
 function GeneralSettings({ project, setProject }) {
+
+    if (project.userRole === "MEMBER") return (
+        <div className={styles.unauthorized}>
+            <img src={unauthorized_svg} />
+            <p>Unauthorized</p>
+            <span>How'd you get in here?</span>
+        </div>
+    )
 
     const [projectName, setProjectName] = useState("");
     const [projectImage, setProjectImage] = useState("");
@@ -321,6 +330,7 @@ function GeneralSettings({ project, setProject }) {
 
 
 function MemberSettings({ project }) {
+
     const [searchValue, setSearchValue] = useState("");
     const [selected, setSelected] = useState([]);
     const [openDropdownId, setOpenDropdownId] = useState(null);
@@ -478,6 +488,15 @@ function MemberSettings({ project }) {
 
 
 function ArchiveSettings({ project }) {
+
+    if (project.userRole === "MEMBER") return (
+        <div className={styles.unauthorized}>
+            <img src={unauthorized_svg} />
+            <p>Unauthorized</p>
+            <span>How'd you get in here?</span>
+        </div>
+    )
+
     const [searchValue, setSearchValue] = useState("");
     const [cards, setCards] = useState([]);
     const [selected, setSelected] = useState([]);
@@ -610,6 +629,7 @@ function ProjectSettings() {
         </button>
     )
 
+
     return (
         <div className={styles.canvas}>
             <Header />
@@ -621,9 +641,11 @@ function ProjectSettings() {
                     </button>
                     <aside className={styles.sidebar}>
                         <p>All Settings</p>
-                        <Button img={settings_svg} size={15} text="General" onSelect="general" active="general" />
+                        {project.userRole !== "MEMBER" &&
+                            <Button img={settings_svg} size={15} text="General" onSelect="general" active="general" />}
                         <Button img={team_svg} size={15} text="Team" onSelect="team" active="team" />
-                        <Button img={archive_svg} size={15} text="Archives" onSelect="archive" active="archive" />
+                        {project.userRole !== "MEMBER" &&
+                            <Button img={archive_svg} size={15} text="Archives" onSelect="archive" active="archive" />}
                     </aside>
                     {renderContent(activeTab)}
                 </main>

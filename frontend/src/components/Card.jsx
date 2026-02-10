@@ -38,6 +38,7 @@ export function Card({ task, status="...", isOverlay }) {
 
     const motivation = task.worktime * 2;
 
+
     return (
         <div className={styles.card} ref={setNodeRef} style={style} {...attributes}
             onPointerDown={(e) => {

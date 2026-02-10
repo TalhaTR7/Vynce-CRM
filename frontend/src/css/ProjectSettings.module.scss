@@ -8,6 +8,7 @@
         flex-direction: row;
         justify-content: flex-start;
         margin: 150px 300px;
+    flex: 1;
 
         .back {
             position: absolute;
@@ -1056,6 +1057,34 @@
                 &::-webkit-scrollbar {
                     display: none;
                 }
+            }
+        }
+
+        .unauthorized {
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+
+            img {
+                width: 150px;
+                opacity: 0.2;
+                pointer-events: none;
+            }
+
+            p {
+                font: 21px Roboto;
+                color: #777;
+                margin: 0;
+            }
+
+            span {
+                font: 16px Roboto;
+                color: #555;
+                margin: 0;
             }
         }
     }
