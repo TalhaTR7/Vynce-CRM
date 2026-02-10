@@ -6,8 +6,7 @@ import { useModal } from "../context/ModalContext";
 import { useDroppable } from "@dnd-kit/core";
 import Loading from "./Loading";
 
-function Board({ board, tasks, role }) {
-    const { setNodeRef } = useDroppable({ id: board._id });
+function Board({ board, tasks, role, totalBoards }) {
     const { openModal } = useModal();
 
     if (!board) return <Loading />

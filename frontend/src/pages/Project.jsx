@@ -1,4 +1,4 @@
-import favicon from "../assets/icons/favicon.svg"
+import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Board from "../components/Board";
@@ -88,14 +88,12 @@ function Project() {
 
                     setTasksByBoard(map);
                 };
-
                 fetchAllTasks(boards);
             }
         } catch (err) {
             console.error(err);
         }
     }, [boards]);
-
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
