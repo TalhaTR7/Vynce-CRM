@@ -341,7 +341,7 @@ router.delete("/board/:boardId", authMiddleware, async (req, res) => {
         const tasksExist = await Task.exists({ boardId }).session(session);
         if (tasksExist) {
             await session.abortTransaction();
-            res.status(403).json({ msg: "Board contains tasks, move or delete them first" });
+            return res.status(403).json({ msg: "Board contains tasks, move or delete them first" });
         }
 
         const membership = await Membership.findOne({
@@ -350,11 +350,11 @@ router.delete("/board/:boardId", authMiddleware, async (req, res) => {
         }).session(session);
         if (!membership) {
             await session.abortTransaction();
-            res.status(403).json({ msg: "Unauthorized: Not a member" });
+            return res.status(403).json({ msg: "Unauthorized: Not a member" });
         }
         if (membership.role === "MEMBER") {
             await session.abortTransaction();
-            res.status(403).json({ msg: "Unauthorized: OWNER or ADMIN only" });
+            return res.status(403).json({ msg: "Unauthorized: OWNER or ADMIN only" });
         }
 
         const deletedPosition = board.position;

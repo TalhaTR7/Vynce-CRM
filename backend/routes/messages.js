@@ -2,6 +2,9 @@ import express from "express";
 import authMiddleware from "../middleware/auth.js";
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
+import Notification from "../models/Notification.js";
+import User from "../models/User.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -11,25 +14,13 @@ function formatImage(image) {
 }
 
 
-// get all chats
-router.get("/", authMiddleware, async (req, res) => {
-
-    try {
-        const chats = await Chat.find();
-        res.status(200).json(chats);
-    } catch (err) {
-        res.status(500).json({ msg: err.message });
-    }
-});
-
-
 // get user chats
 router.get("/user", authMiddleware, async (req, res) => {
     const userId = req.user.id;
 
     try {
         const chats = await Chat
-            .find({ participants: userId })
+            .find({ participants: userId, hiddenFor: { $ne: userId } })
             .sort({ updatedAt: -1 })
             .populate("participants", "firstname lastname profileImage");
 
@@ -61,16 +52,20 @@ router.post("/user/:userId", authMiddleware, async (req, res) => {
     const { content } = req.body;
 
     if (senderId === receiverId)
-        return res.status(400).json({ msg: "Cannot chat with yourself" });
+        return res.status(400).json({ msg: "Cannot chat to yourself" });
 
     const participants = [senderId, receiverId].sort();
 
     try {
-        const chat = await Chat.findOneAndUpdate(
-            { participants },
-            { $setOnInsert: { participants } },
-            { new: true, upsert: true }
-        );
+        let chat = await Chat.findOne({ participants });
+
+        if (chat && chat.hiddenFor.includes(senderId)) {
+            chat.hiddenFor.pull(senderId);
+            await chat.save();
+        }
+
+        if (!chat) chat = await Chat.create({ participants });
+
 
         let message = null;
         if (content) {
@@ -118,6 +113,10 @@ router.get("/chat/:chatId", authMiddleware, async (req, res) => {
         const isUser = chat.participants.some(id => id.equals(userId));
         if (!isUser) res.status(403).json({ msg: "Unauthorized" });
 
+        if (chat.hiddenFor.includes(userId)) {
+            chat.hiddenFor.pull(userId);
+            await chat.save();
+        }
 
         const messages = await Message.find({ chatId: chat._id })
             .select("-chatId")
@@ -162,24 +161,29 @@ router.get("/chat/:chatId", authMiddleware, async (req, res) => {
 });
 
 
-// delete empty chats
-router.delete("/chat/:chatId/empty-chat", authMiddleware, async (req, res) => {
+// hide a chat
+router.patch("/chat/:chatId", authMiddleware, async (req, res) => {
     const { chatId } = req.params;
     const userId = req.user.id;
 
     try {
         const chat = await Chat.findById(chatId);
-        if (!chat) res.status(404).json({ msg: "Chat couldn't found" });
+        if (!chat)
+            return res.status(404).json({ msg: "Chat couldn't be found" });
 
-        const isUser = chat.participants.some(id => id.toString() === userId);
-        if (!isUser) res.status(403).json({ msg: "Unauthorized" });
+        const isUser = chat.participants.some(id =>
+            id.toString() === userId
+        );
+        if (!isUser)
+            return res.status(403).json({ msg: "Unauthorized: Not a chat participant" });
 
-        const count = await Message.countDocuments({ chatId });
-        if (count === 0) {
-            await Chat.findByIdAndDelete(chatId);
-            return res.status(200).json({ msg: "Empty chat deleted" });
-        }
-        else res.status(200).json({ msg: "Could not delete a non-empty chat" });
+        await Chat.findByIdAndUpdate(
+            chatId,
+            { $addToSet: { hiddenFor: userId } }
+        );
+
+        return res.status(200).json({ msg: "Chat hidden for user" });
+
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }

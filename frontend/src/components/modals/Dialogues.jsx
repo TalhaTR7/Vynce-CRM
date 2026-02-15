@@ -298,6 +298,7 @@ export function DeleteBoard({ onClose, boardId }) {
             toast.error(err.response?.data?.msg || err.message);
         } finally {
             setLoading(false);
+            handleClose();
         }
     };
 
@@ -746,11 +747,12 @@ export function LeaveProject({ onClose, project }) {
     );
 }
 
-export function RemoveMembers({ onClose, memberIds }) {
+export function RemoveMembers({ onClose, memberIds, onSuccess }) {
 
     const [confirmation, setConfirmation] = useState({ first: false, second: false });
     const [loading, setLoading] = useState(false);
 
+    console.log(memberIds);
     if (!memberIds.memberships.length) {
         toast.error("Invalid arguments");
         return null;
@@ -775,12 +777,13 @@ export function RemoveMembers({ onClose, memberIds }) {
                 }
             });
 
-            toast.success("success");
+            toast.success("Removed from project");
             handleClose();
         } catch (err) {
             console.error(err);
             toast.error(err.response?.data?.msg || err.message);
         } finally {
+            onSuccess();
             setLoading(false);
         }
     };
@@ -1148,17 +1151,13 @@ export function DeleteProject({ onClose, project }) {
     );
 }
 
-export function PromoteMember({ onClose, membership }) {
+export function PromoteMember({ onClose, membershipId, onSuccess }) {
     const [loading, setLoading] = useState(false);
 
     const confirm = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch("http://localhost:5000/api/memberships/promote", {
-                projectId: membership.projectId,
-                userId: membership.userId,
-                role: "ADMIN"
-            }, {
+            await axios.patch("http://localhost:5000/api/memberships/change-role/promote", { membershipId }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
@@ -1169,6 +1168,7 @@ export function PromoteMember({ onClose, membership }) {
             console.log(err);
             toast.error(err.response.data.msg);
         } finally {
+            onSuccess();
             setLoading(false);
         }
     }
@@ -1184,9 +1184,11 @@ export function PromoteMember({ onClose, membership }) {
                     <div className={styles.title}>
                         <p>Promoting a member</p>
                     </div>
-                    <label>Promotion gives a member some sort of authoritative access. You sure you wanna promote this member?</label>
+                    <p className={styles.message} style={{ margin: "30px auto" }}>
+                        Promotion gives a member some sort of authoritative access.You sure you wanna promote this member?
+                    </p>
                     <div className={styles.buttons}>
-                        <button className={styles.secondary} onClick={() => confirm(handleClose)}>Cancel</button>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
                         <button className={styles.primaryBlue} onClick={() => confirm(handleClose)}>Promote</button>
                     </div>
                 </main>
@@ -1195,17 +1197,13 @@ export function PromoteMember({ onClose, membership }) {
     );
 }
 
-export function DemoteAdmin({ onClose, membership }) {
+export function DemoteAdmin({ onClose, membershipId, onSuccess }) {
     const [loading, setLoading] = useState(false);
 
     const confirm = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch("http://localhost:5000/api/memberships/demote", {
-                projectId: membership.projectId,
-                userId: membership.userId,
-                role: "MEMBER"
-            }, {
+            await axios.patch("http://localhost:5000/api/memberships/change-role/demote", { membershipId }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
@@ -1216,6 +1214,7 @@ export function DemoteAdmin({ onClose, membership }) {
             console.log(err);
             toast.error(err.response.data.msg);
         } finally {
+            onSuccess();
             setLoading(false);
         }
     }
@@ -1231,9 +1230,11 @@ export function DemoteAdmin({ onClose, membership }) {
                     <div className={styles.title}>
                         <p>Demoting an admin</p>
                     </div>
-                    <label>Demotion takes all sort of authoritative access from an admin. You sure you wanna demote this member?</label>
+                    <p className={styles.message}>
+                        Demotion takes all sort of authoritative access from an admin. You sure you wanna demote this member?
+                    </p>
                     <div className={styles.buttons}>
-                        <button className={styles.secondary} onClick={() => confirm(handleClose)}>Cancel</button>
+                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
                         <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Demote</button>
                     </div>
                 </main>

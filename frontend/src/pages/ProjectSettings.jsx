@@ -35,6 +35,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 
 
+
 function GeneralSettings({ project, setProject }) {
 
     if (project.userRole === "MEMBER") return (
@@ -325,11 +326,11 @@ function GeneralSettings({ project, setProject }) {
                 Save
             </button>
         </div>
-    )
+    );
 }
 
 
-function MemberSettings({ project }) {
+function MemberSettings({ project, refreshProject }) {
 
     const [searchValue, setSearchValue] = useState("");
     const [selected, setSelected] = useState([]);
@@ -337,6 +338,7 @@ function MemberSettings({ project }) {
     const dropdownRefs = useRef({});
     const members = project.memberships;
     const { openModal } = useModal();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -375,6 +377,19 @@ function MemberSettings({ project }) {
         memberships: selected
     }
 
+    const openChat = async (email) => {
+        try {
+            const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+            const { data: user } = await axios.get(`http://localhost:5000/api/users/email/${email}`, { headers: headers });
+            const res = await axios.post(`http://localhost:5000/api/messages/user/${user._id}`, {}, { headers });
+            navigate(`/chat/${res.data.chat._id}`);
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || err.message);
+        }
+    };
+
+
     return (
         <div className={styles.memberSettings}>
             <div className={styles.infoPane}>
@@ -388,7 +403,13 @@ function MemberSettings({ project }) {
                 {
                     (project.userRole === "OWNER") &&
                     <div className={styles.buttons}>
-                        <button className={styles.button} onClick={() => openModal("REMOVE_MEMBERS", { memberIds })}>
+                        <button className={styles.button} onClick={() => {
+                            selected.length
+                                ? openModal("REMOVE_MEMBERS", {
+                                    memberIds,
+                                    onSuccess: refreshProject
+                                }) : ''
+                        }}>
                             <img src={remove_svg} />
                         </button>
                         <button className={styles.button} onClick={() => toggleSelectAll()}>
@@ -454,23 +475,42 @@ function MemberSettings({ project }) {
                                     <div className={styles.options} ref={e => dropdownRefs.current[member._id] = e}>
                                         <img src={more_svg} className={styles.more} onClick={() => setOpenDropdownId(openDropdownId === member._id ? null : member._id)} />
                                         <ul className={`${styles.dropdown} ${openDropdownId === member._id ? styles.dropdownOpen : styles.dropdownClosed}`}>
-                                            <li className={styles.option}>
+                                            <li className={styles.option} onClick={() => openChat(member.user.email)}>
                                                 <img src={message_svg} />
-                                                <span>Message</span>
+                                                <span>Open chat</span>
                                             </li>
                                             {member.role === "ADMIN" &&
-                                                <li className={styles.option}>
+                                                <li className={styles.option} onClick={async () => {
+                                                    openModal("DEMOTE_ADMIN", {
+                                                        membershipId: member._id,
+                                                        onSuccess: refreshProject
+                                                    });
+                                                    setOpenDropdownId(null);
+                                                }}>
                                                     <img src={demote_svg} />
                                                     <span>Demote to member</span>
                                                 </li>
                                             }
                                             {member.role === "MEMBER" &&
-                                                <li className={styles.option}>
+                                                <li className={styles.option} onClick={async () => {
+                                                    await openModal("PROMOTE_MEMBER", {
+                                                        membershipId: member._id,
+                                                        onSuccess: refreshProject
+                                                    });
+                                                    setOpenDropdownId(null);
+                                                }}>
                                                     <img src={promote_svg} />
                                                     <span>Promote to admin</span>
                                                 </li>
                                             }
-                                            <li className={`${styles.option} ${styles.remove}`}>
+                                            <li className={`${styles.option} ${styles.remove}`} onClick={() =>
+                                                openModal("REMOVE_MEMBERS", {
+                                                    memberIds: {
+                                                        memberships: [member._id],
+                                                        projectId: project._id
+                                                    },
+                                                    onSuccess: refreshProject
+                                                })}>
                                                 <img src={remove_svg} />
                                                 <span>Remove from project</span>
                                             </li>
@@ -482,8 +522,8 @@ function MemberSettings({ project }) {
                     })}
                 </div>
             </div>
-        </div>
-    )
+        </div >
+    );
 }
 
 
@@ -575,7 +615,7 @@ function ArchiveSettings({ project }) {
                 ))}
             </div>
         </div>
-    )
+    );
 }
 
 
@@ -586,24 +626,23 @@ function ProjectSettings() {
     const [activeTab, setActiveTab] = useState("general");
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchProject = async () => {
-            try {
-                const res = await axios.get(`http://localhost:5000/api/projects/project/${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
-                    }
-                });
-                setProject(res.data);
-            } catch (err) {
-                console.error(err);
-                setProject(false);
-            }
-        };
+    const refreshProject = async () => {
+        try {
+            const res = await axios.get(`http://localhost:5000/api/projects/project/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            setProject(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
-        fetchProject();
+    useEffect(() => {
+        refreshProject();
         if (tab) setActiveTab(tab);
-    }, []);
+    }, [id]);
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -616,7 +655,7 @@ function ProjectSettings() {
     const renderContent = () => {
         switch (activeTab) {
             case "general": return <GeneralSettings project={project} setProject={setProject} />;
-            case "team": return <MemberSettings project={project} />;
+            case "team": return <MemberSettings project={project} refreshProject={refreshProject} />;
             case "archive": return <ArchiveSettings project={project} />;
             default: return <GeneralSettings project={project} setProject={setProject} />;
         }

@@ -13,6 +13,7 @@ import difficultyOn_svg from "../assets/icons/difficultyOn.svg";
 import difficultyOff_svg from "../assets/icons/difficultyOff.svg";
 import points_svg from "../assets/icons/points.svg";
 import comment_svg from "../assets/icons/comment.svg";
+import auction_svg from "../assets/icons/auction.svg";
 import send_svg from "../assets/icons/send.svg";
 import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -47,24 +48,23 @@ function Task() {
 
     const { openModal } = useModal();
 
-    useEffect(() => {
-        const fetchTask = async () => {
-            const _headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+    const fetchTask = async () => {
+        const _headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
 
-            const res = await axios.get(`http://localhost:5000/api/tasks/task/${id}`, { headers: _headers });
+        const res = await axios.get(`http://localhost:5000/api/tasks/task/${id}`, { headers: _headers });
 
-            setTask(res.data);
-            setActiveBoard(res.data.board);
-            setActiveAssignee(res.data.assignee);
+        setTask(res.data);
+        setActiveBoard(res.data.board);
+        setActiveAssignee(res.data.assignee);
 
-            const _members = await axios.get(`http://localhost:5000/api/memberships/project/${res.data.project._id}`, { headers: _headers });
-            setMembers(_members?.data);
+        const _members = await axios.get(`http://localhost:5000/api/memberships/project/${res.data.project._id}`, { headers: _headers });
+        setMembers(_members?.data);
 
-            const _boards = await axios.get(`http://localhost:5000/api/boards/project/${res.data.project._id}`, { headers: _headers });
-            setBoards(_boards?.data);
-        };
-        fetchTask();
-    }, [id, openModal]);
+        const _boards = await axios.get(`http://localhost:5000/api/boards/project/${res.data.project._id}`, { headers: _headers });
+        setBoards(_boards?.data);
+    };
+
+    useEffect(() => { fetchTask() }, [id, openModal]);
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -159,19 +159,17 @@ function Task() {
 
     useEffect(() => {
         if (!task) return;
-        let baseWorktime = task.worktime;
-        if (task.isTimerRunning && task.timerStartedAt) {
-            const elapsedMinutes = Math.floor((Date.now() - new Date(task.timerStartedAt).getTime()) / 60000);
-            baseWorktime += elapsedMinutes;
-        }
-        setWorktime(baseWorktime);
+        let baseSeconds = task.worktime || 0;
+        if (task.isTimerRunning && task.timerStartedAt)
+            baseSeconds += Math.floor((Date.now() - new Date(task.timerStartedAt).getTime()) / 1000);
+        setWorktime(baseSeconds);
     }, [task]);
 
     useEffect(() => {
         if (!task?.isTimerRunning) return;
         const interval = setInterval(() => {
             setWorktime(prev => prev + 1);
-        }, 60000);
+        }, 1000);
         return () => clearInterval(interval);
     }, [task?.isTimerRunning]);
 
@@ -257,7 +255,6 @@ function Task() {
             }
         });
         setTask(res.data);
-
     };
 
     const stopTimer = async () => {
@@ -266,17 +263,13 @@ function Task() {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             }
         });
-        const res = await axios.get(`http://localhost:5000/api/tasks/task/${id}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
-        });
-        setTask(res.data);
+        fetchTask();
     };
 
-    const workedHours = Math.floor(worktime / 60);
-    const workedMinutes = worktime % 60;
-    const motivation = worktime * 2;
+    const workedHours = Math.floor(worktime / 3600);
+    const workedMinutes = Math.floor((worktime % 3600) / 60);
+    const workedSeconds = worktime % 60;
+    const motivation = workedMinutes * 2;
 
     const canEdit = task.fetcher.role === "OWNER" || task.fetcher.role === "ADMIN";
 
@@ -514,7 +507,7 @@ function Task() {
                                         style={String(task.fetcher?._id) === String(task.assignee?._id) ? { cursor: "pointer" } : { cursor: "default" }}>
                                         <div style={{ width: "12px", height: "12px", borderRadius: "30%", backgroundColor: task.isTimerRunning ? "#ff0000" : "#cccccc" }} />
                                     </button>
-                                    <p>{workedHours === 0 ? "" : `${workedHours}h `}{workedMinutes}m</p>
+                                    <p>{workedHours === 0 ? "" : `${workedHours}h `}{workedMinutes === 0 ? "" : `${workedMinutes}m `}{workedSeconds}s</p>
                                 </div>
                             </div>
                         </div>
@@ -538,11 +531,20 @@ function Task() {
                 </main>
                 <aside className={styles.activityContainer}>
                     <div className={styles.activityPane}>
-                        <h1>Activity</h1>
-                        <div className={styles.comments}>
-                            <img src={comment_svg} />
-                            <p>{comment_count}</p>
+                        <div className={styles.info}>
+                            <h1>Activity</h1>
+                            <div className={styles.comments}>
+                                <img src={comment_svg} />
+                                <p>{comment_count}</p>
+                            </div>
                         </div>
+                        {
+                            (task.fetcher._id === task.assignee._id) &&
+                            <button className={styles.auction} onClick={() => openModal("OPEN_BID", { task })}>
+                                <img src={auction_svg} />
+                                <span>Place on auction</span>
+                            </button>
+                        }
                     </div>
                     <div className={styles.activityWindow}>
                         <div style={{ marginTop: 'auto' }} />

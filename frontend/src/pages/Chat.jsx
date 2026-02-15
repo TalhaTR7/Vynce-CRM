@@ -3,11 +3,10 @@ import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import more_svg from "../assets/icons/more.svg";
-import clear_svg from "../assets/icons/clear.svg";
-import delete_svg from "../assets/icons/delete.svg";
+import close_svg from "../assets/icons/close.svg";
 import send_svg from "../assets/icons/send.svg";
 import styles from "../css/Chat.module.scss";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Loading from "../components/Loading";
@@ -20,6 +19,7 @@ function Chat() {
     const scrollRef = useRef(null);
     const [openDropdown, setOpenDropdown] = useState(false);
     const dropdownRef = useRef(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -47,24 +47,6 @@ function Chat() {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [openDropdown]);
-
-    const deleteEmptyChat = async () => {
-        try {
-            await axios.delete(`http://localhost:5000/api/messages/chat/${id}/empty-chat`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    useEffect(() => {
-        return () => {
-            deleteEmptyChat();
-        };
-    }, []);
 
     useEffect(() => {
         let link = document.querySelector("link[rel='icon']");
@@ -102,6 +84,20 @@ function Chat() {
         }
     };
 
+    const closeChat = async () => {
+        try {
+            await axios.patch(`http://localhost:5000/api/messages/chat/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                },
+            });
+            navigate("/dashboard");
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
     return (
         <div className={styles.canvas}>
             <Header />
@@ -118,13 +114,9 @@ function Chat() {
                         <div className={styles.options} ref={dropdownRef}>
                             <img src={more_svg} className={styles.more} onClick={() => setOpenDropdown(openDropdown ? false : true)} />
                             <ul className={`${styles.dropdown} ${openDropdown ? styles.dropdownOpen : styles.dropdownClosed}`}>
-                                <li className={styles.option}>
-                                    <img src={clear_svg} />
-                                    <span>Clear chat</span>
-                                </li>
-                                <li className={`${styles.option} ${styles.delete}`}>
-                                    <img src={delete_svg} />
-                                    <span>Delete chat</span>
+                                <li className={`${styles.option}`} onClick={() => closeChat()}>
+                                    <img src={close_svg} />
+                                    <span>Close chat</span>
                                 </li>
                             </ul>
                         </div>
@@ -151,7 +143,7 @@ function Chat() {
                             else return (
                                 <div key={message._id} className={messageClass} style={{ justifyContent: "flex-end" }}>
                                     <p className={styles.time}>{createdAt}</p>
-                                    <p className={styles.content}>{message.content}</p>
+                                    <p className={styles.content} style={{ backgroundColor: "#093f38ff" }}>{message.content}</p>
                                     <div className={styles.profileImage}>
                                         {showProfileImage && <img src={message.sender.profileImage.url} alt="" />}
                                     </div>

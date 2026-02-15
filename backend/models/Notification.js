@@ -22,8 +22,8 @@ const notificationSchema = new mongoose.Schema(
                 "EDIT_BOARD",           // ✅ on board edit; admins, owner
                 "EDIT_PROJECT",         // ✅ on project edit; admins, owner
                 "EDIT_TASK",            // ✅ on task edit; assignee
-                "MESSAGE_FROM_USER",    // when receiver is AFK; receiver
-                "BID_FROM_USER",        // when reciever is AFK and a bid is offered; receiver
+                "BID_CREATED",          // to creator when the assignee places the task on auction; creator
+                "BID_PLACED",           // to creator and assignee when user places a bid on the task; creator, assignee
                 "WEEKLY_MP",            // every sunday when the leaderboards reset with rewards; all
                 "LEVEL_UP",             // every time when user levels up; all
                 "PROMOTION",            // ✅ promoted admin; members

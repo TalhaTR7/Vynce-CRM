@@ -307,7 +307,7 @@ router.patch("/task/:taskId/editTitle", authMiddleware, async (req, res) => {
 
         await task.save();
 
-        if (!task.assigneeId.equals(task.creatorId)) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
@@ -366,7 +366,7 @@ router.patch("/task/:taskId/reassign", authMiddleware, async (req, res) => {
 
         task.assigneeId = assigneeId;
 
-        if (assigneeId !== req.user.id) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.assigneeId]),
                 type: "TASK_REASSIGNED",
@@ -437,7 +437,7 @@ router.patch("/task/:taskId/editDueDate", authMiddleware, async (req, res) => {
         task.dueDate = dueDate;
         await task.save();
 
-        if (!task.assigneeId.equals(task.creatorId)) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
@@ -494,7 +494,7 @@ router.patch("/task/:taskId/changeStatus", authMiddleware, async (req, res) => {
         task.boardId = boardId;
         await task.save();
 
-        if (!task.assigneeId.equals(task.creatorId)) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
@@ -568,29 +568,32 @@ router.patch("/task/:taskId/stopTimer", authMiddleware, async (req, res) => {
         if (!task.isTimerRunning || !task.timerStartedAt)
             return res.status(400).json({ msg: "Timer is not running" });
 
-        const workedMinutes = Math.floor((Date.now() - task.timerStartedAt.getTime()) / 60000);
-        task.worktime += workedMinutes;
+        const workedSeconds = Math.floor((Date.now() - task.timerStartedAt.getTime()) / 1000);
+
+        task.worktime = (task.worktime || 0) + workedSeconds;
+
         task.isTimerRunning = false;
         task.timerStartedAt = null;
 
-        const hours = Math.floor(workedMinutes / 60);
-        const minutes = workedMinutes % 60;
-        const worktime = `${hours > 0 ? `${hours}h ` : ""}${minutes}m`;
+        const workedMinutes = Math.floor(workedSeconds / 60);
+        task.motivation = (task.motivation || 0) + workedMinutes * 2;
+
+        const hours = Math.floor(task.worktime / 3600);
+        const minutes = Math.floor((task.worktime % 3600) / 60);
+        const seconds = task.worktime % 60;
+        const formattedWorktime = `${hours > 0 ? `${hours}h ` : ""}${minutes > 0 ? `${minutes}m ` : ""}${seconds}s`;
+
         const assignee = task.assigneeId;
 
         task.activity.push({
             type: "ACTION",
             userId: assignee._id,
             action: "STOPPED_TIMER",
-            content: `${assignee.firstname} ${assignee.lastname} stopped the timer after ${worktime}`
-        })
+            content: `${assignee.firstname} ${assignee.lastname} stopped the timer at ${formattedWorktime}`
+        });
 
         await task.save();
-        res.status(200).json({
-            msg: "timer stopped",
-            addedMinutes: workedMinutes,
-            totalWorktime: task.worktime
-        });
+        res.status(200).json({ msg: "Timer stopped" });
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
@@ -635,7 +638,7 @@ router.patch("/task/:taskId/changeBounty", authMiddleware, async (req, res) => {
 
         await task.save();
 
-        if (!task.assigneeId.equals(task.creatorId)) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
@@ -683,7 +686,7 @@ router.patch("/task/:taskId/changeDifficulty", authMiddleware, async (req, res) 
 
         await task.save();
 
-        if (!task.assigneeId.equals(task.creatorId)) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
@@ -731,7 +734,7 @@ router.patch("/task/:taskId/editDescription", authMiddleware, async (req, res) =
 
         await task.save();
 
-        if (!task.assigneeId.equals(task.creatorId)) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.assigneeId]),
                 type: "EDIT_TASK",
@@ -855,7 +858,7 @@ router.patch("/task/submit", authMiddleware, async (req, res) => {
         });
 
         // make notification
-        if (!task.assigneeId.equals(task.creatorId)) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.creatorId]),
                 type: "TASK_SUBMITTED",
@@ -914,7 +917,7 @@ router.patch("/task/return", authMiddleware, async (req, res) => {
         });
 
         // make notification
-        if (!task.assigneeId.equals(task.creatorId)) {
+        if (!task.assigneeId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.assigneeId]),
                 type: "TASK_RETURNED",

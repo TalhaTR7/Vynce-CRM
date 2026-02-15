@@ -5,6 +5,7 @@ import { CreateBoard, EditBoard } from "../components/modals/CreateBoard";
 import { CreateTask, RestoreTask } from "../components/modals/CreateTask";
 import { SetBounty, SetDifficulty } from "../components/modals/Popovers";
 import { CloseTask, DeleteAccount, DeleteBoard, DeleteMails, DeleteProject, DeleteTask, DeleteTasks, DemoteAdmin, FindUser, InvitationResponse, InviteUser, LeaveProject, Logout, OwnershipResponse, PromoteMember, RemoveMembers, ReturnTask, SubmitTask, TransferOwnership, UpdatePassword } from "../components/modals/Dialogues";
+import { OpenBid } from "../components/modals/OpenBid";
 
 
 function ModalRenderer() {
@@ -19,7 +20,7 @@ function ModalRenderer() {
             {modal?.type === "DELETE_BOARD" && (<DeleteBoard onClose={closeModal} boardId={modal.payload.boardId} />)}
             {modal?.type === "SET_BOUNTY" && (<SetBounty onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "SET_DIFFICULTY" && (<SetDifficulty onClose={closeModal} task={modal.payload.task} />)}
-            {modal?.type === "REMOVE_MEMBERS" && (<RemoveMembers onClose={closeModal} memberIds={modal.payload.memberIds} />)}
+            {modal?.type === "OPEN_BID" && (<OpenBid onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "CLOSE_TASK" && (<CloseTask onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "DELETE_TASK" && (<DeleteTask onClose={closeModal} task={modal.payload.task} />)}
             {modal?.type === "SUBMIT_TASK" && (<SubmitTask onClose={closeModal} task={modal.payload.task} />)}
@@ -37,8 +38,9 @@ function ModalRenderer() {
             {modal?.type === "TRANSFER_OWNERSHIP" && (<TransferOwnership onClose={closeModal} payload={modal.payload.payload} />)}
             {modal?.type === "OWNERSHIP_RESPONSE" && (<OwnershipResponse onClose={closeModal} payload={modal.payload.payload} />)}
             {modal?.type === "DELETE_PROJECT" && (<DeleteProject onClose={closeModal} project={modal.payload.project} />)}
-            {modal?.type === "PROMOTE_MEMBER" && (<PromoteMember onClose={closeModal} project={modal.payload.project} />)}
-            {modal?.type === "DEMOTE_ADMIN" && (<DemoteAdmin onClose={closeModal} project={modal.payload.project} />)}
+            {modal?.type === "REMOVE_MEMBERS" && (<RemoveMembers onClose={closeModal} memberIds={modal.payload.memberIds} onSuccess={modal.payload.onSuccess} />)}
+            {modal?.type === "PROMOTE_MEMBER" && (<PromoteMember onClose={closeModal} membershipId={modal.payload.membershipId} onSuccess={modal.payload.onSuccess} />)}
+            {modal?.type === "DEMOTE_ADMIN" && (<DemoteAdmin onClose={closeModal} membershipId={modal.payload.membershipId} onSuccess={modal.payload.onSuccess} />)}
         </ModalPortal>
     );
 }

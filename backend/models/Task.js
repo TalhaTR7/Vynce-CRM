@@ -45,7 +45,8 @@ const taskSchema = new mongoose.Schema({
             ], default: null
         },
     }],
-    closed: { type: Boolean, default: false }
+    closed: { type: Boolean, default: false },
+    onAuction: { type: Boolean, default: false }
 },
     { timestamps: true }
 );
