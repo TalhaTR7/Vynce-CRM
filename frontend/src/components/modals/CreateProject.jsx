@@ -1,22 +1,23 @@
+// CreateProject modal — first application of the Modal system
 import Modal from "./Modal";
 import { useState, useRef } from "react";
 import styles from "./css/CreateProject.module.scss";
-import close_svg from "../../assets/icons/close.svg";
+import close_svg   from "../../assets/icons/close.svg";
 import loading_svg from "../../assets/icons/loading.svg";
-import toast from "react-hot-toast";
-import axios from "axios";
+import toast       from "react-hot-toast";
+import axios       from "axios";
 import { useNavigate } from "react-router-dom";
 
 
 export function CreateProject({ onClose }) {
-    const [name, setName] = useState("");
-    const [file, setFile] = useState(null);
+    const [name, setName]               = useState("");
+    const [file, setFile]               = useState(null);
     const [projectImage, setProjectImage] = useState("/assets/project.png");
-    const fileInputRef = useRef();
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    const [loading, setLoading]         = useState(false);
+    const fileInputRef                  = useRef();
+    const navigate                      = useNavigate();
 
-    const handleDivClick = () => fileInputRef.current.click();
+    const handleDivClick   = () => fileInputRef.current.click();
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -26,39 +27,26 @@ export function CreateProject({ onClose }) {
     };
 
     const submit = async (handleClose) => {
-        const token = localStorage.getItem("token");
+        if (!name) { toast.error("Project name required"); return; }
+
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) { toast.error("File is larger than 5 MB"); return; }
+            if (file.type !== "image/png")    { toast.error("Only PNG is allowed");       return; }
+        }
+
         try {
-            if (!name) {
-                toast.error("Project name required");
-                return;
-            }
-
-            if (file) {
-                const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-                if (file.size > MAX_FILE_SIZE) {
-                    toast.error("File is larger than 5 MB");
-                    return;
-                }
-                if (file.type !== "image/png") {
-                    toast.error("Only PNG is allowed");
-                    return;
-                }
-            }
-
             const formData = new FormData();
             formData.append("name", name);
             if (file) formData.append("image", file);
 
             setLoading(true);
-            const res = await axios.post("http://localhost:5000/api/projects", formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const res = await axios.post("/api/projects", formData, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
 
             handleClose();
             navigate(`/project/${res.data._id}`);
-            toast.success("Project successfully created")
+            toast.success("Project created!");
         } catch (err) {
             console.error(err);
         } finally {
@@ -68,39 +56,80 @@ export function CreateProject({ onClose }) {
 
     return (
         <Modal onClose={onClose}>
-            {({ handleClose }) => (<>
-                <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                    <img src={loading_svg} />
-                </div>
-                <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }} style={{ visibility: loading ? "hidden" : "visible" }}>
-                    <div className={styles.titlePane}>
-                        <label>Project creation</label>
-                        <img src={close_svg} onClick={handleClose} />
-                    </div>
-                    <div className={styles.meta}>
-                        <div className={styles.projectImage} onClick={handleDivClick}>
-                            <img src={projectImage} />
+            {({ handleClose }) => (
+                <>
+                    {/* Loading overlay — sits on top of form during API call */}
+                    {loading && (
+                        <div className={styles.loadingOverlay}>
+                            <img src={loading_svg} alt="" />
                         </div>
-                        <input
-                            type="file"
-                            accept="image/png"
-                            ref={fileInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleFileChange} />
-                        <div className={styles.projectName}>
-                            <label>Project name</label>
-                            <input onChange={e => setName(e.target.value)} required />
+                    )}
+
+                    <form onSubmit={(e) => { e.preventDefault(); submit(handleClose); }}>
+
+                        {/* Header */}
+                        <div className={styles.header}>
+                            <div className={styles.headerTitle}>
+                                <h2>New project</h2>
+                                <span>Project creation</span>
+                            </div>
+                            <button
+                                type="button"
+                                className={styles.closeButton}
+                                onClick={handleClose}
+                                aria-label="Close"
+                            >
+                                <img src={close_svg} alt="" />
+                            </button>
                         </div>
-                    </div>
-                    <div className={styles.submission}>
-                        <span>Just one click away!</span>
-                        <div className={styles.content}>
-                            <p>Don't worry. You can create your boards after the creation of your project.</p>
-                            <button type="submit">Create project</button>
+
+                        {/* Body */}
+                        <div className={styles.body}>
+                            <div className={styles.metaRow}>
+
+                                {/* Image picker */}
+                                <div className={styles.imagePicker} onClick={handleDivClick}>
+                                    <img src={projectImage} alt="Project" />
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/png"
+                                    ref={fileInputRef}
+                                    style={{ display: "none" }}
+                                    onChange={handleFileChange}
+                                />
+
+                                {/* Name input */}
+                                <div className={styles.nameGroup}>
+                                    <label htmlFor="projectName">Project name</label>
+                                    <input
+                                        id="projectName"
+                                        type="text"
+                                        placeholder="e.g. BlackRock Q4"
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </>)}
+
+                        {/* Footer */}
+                        <div className={styles.footer}>
+                            <p className={styles.footerHint}>
+                                Boards and members can be added after creation.
+                            </p>
+                            <button
+                                type="submit"
+                                className={styles.submitButton}
+                                disabled={loading}
+                            >
+                                Create project
+                            </button>
+                        </div>
+
+                    </form>
+                </>
+            )}
         </Modal>
     );
 }

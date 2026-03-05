@@ -1,3 +1,4 @@
+/* ─── Overlay ────────────────────────────────────────────────────── */
 .overlay {
     position: fixed;
     inset: 0;
@@ -5,13 +6,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-bottom: 10%;
-
+    backdrop-filter: blur(2px);
     opacity: 0;
     transition:
         opacity 0.2s ease,
-        backdrop-filter 0.2s ease,
-        background 0.2s;
+        background 0.2s ease;
 
     &.show {
         opacity: 1;
@@ -19,23 +18,22 @@
     }
 }
 
+/* ─── Shared panel base ──────────────────────────────────────────── */
+.modal,
 .popup,
 .popover,
-.dialogue,
-.modal {
+.dialogue {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    background-color: #151515ee;
-    border: 1px solid #212121;
-    border-radius: 15px;
     width: 100%;
+    background: #111111;
+    border: 1px solid var(--border);
 
-    transform: translateY(50px) scale(0.7);
+    transform: translateY(16px) scale(0.98);
     opacity: 0;
     transition:
-        transform 0.2s ease-in-out,
-        opacity 0.2s ease;
+        transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.18s ease;
 
     &.show {
         transform: translateY(0) scale(1);
@@ -43,31 +41,48 @@
     }
 }
 
-.popup {
-    max-width: 450px;
-    padding: 25px;
-    top: 0%;
-}
-
-.popover {
-    max-width: 250px;
-    padding: 0;
-    overflow: hidden;
-}
-
+/* ─── Modal — primary heavyweight ───────────────────────────────── */
 .modal {
-    max-width: 450px;
-    padding: 25px;
-    background-color: #151515;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    max-width: 500px;
+    padding: 0;
+    border-radius: 16px;
+    gap: 0;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 24px 64px rgba(0, 0, 0, 0.75);
 }
 
+/* ─── Popup — lighter, same footprint ───────────────────────────── */
+.popup {
+    max-width: 440px;
+    padding: 0;
+    border-radius: 16px;
+    gap: 0;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+/* ─── Popover — compact, menu-style ─────────────────────────────── */
+.popover {
+    max-width: 260px;
+    padding: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* ─── Dialogue — frosted glass, for confirmations ───────────────── */
 .dialogue {
     max-width: 400px;
     padding: 0;
+    border-radius: 10px;
     gap: 0;
-    background-color: #1c1c1ccc;
-    backdrop-filter: blur(5px);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    background: rgba(14, 14, 14, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     position: relative;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 24px 64px rgba(0, 0, 0, 0.7);
 }

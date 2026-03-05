@@ -107,7 +107,7 @@ router.post("/invite", authMiddleware, async (req, res) => {
                 type: "PROJECT",
                 refId: project._id
             },
-            title: `${inviter.firstname} ${inviter.lastname} invited you to their project: ${project.name}`,
+            title: `${inviter.firstname} ${inviter.lastname} invited you to ${project.name}`,
             action: { type: "DIALOGUE" },
             payload: {
                 invitationId: invitation._id,

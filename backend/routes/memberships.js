@@ -243,8 +243,8 @@ router.delete("/remove", authMiddleware, async (req, res) => {
             await Notification.create([{
                 users: [{ _id: member.user._id }],
                 type: "REMOVED_FROM_PROJECT",
-                icon: { type: "PROJECT", refId: projectId },
-                title: `${owner.firstname} ${owner.lastname} removed you from the project`,
+                icon: { type: "USER", refId: req.user.id },
+                title: `${owner.firstname} ${owner.lastname} removed you from ${project.name}`,
                 action: { type: "MESSAGE" }
             }], { session });
 
@@ -465,7 +465,7 @@ router.patch("/transfer-ownership/accept", authMiddleware, async (req, res) => {
         }], { session });
 
         await Notification.create([{
-            users: [{ _id: owner._id }],
+            users: [{ _id: admin._id }],
             type: "OWNERSHIP_ALERT",
             icon: { type: "PROJECT", refId: project._id },
             title: `Look at you! You're now the owner of ${project.name}`,
@@ -521,7 +521,7 @@ router.patch("/transfer-ownership/decline", authMiddleware, async (req, res) => 
         await Notification.create({
             users: [{ _id: offer.ownerId }],
             type: "OWNERSHIP_RESPONSE",
-            icon: { type: "PROJECT", refId: project._id },
+            icon: { type: "USER", refId: admin._id },
             title: `${admin.firstname} ${admin.lastname} has declined your offer for the ownership of "${project.name}"`,
             action: { type: "MESSAGE" }
         });
@@ -625,7 +625,7 @@ router.patch("/change-role/demote", authMiddleware, async (req, res) => {
             users: [{ _id: membership.userId }],
             type: "DEMOTION",
             icon: { type: "PROJECT", refId: membership.projectId },
-            title: `Plot twist! Enjoy a simpler life as a Member again, ${owner.firstname} ${owner.lastname} made you one"`,
+            title: `Plot twist! Enjoy a simpler life as a Member again, ${owner.firstname} ${owner.lastname} made you one`,
             action: { type: "MESSAGE" }
         })
 

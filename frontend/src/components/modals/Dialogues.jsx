@@ -1,6 +1,5 @@
 import show_svg from "../../assets/icons/show.svg";
 import hide_svg from "../../assets/icons/hide.svg";
-import arrowRight_svg from "../../assets/icons/arrowRight.svg";
 import loading_svg from "../../assets/icons/loading.svg";
 import { Dialogue } from "./Modal";
 import { useNavigate } from "react-router-dom";
@@ -9,221 +8,178 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+const AUTH = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
+function Spinner() {
+    return (
+        <div className={styles.loadingOverlay}>
+            <img src={loading_svg} alt="" />
+        </div>
+    );
+}
+
+
+/* LOGOUT ═══════════════════════════════════════════════════════════ */
 export function Logout({ onClose }) {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-
-    const handleLogout = (handleClose) => {
-        handleClose();
-        localStorage.removeItem("token");
-        navigate("/");
-    };
-
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    <div className={`${styles.rail} ${styles.railGreen}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>session</span>
+                        <p className={styles.headTitle}>Log out</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Taking some air</p>
-                        </div>
-                        <p className={styles.message}>You sure you wanna logout?</p>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryGreen} onClick={() => handleLogout(handleClose)}>Logout</button>
-                        </div>
-                    </main>
-                </>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>You'll need to sign back in to access your workspace.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnGreen} onClick={() => { localStorage.removeItem("token"); handleClose(); navigate("/"); }}>Log out</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
-export function UpdatePassword({ onClose }) {
 
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [showCurrent, setShowCurrent] = useState(false);
-    const [showNew, setShowNew] = useState(false);
-    const [showConfirm, setShowConfirm] = useState(false);
+/* UPDATE PASSWORD ══════════════════════════════════════════════════ */
+export function UpdatePassword({ onClose }) {
+    const [fields, setFields] = useState({ current: "", new: "", confirm: "" });
+    const [show, setShow] = useState({ current: false, new: false, confirm: false });
     const [loading, setLoading] = useState(false);
+
+    const set = (key) => (e) => setFields(p => ({ ...p, [key]: e.target.value }));
+    const tog = (key) => () => setShow(p => ({ ...p, [key]: !p[key] }));
 
     const submit = async (handleClose) => {
-        if (newPassword !== confirmPassword) {
-            toast.error("New passwords do not match");
-            return;
-        }
-        else if (newPassword.length < 5) {
-            toast.error("Password must be longer than 5 characters");
-            return;
-        }
-        else if (currentPassword === newPassword) {
-            toast.error("Cannot update to same password");
-            return;
-        }
-
+        if (fields.new !== fields.confirm) { toast.error("Passwords don't match"); return; }
+        if (fields.new.length < 5) { toast.error("At least 5 characters"); return; }
+        if (fields.current === fields.new) { toast.error("Same as current password"); return; }
         try {
             setLoading(true);
-            const res = await axios.patch("http://localhost:5000/api/users/user/change-password", {
-                currentPassword,
-                newPassword
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            })
-
+            const res = await axios.patch("/api/users/user/change-password",
+                { currentPassword: fields.current, newPassword: fields.new },
+                { headers: AUTH() }
+            );
             if (res.data.token) localStorage.setItem("token", res.data.token);
-
-            setCurrentPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
             handleClose();
-
-            toast.success("Password updated successfully");
+            toast.success("Password updated");
         } catch (err) {
-            console.error(err);
-            toast.error(err.response.data.msg || "Something went wrong");
-        } finally {
-            setLoading(false);
-        }
+            toast.error(err.response?.data?.msg || "Something went wrong");
+        } finally { setLoading(false); }
     };
+
+    const rows = [
+        { key: "current", label: "Current password" },
+        { key: "new", label: "New password" },
+        { key: "confirm", label: "Confirm password" },
+    ];
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railGreen}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>account</span>
+                        <p className={styles.headTitle}>Update password</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Updating password</p>
+                    <div className={styles.body}>
+                        <div className={styles.passwordList}>
+                            {rows.map(({ key, label }) => (
+                                <div key={key} className={styles.passwordGroup}>
+                                    <label>{label}</label>
+                                    <div className={styles.passwordWrapper}>
+                                        <input
+                                            type={show[key] ? "text" : "password"}
+                                            value={fields[key]}
+                                            onChange={set(key)}
+                                            placeholder="••••••••"
+                                        />
+                                        <button type="button" className={styles.toggleVisibility} onClick={tog(key)}>
+                                            <img src={show[key] ? show_svg : hide_svg} alt="" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <form className={styles.passwordForm}>
-                            <div className={styles.passwordField}>
-                                <label>Current password</label>
-                                <div className={styles.wrapper}>
-                                    <input
-                                        type={showCurrent ? "text" : "password"}
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)} />
-                                    <img src={showCurrent ? show_svg : hide_svg} onClick={() => setShowCurrent((prev) => !prev)} />
-                                </div>
-                            </div>
-                            <div className={styles.passwordField}>
-                                <label>New password</label>
-                                <div className={styles.wrapper}>
-                                    <input
-                                        type={showNew ? "text" : "password"}
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)} />
-                                    <img src={showNew ? show_svg : hide_svg} onClick={() => setShowNew((prev) => !prev)} />
-                                </div>
-                            </div>
-                            <div className={styles.passwordField}>
-                                <label>Confirm password</label>
-                                <div className={styles.wrapper}>
-                                    <input
-                                        type={showConfirm ? "text" : "password"}
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)} />
-                                    <img src={showConfirm ? show_svg : hide_svg} onClick={() => setShowConfirm((prev) => !prev)} />
-                                </div>
-                            </div>
-                        </form>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Done</button>
-                        </div>
-                    </main>
-                </>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnGreen} onClick={() => submit(handleClose)}>Update</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
-export function DeleteAccount({ onClose, user }) {
 
-    const [confirmation, setConfirmation] = useState(false);
-    const [fieldName, setFieldName] = useState("");
+/* DELETE ACCOUNT ═══════════════════════════════════════════════════ */
+export function DeleteAccount({ onClose, user }) {
+    const [checked, setChecked] = useState(false);
+    const [typed, setTyped] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const phrase = `${user.firstname.trim()}-${user.lastname.trim()}`;
 
     const handleDelete = async (handleClose) => {
-        if (!confirmation) {
-            toast.error("Confirmation required to continue");
-            return;
-        }
-
-        const fullname = `${user.firstname.trim()}-${user.lastname.trim()}`;
-        if (fieldName.trim() !== fullname) {
-            toast.error("Confirmation string doesn't match.");
-            return;
-        }
-
+        if (!checked) { toast.error("Check the confirmation box"); return; }
+        if (typed.trim() !== phrase) { toast.error("Phrase doesn't match"); return; }
         try {
             setLoading(true);
-            await axios.delete("http://localhost:5000/api/users/user/", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-
-            handleClose();
-            toast.success("Account deleted successfully");
+            await axios.delete("/api/users/user/", { headers: AUTH() });
             localStorage.removeItem("token");
+            handleClose();
             navigate("/");
+            toast.success("Account deleted");
         } catch (err) {
-            console.log(err);
-            toast.error(err.response.data.msg);
-        } finally {
-            setLoading(false);
-        }
+            toast.error(err.response?.data?.msg || "Something went wrong");
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>danger zone</span>
+                        <p className={styles.headTitle}>Delete account</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Heads up!</p>
-                        </div>
-                        <div className={styles.checkboxContainer}>
-                            <div className={styles.checkboxes}>
-                                <input type="checkbox"
-                                    id="confirmation"
-                                    className={styles.checkbox}
-                                    checked={confirmation}
-                                    onChange={() => setConfirmation(prev => !prev)} />
-                                <label htmlFor="confirmation" className={styles.checkmark}>
-                                    I understand that deleting my account will permanently erase all my progress and achievements.
-                                </label>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>All progress, achievements, and project history will be permanently erased. There is no recovery.</p>
+                        <div className={styles.checkList}>
+                            <div className={styles.checkRow}>
+                                <input type="checkbox" className={styles.check} checked={checked} onChange={() => setChecked(p => !p)} />
+                                <span className={styles.checkLabel}>I understand this cannot be undone</span>
                             </div>
                         </div>
-                        <div className={styles.inputField} style={{ margin: 0 }}>
-                            <label>Type "{user.firstname}-{user.lastname}" to confirm</label>
-                            <input type="text" onChange={(e) => setFieldName(e.target.value)} />
+                        <div className={styles.inputGroup}>
+                            <label>Type <span className={styles.confirmPhrase}>{phrase}</span> to confirm</label>
+                            <input type="text" placeholder={phrase} onChange={(e) => setTyped(e.target.value)} />
                         </div>
-                        <div className={styles.buttons}>
-                            <button className={styles.primaryRed} onClick={() => handleDelete(handleClose)}>Delete</button>
-                        </div>
-                    </main>
-                </>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => handleDelete(handleClose)}>Delete account</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* FIND USER ════════════════════════════════════════════════════════ */
 export function FindUser({ onClose }) {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
@@ -232,185 +188,165 @@ export function FindUser({ onClose }) {
     const submit = async (handleClose) => {
         try {
             setLoading(true);
-            const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
-
-            const { data: user } = await axios.get(`http://localhost:5000/api/users/email/${email}`,
-                { headers: headers }
-            );
-
-            const res = await axios.post(`http://localhost:5000/api/messages/user/${user._id}`,
-                { content: "" },
-                { headers: headers }
-            );
-            const chat = res.data.chat;
-
-            navigate(`/chat/${chat._id}`);
+            const { data: user } = await axios.get(`/api/users/email/${email}`, { headers: AUTH() });
+            const res = await axios.post(`/api/messages/user/${user._id}`, {}, { headers: AUTH() });
+            navigate(`/chat/${res.data.chat._id}`);
             handleClose();
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railGreen}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>messages</span>
+                        <p className={styles.headTitle}>Open a DM</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Find someone</p>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>Find a Vynce user by email address to start a direct message.</p>
+                        <div className={styles.inputGroup}>
+                            <label>Email address</label>
+                            <input type="email" placeholder="user@vynce.app" onChange={(e) => setEmail(e.target.value)} />
                         </div>
-                        <div className={styles.inputField}>
-                            <label className={styles.message}>Find a Vynce user by email</label>
-                            <input type="text" onChange={(e) => setEmail(e.target.value)} />
-                        </div>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Open DM</button>
-                        </div>
-                    </main>
-                </>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnGreen} onClick={() => submit(handleClose)}>Open DM</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* DELETE BOARD ═════════════════════════════════════════════════════ */
 export function DeleteBoard({ onClose, boardId }) {
     const [loading, setLoading] = useState(false);
 
     const confirm = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.delete(`http://localhost:5000/api/boards/board/${boardId}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.delete(`/api/boards/board/${boardId}`, { headers: AUTH() });
             handleClose();
-            toast.success("Board deleted successfully");
+            toast.success("Board deleted");
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-            handleClose();
-        }
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
-            {({ handleClose }) => (<>
-                <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                    <img src={loading_svg} />
+            {({ handleClose }) => (
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>boards</span>
+                        <p className={styles.headTitle}>Delete board</p>
+                    </div>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>All tasks on this board will be moved to the archives. The board itself is gone for good.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => confirm(handleClose)}>Delete board</button>
+                    </div>
                 </div>
-                <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                    <div className={styles.title}>
-                        <p>Deleting a board</p>
-                    </div>
-                    <p className={styles.message}>You sure you wanna delete the board?</p>
-                    <div className={styles.buttons}>
-                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                        <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Delete</button>
-                    </div>
-                </main>
-            </>)}
+            )}
         </Dialogue>
     );
 }
 
+
+/* SUBMIT TASK ══════════════════════════════════════════════════════ */
 export function SubmitTask({ onClose, task }) {
     const [loading, setLoading] = useState(false);
 
     const submit = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch(`http://localhost:5000/api/tasks/task/submit`, { taskId: task._id }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.patch("/api/tasks/task/submit", { taskId: task._id }, { headers: AUTH() });
             handleClose();
-            toast.success("Task submitted");
+            toast.success("Task submitted for review");
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railBlue}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>task</span>
+                        <p className={styles.headTitle}>Submit for review</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Submitting the task</p>
-                        </div>
-                        <p className={styles.message}>Send the task up for a review and get rewarded after it gets closed</p>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryBlue} onClick={() => submit(handleClose)}>Submit</button>
-                        </div>
-                    </main>
-                </>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>Send this task up the chain. You'll be rewarded once it's closed by an owner or admin.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Not yet</button>
+                        <button className={styles.btnBlue} onClick={() => submit(handleClose)}>Submit</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* RETURN TASK ══════════════════════════════════════════════════════ */
 export function ReturnTask({ onClose, task }) {
     const [loading, setLoading] = useState(false);
 
     const submit = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch(`http://localhost:5000/api/tasks/task/return`, { taskId: task._id }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.patch("/api/tasks/task/return", { taskId: task._id }, { headers: AUTH() });
             handleClose();
             toast.success("Task returned");
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railBlue}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>task</span>
+                        <p className={styles.headTitle}>Return the task</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Returning the task</p>
-                        </div>
-                        <p className={styles.message}>You sure you wanna retrun the task? This will not reward the assignee</p>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryBlue} onClick={() => submit(handleClose)}>Return</button>
-                        </div>
-                    </main>
-                </>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>The assignee won't be rewarded. The task goes back to its original board status.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnBlue} onClick={() => submit(handleClose)}>Return</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* CLOSE TASK ═══════════════════════════════════════════════════════ */
 export function CloseTask({ onClose, task }) {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -418,45 +354,41 @@ export function CloseTask({ onClose, task }) {
     const submit = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch(`http://localhost:5000/api/archives/task/close`, { taskId: task._id }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.patch("/api/archives/task/close", { taskId: task._id }, { headers: AUTH() });
             handleClose();
-            toast.success("Task closed successfully");
             navigate(`/project/${task.project._id}`);
+            toast.success("Task closed — assignee rewarded");
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railGreen}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>task</span>
+                        <p className={styles.headTitle}>Close &amp; reward</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Closing the task</p>
-                        </div>
-                        <p className={styles.message}>Reward the assignee and find this task in the archives</p>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Close</button>
-                        </div>
-                    </main>
-                </>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>The assignee receives their bounty. The task is archived as complete.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnGreen} onClick={() => submit(handleClose)}>Close &amp; reward</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* DELETE TASK ══════════════════════════════════════════════════════ */
 export function DeleteTask({ onClose, task }) {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -464,89 +396,84 @@ export function DeleteTask({ onClose, task }) {
     const submit = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch(`http://localhost:5000/api/archives/task/archive`, { taskId: task._id }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.patch("/api/archives/task/archive", { taskId: task._id }, { headers: AUTH() });
             handleClose();
-            toast.success("Task archived");
             navigate(`/project/${task.project._id}`);
+            toast.success("Task archived");
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>task</span>
+                        <p className={styles.headTitle}>Delete task</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Deleting the task</p>
-                        </div>
-                        <p className={styles.message}>Delete the task without rewarding the assignee and send it to the archives</p>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryRed} onClick={() => submit(handleClose)}>Delete</button>
-                        </div>
-                    </main>
-                </>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>No reward for the assignee. Task gets archived without a close event.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => submit(handleClose)}>Delete</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* DELETE TASKS ═════════════════════════════════════════════════════ */
 export function DeleteTasks({ onClose, taskIds, projectId }) {
     const [loading, setLoading] = useState(false);
+
     const confirm = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.delete(`http://localhost:5000/api/archives/tasks`, {
+            await axios.delete("/api/archives/tasks", {
                 data: { taskIds, projectId },
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
+                headers: AUTH(),
             });
             handleClose();
             toast.success("Tasks permanently deleted");
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>archives</span>
+                        <p className={styles.headTitle}>Clear {taskIds.length} task{taskIds.length !== 1 ? "s" : ""}</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Clearing out the archives</p>
-                        </div>
-                        <p className={styles.message}>The selected tasks will be sent for shredding and never be recovered</p>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Confirm</button>
-                        </div>
-                    </main>
-                </>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>These will be shredded permanently. No archive, no recovery.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => confirm(handleClose)}>Shred</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* INVITE USER ══════════════════════════════════════════════════════ */
 export function InviteUser({ onClose, projectId }) {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
@@ -554,149 +481,114 @@ export function InviteUser({ onClose, projectId }) {
     const submit = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.post(`http://localhost:5000/api/invitations/invite`, { email, projectId }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.post("/api/invitations/invite", { email, projectId }, { headers: AUTH() });
             handleClose();
             toast.success("Invitation sent");
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railGreen}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>team</span>
+                        <p className={styles.headTitle}>Invite to project</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Invite a user</p>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>They'll receive an invite in their inbox. They can accept or decline.</p>
+                        <div className={styles.inputGroup}>
+                            <label>Email address</label>
+                            <input type="email" placeholder="user@vynce.app" onChange={(e) => setEmail(e.target.value)} />
                         </div>
-                        <div className={styles.inputField}>
-                            <label className={styles.message}>Find and invite a user by email</label>
-                            <input type="text" onChange={(e) => setEmail(e.target.value)} />
-                        </div>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryGreen} onClick={() => submit(handleClose)}>Send invitation</button>
-                        </div>
-                    </main>
-                </>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnGreen} onClick={() => submit(handleClose)}>Send invite</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* INVITATION RESPONSE ══════════════════════════════════════════════ */
 export function InvitationResponse({ onClose, payload }) {
     const navigate = useNavigate();
-    const [status, setStatus] = useState("");
+    const [status, setStatus] = useState("PENDING");
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchInvite = async () => {
+        const fetch = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get(`http://localhost:5000/api/invitations/${payload.invitationId}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
-                    }
-                });
+                const res = await axios.get(`/api/invitations/${payload.invitationId}`, { headers: AUTH() });
                 setStatus(res.data.status);
             } catch (err) {
-                console.error(err);
                 toast.error(err.response?.data?.msg || err.message);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchInvite();
+            } finally { setLoading(false); }
+        };
+        fetch();
     }, []);
 
-    const accept = async (handleClose) => {
+    const respond = async (handleClose, action) => {
         try {
             setLoading(true);
-            await axios.patch(`http://localhost:5000/api/invitations/accept`, {
-                invitationId: payload.invitationId,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.patch(`/api/invitations/${action}`, { invitationId: payload.invitationId }, { headers: AUTH() });
+            if (action === "accept") { navigate(`/project/${payload.project._id}`); toast.success(`Welcome to ${payload.project.name}`); }
+            else { toast.success(`Declined ${payload.project.name}`); }
             handleClose();
-            toast.success(`Welcome to ${payload.project.name}`);
-            navigate(`/project/${payload.project._id}`)
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
-
-    const decline = async (handleClose) => {
-        try {
-            setLoading(true);
-            await axios.patch(`http://localhost:5000/api/invitations/decline`, {
-                invitationId: payload.invitationId,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            handleClose();
-            toast.success(`Declined ${payload.project.name} offer`);
-        } catch (err) {
-            console.error(err);
-            toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railGreen}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>inbox</span>
+                        <p className={styles.headTitle}>You're invited</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>An invitation</p>
-                        </div>
-                        <div className={styles.invitation}>
-                            <div className={styles.projectImage}>
-                                <img src={payload.project.projectImage.url} />
+                    <div className={styles.body}>
+                        <div className={styles.inviteBanner}>
+                            <div className={styles.inviteThumb}>
+                                <img src={payload.project.projectImage.url} alt="" />
                             </div>
-                            <div className={styles.content}>
-                                <span>{payload.inviter.fullname} invited you join</span>
-                                <p>{payload.project.name}</p>
+                            <div className={styles.inviteText}>
+                                <span className={styles.inviteFrom}>{payload.inviter.fullname} · invitation</span>
+                                <span className={styles.inviteName}>{payload.project.name}</span>
                             </div>
                         </div>
-                        <div className={styles.buttons}>
-                            {status === "PENDING" ? <>
-                                <button className={styles.primaryRed} onClick={() => decline(handleClose)}>Decline</button>
-                                <button className={styles.primaryGreen} onClick={() => accept(handleClose)}>Accept</button>
-                            </> :
-                                <button className={styles.secondary} onClick={() => accept(handleClose)} style={{ pointerEvents: "none" }}>Invitation {status.toLowerCase()}</button>
-                            }
-                        </div>
-                    </main>
-                </>
+                        <p className={styles.desc}>Join this project to start collaborating with the team.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        {status === "PENDING"
+                            ? <>
+                                <button className={styles.btnCancel} onClick={() => respond(handleClose, "decline")}>Decline</button>
+                                <button className={styles.btnGreen} onClick={() => respond(handleClose, "accept")}>Accept</button>
+                            </>
+                            : <button className={`${styles.btnCancel} ${styles.btnFull}`} disabled>Invitation {status.toLowerCase()}</button>
+                        }
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* LEAVE PROJECT ════════════════════════════════════════════════════ */
 export function LeaveProject({ onClose, project }) {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -704,542 +596,411 @@ export function LeaveProject({ onClose, project }) {
     const confirm = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.delete(`http://localhost:5000/api/memberships/leave`, {
-                data: { projectId: project._id },
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.delete("/api/memberships/leave", { data: { projectId: project._id }, headers: AUTH() });
             handleClose();
-            toast.success(`Left ${project.name}`);
             navigate("/dashboard");
+            toast.success(`Left ${project.name}`);
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
-
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>membership</span>
+                        <p className={styles.headTitle}>Leave project</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Leaving the project</p>
-                        </div>
-                        <div className={styles.message} style={{ maxWidth: "300px" }}>
-                            You sure wanna leave? This will notify the owner and other admins.
-                        </div>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Leave</button>
-                        </div>
-                    </main>
-                </>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>The owner and admins will be notified. Your assigned tasks remain open.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Stay</button>
+                        <button className={styles.btnRed} onClick={() => confirm(handleClose)}>Leave</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
-export function RemoveMembers({ onClose, memberIds, onSuccess }) {
 
-    const [confirmation, setConfirmation] = useState({ first: false, second: false });
+/* REMOVE MEMBERS ═══════════════════════════════════════════════════ */
+export function RemoveMembers({ onClose, memberIds, onSuccess }) {
+    const [checks, setChecks] = useState({ first: false, second: false });
     const [loading, setLoading] = useState(false);
 
-    console.log(memberIds);
-    if (!memberIds.memberships.length) {
-        toast.error("Invalid arguments");
-        return null;
-    }
-
-    const projectId = memberIds.projectId;
-    const membershipIds = memberIds.memberships;
+    if (!memberIds?.memberships?.length) { toast.error("Invalid arguments"); return null; }
+    const { projectId, memberships: membershipIds } = memberIds;
     const single = membershipIds.length === 1;
 
     const confirm = async (handleClose) => {
-        if (!confirmation.first || !confirmation.second) {
-            toast.error("Confirmation required");
-            return;
-        }
-
+        if (!checks.first || !checks.second) { toast.error("Both confirmations required"); return; }
         try {
             setLoading(true);
-            await axios.delete("http://localhost:5000/api/memberships/remove", {
+            await axios.delete("/api/memberships/remove", {
                 data: { projectId, memberIds: membershipIds },
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
+                headers: AUTH(),
             });
-
-            toast.success("Removed from project");
-            handleClose();
-        } catch (err) {
-            console.error(err);
-            toast.error(err.response?.data?.msg || err.message);
-        } finally {
             onSuccess();
-            setLoading(false);
-        }
+            handleClose();
+            toast.success(`Member${single ? "" : "s"} removed`);
+        } catch (err) {
+            toast.error(err.response?.data?.msg || err.message);
+        } finally { setLoading(false); }
     };
+
+    const tog = (key) => () => setChecks(p => ({ ...p, [key]: !p[key] }));
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>team</span>
+                        <p className={styles.headTitle}>Remove {single ? "member" : `${membershipIds.length} members`}</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Removing {single ? "a member" : "members"}</p>
-                        </div>
-                        <div>
-                            <div className={styles.checkboxContainer}>
-                                <div className={styles.checkboxes}>
-                                    <input type="checkbox"
-                                        className={styles.checkbox}
-                                        checked={confirmation.first}
-                                        onChange={() => setConfirmation(prev => ({ ...prev, first: !prev.first }))} />
-                                    <span className={styles.checkmark}>I understand that by removing a member, his assigned tasks will be archived</span>
-                                </div>
-                                <div className={styles.checkboxes}>
-                                    <input type="checkbox"
-                                        className={styles.checkbox}
-                                        checked={confirmation.second}
-                                        onChange={() => setConfirmation(prev => ({ ...prev, second: !prev.second }))} />
-                                    <span className={styles.checkmark}>I understand that by removing a member, his created tasks will now be owned by me</span>
-                                </div>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>They lose access immediately. Review what happens to their work below.</p>
+                        <div className={styles.checkList}>
+                            <div className={styles.checkRow}>
+                                <input type="checkbox" className={styles.check} checked={checks.first} onChange={tog("first")} />
+                                <span className={styles.checkLabel}>Their assigned tasks will be archived</span>
+                            </div>
+                            <div className={styles.checkRow}>
+                                <input type="checkbox" className={styles.check} checked={checks.second} onChange={tog("second")} />
+                                <span className={styles.checkLabel}>Their created tasks transfer to me</span>
                             </div>
                         </div>
-                        <div className={styles.message} style={{ maxWidth: "100%", textAlign: "left", margin: "7px 15px" }}>
-                            You sure you wanna remove {single ? "this member" : "these members"}?
-                        </div>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Remove member{single ? '' : 's'}</button>
-                        </div>
-                    </main>
-                </>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => confirm(handleClose)}>Remove</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* DELETE MAILS ═════════════════════════════════════════════════════ */
 export function DeleteMails({ onClose, selected }) {
     const [loading, setLoading] = useState(false);
 
     const confirm = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch(`http://localhost:5000/api/inbox/delete`, { selected }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+            await axios.patch("/api/inbox/delete", { selected }, { headers: AUTH() });
             handleClose();
-            toast.success(`Deletion in progress...`);
+            toast.success("Deletion in progress…");
         } catch (err) {
-            console.error(err);
             toast.error(err.response?.data?.msg || err.message);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
-
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>inbox</span>
+                        <p className={styles.headTitle}>Delete {selected?.length ?? ""} mail{selected?.length !== 1 ? "s" : ""}</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Heads up!</p>
-                        </div>
-                        <div className={styles.message} style={{ maxWidth: "300px" }}>
-                            Some mails might not have been opened. Click the red one if you don't care.
-                        </div>
-                        <div className={styles.buttons}>
-                            <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                            <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Delete</button>
-                        </div>
-                    </main>
-                </>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>Some of these may not have been read yet. They'll be gone permanently.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => confirm(handleClose)}>Delete</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* TRANSFER OWNERSHIP ═══════════════════════════════════════════════ */
 export function TransferOwnership({ onClose, payload }) {
-    const [confirmation, setConfirmation] = useState({ first: false, second: false });
-    const [confirmationValue, setConfirmationValue] = useState("");
+    const [checks, setChecks] = useState({ first: false, second: false });
+    const [typed, setTyped] = useState("");
     const [loading, setLoading] = useState(false);
+    const phrase = `${payload.owner.firstname.trim()}/${payload.project.name.trim()}`;
 
     const transfer = async (handleClose) => {
-        if (!confirmation.first || !confirmation.second) {
-            toast.error("Confirmation required");
-            return;
-        }
-
-        const confirmationText = `${payload.owner.firstname.trim()}/${payload.project.name.trim()}`;
-        if (confirmationValue.trim() !== confirmationText) {
-            toast.error("Confirmation string doesn't match.");
-            return;
-        }
-
+        if (!checks.first || !checks.second) { toast.error("Both confirmations required"); return; }
+        if (typed.trim() !== phrase) { toast.error("Phrase doesn't match"); return; }
         try {
             setLoading(true);
-            await axios.post("http://localhost:5000/api/memberships/transfer-ownership/offer", {
+            await axios.post("/api/memberships/transfer-ownership/offer", {
                 projectId: payload.project._id,
-                adminId: payload.admin._id
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            toast.success("Offer sent");
+                adminId: payload.admin._id,
+            }, { headers: AUTH() });
             handleClose();
+            toast.success("Transfer offer sent");
         } catch (err) {
-            console.log(err);
-            toast.error(err.response.data.msg);
-        } finally {
-            setLoading(false);
-        }
-    }
+            toast.error(err.response?.data?.msg || err.message);
+        } finally { setLoading(false); }
+    };
+
+    const tog = (key) => () => setChecks(p => ({ ...p, [key]: !p[key] }));
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railYellow}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>ownership</span>
+                        <p className={styles.headTitle}>Transfer ownership</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Transfering ownership</p>
+                    <div className={styles.body}>
+                        <div className={styles.transferRow}>
+                            <div className={styles.transferAvatar}><img src={payload.owner.profileImage.url} alt="" /></div>
+                            <div className={styles.transferProject}><img src={payload.project.projectImage.url} alt="" /></div>
+                            <div className={styles.transferAvatar}><img src={payload.admin.profileImage.url} alt="" /></div>
+                            <span className={styles.transferLabel}>{payload.owner.firstname} → {payload.admin.firstname}</span>
                         </div>
-                        <div className={styles.images}>
-                            <div className={styles.profileImage}>
-                                <img src={payload.owner.profileImage.url} />
+                        <p className={styles.desc}>You'll become an admin once they accept. The offer can be declined.</p>
+                        <div className={styles.checkList}>
+                            <div className={styles.checkRow}>
+                                <input type="checkbox" className={styles.check} checked={checks.first} onChange={tog("first")} />
+                                <span className={styles.checkLabel}>This person is the right candidate for ownership</span>
                             </div>
-                            <img src={arrowRight_svg} className={styles.arrow} />
-                            <div className={styles.projectImage}>
-                                <img src={payload.project.projectImage.url} />
-                            </div>
-                            <img src={arrowRight_svg} className={styles.arrow} />
-                            <div className={styles.profileImage}>
-                                <img src={payload.admin.profileImage.url} />
-                            </div>
-                        </div>
-                        <div className={styles.checkboxContainer}>
-                            <div className={styles.checkboxes}>
-                                <input type="checkbox"
-                                    id="confirmation"
-                                    className={styles.checkbox}
-                                    checked={confirmation.first}
-                                    onChange={() => setConfirmation(prev => ({ ...prev, first: !prev.first }))} />
-                                <label htmlFor="confirmation" className={styles.checkmark}>
-                                    I believe this person might be the best candidate for ownership
-                                </label>
-                            </div>
-                            <div className={styles.checkboxes}>
-                                <input type="checkbox"
-                                    id="confirmation"
-                                    className={styles.checkbox}
-                                    checked={confirmation.second}
-                                    onChange={() => setConfirmation(prev => ({ ...prev, second: !prev.second }))} />
-                                <label htmlFor="confirmation" className={styles.checkmark}>
-                                    After giving away the ownership, I'll lose ultimate access to the project and become an admin
-                                </label>
+                            <div className={styles.checkRow}>
+                                <input type="checkbox" className={styles.check} checked={checks.second} onChange={tog("second")} />
+                                <span className={styles.checkLabel}>I'll lose owner privileges and become an admin</span>
                             </div>
                         </div>
-                        <div className={styles.inputField} style={{ margin: 0 }}>
-                            <label>Confirm by typing "{payload.owner.firstname}/{payload.project.name}"</label>
-                            <input type="text" onChange={(e) => setConfirmationValue(e.target.value)} />
+                        <div className={styles.inputGroup}>
+                            <label>Type <span className={styles.confirmPhrase}>{phrase}</span> to confirm</label>
+                            <input type="text" placeholder={phrase} onChange={(e) => setTyped(e.target.value)} />
                         </div>
-                        <div className={styles.buttons}>
-                            <button className={styles.primaryRed} onClick={() => transfer(handleClose)}>Transfer ownership</button>
-                        </div>
-                    </main>
-                </>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => transfer(handleClose)}>Transfer</button>
+                    </div>
+                </div>
             )}
         </Dialogue>
     );
 }
 
+
+/* OWNERSHIP RESPONSE ═══════════════════════════════════════════════ */
 export function OwnershipResponse({ onClose, payload }) {
-    const [status, setStatus] = useState("");
+    const [status, setStatus] = useState("PENDING");
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchOffer = async () => {
+        const fetch = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get(`http://localhost:5000/api/memberships/transfer-ownership/${payload.offerId}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
-                    }
-                });
+                const res = await axios.get(`/api/memberships/transfer-ownership/${payload.offerId}`, { headers: AUTH() });
                 setStatus(res.data.status);
             } catch (err) {
-                console.log(err);
                 toast.error(err.response?.data?.msg || err.message);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchOffer();
+            } finally { setLoading(false); }
+        };
+        fetch();
     }, [payload.offerId]);
 
-    const accept = async (handleClose) => {
+    const respond = async (handleClose, action) => {
         try {
             setLoading(true);
-            await axios.patch("http://localhost:5000/api/memberships/transfer-ownership/accept", { offerId: payload.offerId }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            toast.success("Offer accepted");
+            await axios.patch(`/api/memberships/transfer-ownership/${action}`, { offerId: payload.offerId }, { headers: AUTH() });
             handleClose();
+            toast.success(action === "accept" ? "Offer accepted" : "Offer declined");
         } catch (err) {
-            console.log(err);
-            toast.error(err.response.data.msg);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const decline = async (handleClose) => {
-        try {
-            setLoading(true);
-            await axios.patch("http://localhost:5000/api/memberships/transfer-ownership/decline", { offerId: payload.offerId }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            toast.success("Offer declined");
-            handleClose();
-        } catch (err) {
-            console.log(err);
-            toast.error(err.response.data.msg);
-        } finally {
-            setLoading(false);
-        }
-    }
-
+            toast.error(err.response?.data?.msg || err.message);
+        } finally { setLoading(false); }
+    };
 
     return (
         <Dialogue onClose={onClose}>
             {({ handleClose }) => (
-                <>
-                    <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                        <img src={loading_svg} />
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railYellow}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>ownership</span>
+                        <p className={styles.headTitle}>Ownership offer</p>
                     </div>
-                    <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                        <div className={styles.title}>
-                            <p>Transfering ownership</p>
+                    <div className={styles.body}>
+                        <div className={styles.transferRow}>
+                            <div className={styles.transferAvatar}><img src={payload.owner.profileImage.url} alt="" /></div>
+                            <div className={styles.transferProject}><img src={payload.project.projectImage.url} alt="" /></div>
+                            <div className={styles.transferAvatar}><img src={payload.admin.profileImage.url} alt="" /></div>
+                            <span className={styles.transferLabel}>{payload.owner.firstname} is offering you {payload.project.name}</span>
                         </div>
-                        <div className={styles.images}>
-                            <div className={styles.profileImage}>
-                                <img src={payload.owner.profileImage.url} />
-                            </div>
-                            <img src={arrowRight_svg} className={styles.arrow} />
-                            <div className={styles.projectImage}>
-                                <img src={payload.project.projectImage.url} />
-                            </div>
-                            <img src={arrowRight_svg} className={styles.arrow} />
-                            <div className={styles.profileImage}>
-                                <img src={payload.admin.profileImage.url} />
-                            </div>
-                        </div>
-                        <p className={styles.message}>
-                            {payload.owner.name} has offered you the ownership of {payload.project.name}
-                        </p>
-                        <div className={styles.buttons}>
-                            {status === "PENDING" ? <>
-                                <button className={styles.primaryRed} onClick={() => decline(handleClose)}>Decline</button>
-                                <button className={styles.primaryGreen} onClick={() => accept(handleClose)}>Accept</button>
-                            </> :
-                                <button className={styles.secondary} style={{ pointerEvents: "none" }} disabled>Invitation {status.toLowerCase()}</button>
-                            }
-                        </div>
-                    </main>
-                </>
+                        <p className={styles.desc}>Accepting makes you the project owner. The current owner becomes an admin.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        {status === "PENDING"
+                            ? <>
+                                <button className={styles.btnCancel} onClick={() => respond(handleClose, "decline")}>Decline</button>
+                                <button className={styles.btnGreen} onClick={() => respond(handleClose, "accept")}>Accept</button>
+                            </>
+                            : <button className={`${styles.btnCancel} ${styles.btnFull}`} disabled>Offer {status.toLowerCase()}</button>
+                        }
+                    </div>
+                </div>
             )}
-        </Dialogue >
+        </Dialogue>
     );
 }
 
+
+/* DELETE PROJECT ═══════════════════════════════════════════════════ */
 export function DeleteProject({ onClose, project }) {
-    const [confirmation, setConfirmation] = useState(false);
-    const [confirmationText, setConfirmationText] = useState("");
+    const [checked, setChecked] = useState(false);
+    const [typed, setTyped] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const phrase = `${project.name}/goodbye`;
 
     const confirm = async (handleClose) => {
-        if (!confirmation) {
-            toast.error("Check the confirmation box");
-            return;
-        }
-
-        const confirmationValue = `${project.name}/goodbye`;
-        if (confirmationText !== confirmationValue) {
-            toast.error("Confirmation text doesn't match");
-            return;
-        }
-
+        if (!checked) { toast.error("Check the confirmation box"); return; }
+        if (typed !== phrase) { toast.error("Phrase doesn't match"); return; }
         try {
             setLoading(true);
-            await axios.delete(`http://localhost:5000/api/projects/project/${project._id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            toast.success("Project deleted successfully");
+            await axios.delete(`/api/projects/project/${project._id}`, { headers: AUTH() });
             handleClose();
             navigate("/dashboard");
+            toast.success("Project deleted");
         } catch (err) {
-            console.log(err);
-            toast.error(err.response.data.msg);
-        } finally {
-            setLoading(false);
-        }
-    }
-
+            toast.error(err.response?.data?.msg || err.message);
+        } finally { setLoading(false); }
+    };
 
     return (
         <Dialogue onClose={onClose}>
-            {({ handleClose }) => (<>
-                <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                    <img src={loading_svg} />
-                </div>
-                <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                    <div className={styles.title}>
-                        <p>Deleting project</p>
+            {({ handleClose }) => (
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>danger zone</span>
+                        <p className={styles.headTitle}>Delete project</p>
                     </div>
-                    <div className={styles.checkboxContainer}>
-                        <div className={styles.checkboxes}>
-                            <input type="checkbox"
-                                id="confirmation"
-                                className={styles.checkbox}
-                                checked={confirmation}
-                                onChange={() => setConfirmation(prev => !prev)} />
-                            <label htmlFor="confirmation" className={styles.checkmark}>
-                                I understand that deleting this project is permanent and cannot be undone
-                            </label>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>Every board, task, and member record will be permanently erased. No recovery.</p>
+                        <div className={styles.checkList}>
+                            <div className={styles.checkRow}>
+                                <input type="checkbox" className={styles.check} checked={checked} onChange={() => setChecked(p => !p)} />
+                                <span className={styles.checkLabel}>I understand this is permanent and cannot be undone</span>
+                            </div>
+                        </div>
+                        <div className={styles.inputGroup}>
+                            <label>Type <span className={styles.confirmPhrase}>{phrase}</span> to confirm</label>
+                            <input type="text" placeholder={phrase} onChange={(e) => setTyped(e.target.value)} />
                         </div>
                     </div>
-                    <div className={styles.inputField} style={{ margin: 0 }}>
-                        <label>Confirm by typing "{project.name}/goodbye"</label>
-                        <input type="text" onChange={(e) => setConfirmationText(e.target.value)} />
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => confirm(handleClose)}>Delete project</button>
                     </div>
-                    <div className={styles.buttons}>
-                        <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Delete this project</button>
-                    </div>
-                </main>
-            </>
+                </div>
             )}
-        </Dialogue >
+        </Dialogue>
     );
 }
 
+
+/* PROMOTE MEMBER ═══════════════════════════════════════════════════ */
 export function PromoteMember({ onClose, membershipId, onSuccess }) {
     const [loading, setLoading] = useState(false);
 
     const confirm = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch("http://localhost:5000/api/memberships/change-role/promote", { membershipId }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            toast.success("Member promoted to Admin");
-            handleClose();
-        } catch (err) {
-            console.log(err);
-            toast.error(err.response.data.msg);
-        } finally {
+            await axios.patch("/api/memberships/change-role/promote", { membershipId }, { headers: AUTH() });
             onSuccess();
-            setLoading(false);
-        }
-    }
-
+            handleClose();
+            toast.success("Member promoted to Admin");
+        } catch (err) {
+            toast.error(err.response?.data?.msg || err.message);
+        } finally { setLoading(false); }
+    };
 
     return (
         <Dialogue onClose={onClose}>
-            {({ handleClose }) => (<>
-                <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                    <img src={loading_svg} />
+            {({ handleClose }) => (
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railBlue}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>roles</span>
+                        <p className={styles.headTitle}>Promote to admin</p>
+                    </div>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>Admins can manage tasks, boards, and invite new members to the project.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnBlue} onClick={() => confirm(handleClose)}>Promote</button>
+                    </div>
                 </div>
-                <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                    <div className={styles.title}>
-                        <p>Promoting a member</p>
-                    </div>
-                    <p className={styles.message} style={{ margin: "30px auto" }}>
-                        Promotion gives a member some sort of authoritative access.You sure you wanna promote this member?
-                    </p>
-                    <div className={styles.buttons}>
-                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                        <button className={styles.primaryBlue} onClick={() => confirm(handleClose)}>Promote</button>
-                    </div>
-                </main>
-            </>)}
-        </Dialogue >
+            )}
+        </Dialogue>
     );
 }
 
+
+/* DEMOTE ADMIN ═════════════════════════════════════════════════════ */
 export function DemoteAdmin({ onClose, membershipId, onSuccess }) {
     const [loading, setLoading] = useState(false);
 
     const confirm = async (handleClose) => {
         try {
             setLoading(true);
-            await axios.patch("http://localhost:5000/api/memberships/change-role/demote", { membershipId }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            toast.success("Admin demoted to Member");
-            handleClose();
-        } catch (err) {
-            console.log(err);
-            toast.error(err.response.data.msg);
-        } finally {
+            await axios.patch("/api/memberships/change-role/demote", { membershipId }, { headers: AUTH() });
             onSuccess();
-            setLoading(false);
-        }
-    }
-
+            handleClose();
+            toast.success("Admin demoted to Member");
+        } catch (err) {
+            toast.error(err.response?.data?.msg || err.message);
+        } finally { setLoading(false); }
+    };
 
     return (
         <Dialogue onClose={onClose}>
-            {({ handleClose }) => (<>
-                <div className={styles.loading} style={{ visibility: loading ? "visible" : "hidden" }}  >
-                    <img src={loading_svg} />
+            {({ handleClose }) => (
+                <div className={styles.dialogue}>
+                    {loading && <Spinner />}
+                    <div className={`${styles.rail} ${styles.railRed}`} />
+                    <div className={styles.head}>
+                        <span className={styles.headEyebrow}>roles</span>
+                        <p className={styles.headTitle}>Demote to member</p>
+                    </div>
+                    <div className={styles.body}>
+                        <p className={styles.desc}>They'll lose admin privileges and revert to standard member access.</p>
+                    </div>
+                    <div className={styles.divider} style={{ marginTop: 16 }} />
+                    <div className={styles.footer}>
+                        <button className={styles.btnCancel} onClick={handleClose}>Cancel</button>
+                        <button className={styles.btnRed} onClick={() => confirm(handleClose)}>Demote</button>
+                    </div>
                 </div>
-                <main style={{ visibility: loading ? "hidden" : "visible" }}>
-                    <div className={styles.title}>
-                        <p>Demoting an admin</p>
-                    </div>
-                    <p className={styles.message}>
-                        Demotion takes all sort of authoritative access from an admin. You sure you wanna demote this member?
-                    </p>
-                    <div className={styles.buttons}>
-                        <button className={styles.secondary} onClick={handleClose}>Cancel</button>
-                        <button className={styles.primaryRed} onClick={() => confirm(handleClose)}>Demote</button>
-                    </div>
-                </main>
-            </>)}
-        </Dialogue >
+            )}
+        </Dialogue>
     );
 }
-

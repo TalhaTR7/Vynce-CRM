@@ -1,333 +1,488 @@
-.title {
-    width: 100%;
-    border-bottom: 1px solid #333;
-    padding: 7px;
-    user-select: none;
-    pointer-events: none;
-    box-sizing: border-box;
-    margin-bottom: 10px;
+/* ─── Root wrapper ───────────────────────────────────────────────── */
+.dialogue {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    border-radius: inherit;
+}
 
-    p {
-        font: 16px Roboto;
-        color: #999;
-        text-align: center;
+/* ─── Accent rail ────────────────────────────────────────────────── */
+.rail {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 0;
+    background: var(--text-muted);
+
+    &.railGreen {
+        background: #00e87a;
+    }
+
+    &.railRed {
+        background: #b31b1b;
+    }
+
+    &.railBlue {
+        background: #4dabf7;
+    }
+
+    &.railYellow {
+        background: #ffc400;
+    }
+}
+
+/* ─── Head ───────────────────────────────────────────────────────── */
+.head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 20px 22px 0 26px;
+
+    .headEyebrow {
+        font-size: 10px;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        opacity: 0.6;
+    }
+
+    .headTitle {
+        font-size: 16px;
+        font-family: 'Syne', sans-serif;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        margin: 0;
+        line-height: 1.2;
+    }
+}
+
+/* ─── Body ───────────────────────────────────────────────────────── */
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 12px 22px 0 26px;
+
+    .desc {
+        font-size: 14px;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-muted);
+        line-height: 1.6;
         margin: 0;
     }
 }
 
-.message {
-    font: 16px Roboto;
-    color: #ccc;
-    text-align: center;
-    line-height: 1.5;
-    max-width: 275px;
-    margin: 10px auto;
-    user-select: none;
-    pointer-events: none;
-}
-
-.invitation {
+/* ─── Ownership / invitation visual ─────────────────────────────── */
+.transferRow {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 15px;
-    margin: 20px;
+    gap: 0;
+    padding: 2px 0;
 
-    .projectImage {
-        width: 45px;
-        height: 45px;
+    .transferAvatar {
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
-        corner-shape: squircle;
         overflow: hidden;
+        border: 2px solid #111111;
+        flex-shrink: 0;
+
+        &:not(:first-child) {
+            margin-left: -7px;
+        }
 
         img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             display: block;
-            user-select: none;
-            pointer-events: none;
         }
     }
 
-    .content {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        gap: 3px;
-        user-select: none;
+    .transferProject {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        overflow: hidden;
+        border: 2px solid #111111;
+        flex-shrink: 0;
+        margin-left: -7px;
+        margin-right: -7px;
+        z-index: 1;
 
-        span {
-            font: 14px Roboto;
-            color: #777;
-            margin: 0;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
+    }
 
-        p {
-            font: 21px Roboto;
-            color: #ccc;
-            margin: 0;
-        }
-
+    .transferLabel {
+        font-size: 11px;
+        font-family: 'DM Mono', monospace;
+        color: var(--text-muted);
+        margin-left: 18px;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
-.inputField {
+/* ─── Invite banner ──────────────────────────────────────────────── */
+.inviteBanner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 11px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.02);
+
+    .inviteThumb {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid var(--border);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    .inviteText {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+
+        .inviteFrom {
+            font-size: 9px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .inviteName {
+            font-size: 13px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+/* ─── Confirm phrase (mono inline highlight) ─────────────────────── */
+.confirmPhrase {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 6px;
+    display: inline;
+    letter-spacing: 0.03em;
+}
+
+/* ─── Checkbox list ──────────────────────────────────────────────── */
+.checkList {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    gap: 8px;
+}
+
+.checkRow {
+    display: flex;
+    flex-direction: row;
     align-items: flex-start;
-    gap: 12px;
-    padding: 5px 12px;
-    box-sizing: border-box;
-    margin: 10px 0;
+    gap: 9px;
+
+    .check {
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        min-width: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 4px;
+        background: transparent;
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        box-sizing: border-box;
+        margin-top: 2px;
+        flex-shrink: 0;
+        transition: background 0.12s ease, border-color 0.12s ease;
+
+        &:checked {
+            background: var(--green);
+            border-color: var(--green);
+
+            &::before {
+                content: "";
+                display: block;
+                width: 10px;
+                height: 10px;
+                background: url("../../../assets/icons/check.svg") no-repeat center / contain;
+            }
+        }
+    }
+
+    .checkLabel {
+        font-size: 12px;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-muted);
+        line-height: 1.55;
+        margin: 0;
+        user-select: none;
+    }
+}
+
+/* ─── Input group ────────────────────────────────────────────────── */
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
 
     label {
-        font: 16px Roboto;
-        color: #999;
-        margin: 0;
-        pointer-events: none;
+        font-size: 9px;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        opacity: 0.7;
     }
 
     input {
-        font: 16px Roboto;
-        color: #ccc;
-        width: 100%;
-        padding: 3px 7px;
-        background-color: transparent;
-        outline: none;
-        border: 1px solid #333;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--border);
         border-radius: 7px;
+        padding: 0 10px;
+        font-size: 12px;
+        font-family: 'DM Mono', monospace;
+        color: var(--text-primary);
+        outline: none;
+        width: 100%;
         box-sizing: border-box;
+        letter-spacing: 0.03em;
+        transition: border-color 0.14s ease, box-shadow 0.14s ease;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
 
         &:focus {
-            outline: 1px solid #555;
+            border-color: rgba(0, 232, 122, 0.3);
+            box-shadow: 0 0 0 2px rgba(0, 232, 122, 0.05);
         }
     }
 }
 
-.passwordForm {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px 12px;
-
-    .passwordField {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 7px;
-        width: 100%;
-        box-sizing: border-box;
-
-        label {
-            font: 16px Roboto;
-            color: #ccc;
-            margin: 0 3px;
-            align-self: flex-start;
-            user-select: none;
-            pointer-events: none;
-            box-sizing: border-box;
-        }
-
-        .wrapper {
-            position: relative;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            border: 1px solid #333;
-            border-radius: 7px;
-            margin: 0 5px;
-            width: 100%;
-            box-sizing: border-box;
-
-            input {
-                flex: 1;
-                min-width: 0%;
-                font: 16px Roboto;
-                color: #ccc;
-                padding: 3px 7px;
-                background-color: transparent;
-                outline: none;
-                border: none;
-
-                &:-webkit-autofill,
-                &:-webkit-autofill:hover,
-                &:-webkit-autofill:focus,
-                &:-webkit-autofill:active {
-                    -webkit-box-shadow: 0 0 0 30px #151515 inset !important;
-                    -webkit-text-fill-color: #ccc !important;
-                    caret-color: #ccc !important;
-                    transition: background-color 5000s ease-in-out 0s;
-                    border: none !important;
-                    border-radius: 7px !important;
-                    outline: none !important;
-                }
-
-            }
-
-            img {
-                width: 15px;
-                margin: 0 7px;
-                cursor: pointer;
-                opacity: 0.5;
-                user-select: none;
-                flex-shrink: 0;
-            }
-
-            &:focus-within {
-                box-shadow: 0 0 0 1px #555;
-            }
-        }
-    }
-}
-
-.checkboxContainer {
+/* ─── Password list ──────────────────────────────────────────────── */
+.passwordList {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 20px 10px;
+}
 
-    .checkboxes {
+.passwordGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    label {
+        font-size: 9px;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        opacity: 0.7;
+    }
+
+    .passwordWrapper {
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
-        gap: 10px;
-        user-select: none;
+        align-items: center;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 0 0 0 10px;
+        box-sizing: border-box;
+        transition: border-color 0.14s ease, box-shadow 0.14s ease;
 
-        .checkbox {
-            appearance: none;
-            display: grid;
-            place-content: center;
-            width: 14px;
-            height: 14px;
-            flex: 0 0 16px;
-            min-width: 14px;
-            max-width: 14px;
-            border: 1px solid #555;
-            border-radius: 4px;
-            cursor: pointer;
-            background-color: transparent;
-            margin: 3px 0;
-            padding: 0;
-            box-sizing: border-box;
+        &:focus-within {
+            border-color: rgba(0, 232, 122, 0.3);
+            box-shadow: 0 0 0 2px rgba(0, 232, 122, 0.05);
+        }
 
-            &:checked {
-                background-color: var(--green);
-                border-color: var(--green);
-                outline: none;
+        input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 12px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-primary);
+            letter-spacing: 0.04em;
 
-                &::before {
-                    content: "";
-                    display: block;
-                    width: 14px;
-                    height: 14px;
-                    background-image: url("../../../assets/icons/check.svg");
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                }
+            &::placeholder {
+                color: rgba(255, 255, 255, 0.15);
+                letter-spacing: 0;
+            }
+
+            &:-webkit-autofill,
+            &:-webkit-autofill:hover,
+            &:-webkit-autofill:focus {
+                -webkit-box-shadow: 0 0 0 30px #111111 inset !important;
+                -webkit-text-fill-color: var(--text-primary) !important;
+                caret-color: var(--text-primary) !important;
             }
         }
 
-        .checkmark {
-            font: 16px Roboto;
-            color: #ccc;
-            margin: 0;
-            line-height: 1.5;
-            max-width: 90%;
-            text-align: left;
-            user-select: none;
-            pointer-events: none;
+        .toggleVisibility {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+            opacity: 0.25;
+            transition: opacity 0.12s ease;
+
+            img {
+                width: 13px;
+                pointer-events: none;
+            }
+
+            &:hover {
+                opacity: 0.6;
+            }
         }
     }
 }
 
-.buttons {
-    margin: 10px;
+/* ─── Divider ────────────────────────────────────────────────────── */
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 22px 0 26px;
+}
+
+/* ─── Footer / button row ────────────────────────────────────────── */
+.footer {
     display: flex;
     flex-direction: row;
-    gap: 10px;
-    user-select: none;
+    align-items: center;
+    gap: 7px;
+    padding: 16px 22px 18px 26px;
 
     button {
-        font: 16px Roboto;
+        height: 32px;
         border: none;
         border-radius: 7px;
+        font-size: 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 700;
         cursor: pointer;
-        text-align: center;
-        padding: 5px;
-        width: 100%;
+        user-select: none;
+        padding: 0 16px;
+        transition: filter 0.1s ease, transform 0.08s ease;
+        white-space: nowrap;
 
         &:hover {
             filter: brightness(1.1);
         }
-    }
 
-    .secondary {
-        background-color: #444;
-        color: #ccc;
-    }
+        &:active {
+            transform: scale(0.97);
+        }
 
-    .primaryGreen {
-        background-color: var(--green);
-        color: #111;
-    }
-
-    .primaryRed {
-        background-color: var(--red);
-        color: #fff;
-    }
-
-    .primaryBlue {
-        background-color: var(--blue);
-        color: #fff;
-    }
-}
-
-.images {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin: 20px auto;
-    user-select: none;
-
-    .projectImage,
-    .profileImage {
-        width: 45px;
-        height: 45px;
-        overflow: hidden;
-        border-radius: 50%;
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-            user-select: none;
+        &:disabled {
+            cursor: not-allowed;
+            filter: none;
+            transform: none;
         }
     }
 
-    .projectImage {
-        corner-shape: squircle;
+    .btnCancel {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        flex: 1;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.03);
+            filter: none;
+        }
     }
 
-    .arrow {
-        width: 20px;
+    .btnGreen {
+        background: var(--green);
+        color: #0a0a0a;
+        flex: 1.5;
+    }
+
+    .btnRed {
+        background: #b31b1b;
+        color: #fff;
+        flex: 1.5;
+    }
+
+    .btnBlue {
+        background: #4dabf7;
+        color: #0a0a0a;
+        flex: 1.5;
+    }
+
+    .btnFull {
+        flex: 1;
     }
 }
 
-.loading {
-    margin: auto;
+/* ─── Loading overlay ────────────────────────────────────────────── */
+.loadingOverlay {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    border-radius: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 10, 10, 0.82);
+    backdrop-filter: blur(3px);
+    z-index: 20;
 
     img {
-        width: 100px;
+        width: 24px;
+        opacity: 0.5;
+        animation: spin 0.85s linear infinite;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }

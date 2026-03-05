@@ -1,169 +1,456 @@
-.signup {
+/* ─── Page Root ──────────────────────────────────────────────────── */
+.signupPage {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* ═══ LEFT PANEL ═══════════════════════════════════════════════════ */
+.brandPanel {
     position: relative;
+    width: 45%;
+    flex-shrink: 0;
+    background: #0d0d0d;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px;
     overflow: hidden;
 
-    .content {
+    &::before {
+        content: "";
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 480px;
+        height: 480px;
+        background: radial-gradient(ellipse, rgba(0, 232, 122, 0.12) 0%, transparent 70%);
+        pointer-events: none;
+        animation: brandGlow 8s ease-in-out infinite;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+    }
+}
+
+@keyframes brandGlow {
+
+    0%,
+    100% {
+        transform: translate(-50%, -25%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate(-50%, 0%) scale(1.18);
+        opacity: 0.7;
+    }
+}
+
+.brandPanelHeader {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .brandLogo {
+        height: 28px;
+        user-select: none;
+    }
+}
+
+.brandArtArea {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+    height: 360px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .brandArtImage {
+        width: 100%;
+        mix-blend-mode: screen;
+        animation: artFloat 6s ease-in-out infinite;
+    }
+}
+
+@keyframes artFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+.brandPanelFooter {
+    position: relative;
+    z-index: 2;
+
+    .brandTagline {
+        font-size: 22px;
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+        line-height: 1.3;
+        max-width: 260px;
+
+        .brandTaglineAccent {
+            color: var(--green);
+        }
+    }
+
+    .brandTaglineSubtext {
+        margin-top: 8px;
+        font-size: 13px;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-muted);
+        letter-spacing: 0.01em;
+    }
+}
+
+/* ═══ RIGHT PANEL — signup form ════════════════════════════════════ */
+.formPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 48px;
+    position: relative;
+}
+
+/* ── Top-right "have account?" link ──────────────────────────────── */
+.formPanelTopBar {
+    position: absolute;
+    top: 32px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .formPanelTopBarText {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .formPanelTopBarLink {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--green);
+        text-decoration: none;
+        transition: opacity 0.18s;
+
+        &:hover {
+            opacity: 0.75;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+    }
+}
+
+/* ── Form wrapper ────────────────────────────────────────────────── */
+.formWrapper {
+    width: 100%;
+    max-width: 360px;
+    animation: formReveal 0.65s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes formReveal {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Eyebrow ─────────────────────────────────────────────────────── */
+.formEyebrow {
+    display: block;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    opacity: 0.7;
+    margin-bottom: 14px;
+}
+
+/* ── Heading + subheading ────────────────────────────────────────── */
+.formHeading {
+    font-size: 32px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+}
+
+.formSubheading {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 28px;
+}
+
+/* ── Form ────────────────────────────────────────────────────────── */
+.signupForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ── Field group (label + input) ─────────────────────────────────── */
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .fieldLabel {
+        font-size: 11px;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+    }
+}
+
+/* ── Side-by-side first/last name row ────────────────────────────── */
+.nameRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* ── Input fields ────────────────────────────────────────────────── */
+.inputField {
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    box-sizing: border-box;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+
+    &:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 30px #121212 inset !important;
+        -webkit-text-fill-color: var(--text-primary) !important;
+        caret-color: var(--text-primary) !important;
+    }
+
+    &::placeholder {
+        color: var(--text-muted);
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 232, 122, 0.45);
+        box-shadow: 0 0 0 3px rgba(0, 232, 122, 0.08);
+    }
+}
+
+/* ── Password wrapper ────────────────────────────────────────────── */
+.passwordWrapper {
+    position: relative;
+
+    .inputField {
+        padding-right: 44px;
+    }
+
+    .passwordVisibilityToggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        opacity: 0.35;
+        user-select: none;
+        transition: opacity 0.18s;
+
+        &:hover {
+            opacity: 0.7;
+        }
+
+        img {
+            width: 17px;
+            height: 17px;
+            pointer-events: none;
+        }
+    }
+}
+
+/* ── Legal message ───────────────────────────────────────────────── */
+.legalMessage {
+    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 4px 0 0;
+
+    .legalLink {
+        color: var(--text-secondary);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        cursor: pointer;
+        transition: color 0.18s;
+
+        &:hover {
+            color: var(--text-primary);
+        }
+    }
+}
+
+/* ── Submit button ───────────────────────────────────────────────── */
+.submitButton {
+    width: 100%;
+    height: 46px;
+    margin-top: 6px;
+    border-radius: 9px;
+    border: none;
+    background: var(--green);
+    color: #0a0a0a;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Shimmer sweep — identical to Login */
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+        transition: left 0.5s ease;
+    }
+
+    &:hover {
+        background: #00ff87;
+        box-shadow: 0 4px 28px var(--green-glow);
+        transform: translateY(-2px);
+
+        &::after {
+            left: 150%;
+        }
+    }
+
+    &:active {
+        transform: translateY(0);
+        filter: brightness(0.95);
+    }
+}
+
+/* ── OR divider ──────────────────────────────────────────────────── */
+.formDivider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+
+    &::before,
+    &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+
+    .formDividerText {
+        font-size: 11px;
+        font-family: 'DM Mono', monospace;
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+    }
+}
+
+/* ── OAuth buttons ───────────────────────────────────────────────── */
+.oauthRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+
+    .oauthButton {
+        height: 40px;
+        border-radius: 9px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-family: 'DM Sans', sans-serif;
+        cursor: pointer;
+        display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 94vh;
-        color: #ccc;
+        gap: 8px;
+        transition: all 0.2s ease;
 
-        h2 {
-            font: 42px Timun light;
-            margin: 0px;
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--text-primary);
+            transform: translateY(-1px);
         }
 
-        p {
-            font: 18px Roboto;
-            margin-bottom: 30px;
+        &:active {
+            transform: translateY(0);
         }
 
-        .highlight {
-            color: var(--green);
-            text-decoration: none;
-            cursor: pointer;
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-
-        .signupForm {
-            width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-
-            .fullName {
-                display: flex;
-                flex-direction: row;
-                gap: 15px;
-            }
-
-            input {
-                width: 100%;
-                padding: 7px 20px;
-                border-radius: 8px;
-                border: none;
-                background-color: #212121;
-                border: 2px solid transparent;
-                color: #ccc;
-                font-size: 16px;
-                box-sizing: border-box;
-
-                &:-webkit-autofill {
-                    -webkit-box-shadow: 0 0 0 30px #212121 inset !important;
-                    -webkit-text-fill-color: #ccc !important;
-                    caret-color: #ccc !important;
-                }
-
-                &::placeholder {
-                    color: #999;
-                }
-
-                &:focus {
-                    outline: none;
-                    border: 2px solid #ccc;
-                    box-shadow: 0 0 0 2px #333;
-                    transition: border-color 0.3s;
-                }
-            }
-
-            .passwordWrapper {
-                position: relative;
-                width: 100%;
-
-                .inputField {
-                    width: 100%;
-                    padding-right: 40px;
-                }
-
-                .eyeIcon {
-                    position: absolute;
-                    right: 12px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    opacity: 0.5;
-                    user-select: none;
-                }
-
-                .eyeIcon img {
-                    width: 18px;
-                    height: 18px;
-                    pointer-events: none;
-                }
-            }
-
-            .message {
-                margin: 10px 0 auto;
-                color: #999;
-                font-size: 14px;
-                width: 80%;
-                line-height: 1.5;
-
-                span {
-                    text-decoration: underline;
-                    cursor: pointer;
-                }
-            }
-
-            .signupButton {
-                width: 100%;
-                padding: 8px;
-                border-radius: 10px;
-                border: none;
-                background-color: var(--green);
-                color: #111;
-                font-size: 18px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                opacity: 0.7;
-
-                &:hover {
-                    opacity: 1;
-                    filter: brightness(1.1);
-                    transform: translateY(-1px);
-                }
-
-                &:active {
-                    transform: translateY(0);
-                }
-            }
+        svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
         }
     }
+}
 
-    .backButton {
-        position: absolute;
-        height: 50px;
-        top: 50px;
-        left: 50px;
-        user-select: none;
-    }
-
-    .bgImg1,
-    .bgImg2 {
-        position: absolute;
-        height: 100vh;
-        z-index: -1;
-        pointer-events: none;
-        mix-blend-mode: screen;
-        overflow: hidden;
-        user-select: none;
-
-    }
-
-    .bgImg1 {
-        bottom: 0px;
-        right: 0px;
-    }
-
-    .bgImg2 {
-        top: 0px;
-        left: 0px;
-    }
+/* ── Copyrights strip at bottom ──────────────────────────────────── */
+.formPanelBottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }

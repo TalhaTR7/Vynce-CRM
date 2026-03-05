@@ -1,4 +1,4 @@
-
+// User settings page
 import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -12,14 +12,16 @@ import add_svg from "../assets/icons/add.svg";
 import styles from "../css/UserSettings.module.scss";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
 import toast from "react-hot-toast";
 import Loading from "../components/Loading";
 
 
+/* ══════════════════════════════════════════════════════════════════
+   GENERAL SETTINGS
+   ══════════════════════════════════════════════════════════════════ */
 function GeneralSettings({ user, setUser }) {
-
     const [firstname, setFirstName] = useState(user.firstname);
     const [lastname, setLastName] = useState(user.lastname);
     const [profileImage, setProfileImage] = useState("");
@@ -32,78 +34,55 @@ function GeneralSettings({ user, setUser }) {
     useEffect(() => {
         setFirstName(user.firstname);
         setLastName(user.lastname);
-        setProfileImage(user.profileImage.url)
+        setProfileImage(user.profileImage.url);
     }, [user]);
-
 
     if (!user) return <Loading />;
 
-
     const handleDivClick = () => fileInputRef.current.click();
-
     const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        if (!selectedFile) return;
-        setProfileImage(URL.createObjectURL(selectedFile));
-        setFile(selectedFile);
+        const f = e.target.files[0];
+        if (!f) return;
+        setProfileImage(URL.createObjectURL(f));
+        setFile(f);
     };
 
     const saveUser = async () => {
-        const token = localStorage.getItem("token");
-        const headers = { Authorization: `Bearer ${token}` };
+        if (!firstname) { toast.error("First name is required"); return; }
+        if (!lastname) { toast.error("Last name is required"); return; }
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) { toast.error("File is larger than 5 MB"); return; }
+            if (file.type !== "image/png") { toast.error("Only PNG is allowed"); return; }
+        }
         try {
-            if (!firstname) {
-                toast.error("First name is required");
-                return;
-            }
-            if (!lastname) {
-                toast.error("Last name is required");
-                return;
-            }
-
-            if (file) {
-                const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-                if (file.size > MAX_FILE_SIZE) {
-                    toast.error("File is larger than 5 MB");
-                    return;
-                }
-                if (file.type !== "image/png") {
-                    toast.error("Only PNG is allowed");
-                    return;
-                }
-            }
-
             const formData = new FormData();
             formData.append("id", user._id);
             formData.append("firstname", firstname);
             formData.append("lastname", lastname);
-            if (file) formData.append("image", file);
-            else formData.append("image", "/assets/profile.png");
+            formData.append("image", file ?? "/assets/profile.png");
 
-            const res = await axios.patch("http://localhost:5000/api/users/user", formData, { headers });
-
+            const res = await axios.patch("/api/users/user", formData, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
             setUser(prev => ({
                 ...prev,
-                firstname: firstname,
-                lastname: lastname,
-                profileImage: {
-                    url: file
-                        ? profileImage
-                        : res.data.profileImage.url
-                }
+                firstname,
+                lastname,
+                profileImage: { url: file ? profileImage : res.data.profileImage.url },
             }));
             setFile(null);
             toast.success("Changes saved!");
-        } catch (err) {
-            console.error(err);
-        }
-    }
+        } catch (err) { console.error(err); }
+    };
 
     return (
-        <div className={styles.general}>
-            <div className={styles.userPane}>
-                <div className={styles.profileImage} onClick={handleDivClick}>
-                    <img src={profileImage ? profileImage : null} />
+        <div className={styles.generalPanel}>
+            <h2 className={styles.sectionHeading}>General</h2>
+
+            {/* Avatar + identity hero */}
+            <div className={styles.avatarHero}>
+                <div className={styles.avatarButton} onClick={handleDivClick}>
+                    <img src={profileImage || undefined} />
                 </div>
                 <input
                     type="file"
@@ -111,130 +90,170 @@ function GeneralSettings({ user, setUser }) {
                     ref={fileInputRef}
                     style={{ display: "none" }}
                     onChange={handleFileChange} />
-                <p>{user.firstname} {user.lastname}</p>
+                <div>
+                    <p className={styles.avatarName}>{user.firstname} {user.lastname}</p>
+                    <p className={styles.avatarEmail}>{user.email}</p>
+                </div>
             </div>
-            <div className={styles.inputField}>
+
+            {/* Name fields */}
+            <div className={styles.formField}>
                 <label>First name</label>
-                <input type="text"
+                <input
+                    type="text"
                     value={firstname}
                     onChange={(e) => setFirstName(e.target.value)}
-                    required />
+                    placeholder="First name" />
             </div>
-            <div className={styles.inputField}>
+            <div className={styles.formField}>
                 <label>Last name</label>
-                <input type="text"
+                <input
+                    type="text"
                     value={lastname}
                     onChange={(e) => setLastName(e.target.value)}
-                    required />
+                    placeholder="Last name" />
             </div>
-            <div className={styles.inputField}>
+
+            {/* Email (read only) */}
+            <div className={styles.formField}>
                 <label>Email</label>
                 <input type="text" value={user.email} disabled />
             </div>
-            <div className={styles.changePassword}>
-                <label>Password</label>
-                <button style={{ backgroundColor: "var(--green)" }} onClick={() => openModal("CHANGE_PASSWORD")}>
+
+            {/* Change password */}
+            <div className={styles.inlineActionRow}>
+                <div>
+                    <p className={styles.inlineActionLabel}>Password</p>
+                    <p className={styles.inlineActionSub}>Change your account password</p>
+                </div>
+                <button
+                    className={styles.inlineActionButton}
+                    style={{ background: "var(--green)", color: "#0a0a0a" }}
+                    onClick={() => openModal("CHANGE_PASSWORD")}>
                     <img src={lock_svg} />
-                    <p style={{ color: "#181818" }}>Change Password</p>
+                    Change password
                 </button>
             </div>
+
+            {/* Danger zone */}
             <div className={styles.dangerZone}>
-                <p>Danger zone</p>
-                <div className={styles.content}>
-                    <p>Delete this account forever to a non-recoverable state</p>
-                    <button style={{ backgroundColor: "var(--red)" }} onClick={() => openModal("DELETE_ACCOUNT", { user: user })}>
-                        <img src={delete_svg} />
-                        <p style={{ color: "#fff" }}>Delete Account</p>
-                    </button>
+                <div className={styles.dangerZoneText}>
+                    <p className={styles.dangerZoneTitle}>Delete account</p>
+                    <p className={styles.dangerZoneSub}>Permanently delete this account. This cannot be undone.</p>
                 </div>
+                <button
+                    className={styles.inlineActionButton}
+                    style={{ background: "var(--red)", color: "#fff" }}
+                    onClick={() => openModal("DELETE_ACCOUNT", { user })}>
+                    <img src={delete_svg} />
+                    Delete account
+                </button>
             </div>
-            <button className={`${styles.save} ${saveNeeded ? styles.active : ""}`} disabled={!saveNeeded} onClick={saveUser}>
-                Save
+
+            {/* Save */}
+            <button
+                className={`${styles.saveButton} ${saveNeeded ? styles.saveButtonActive : ""}`}
+                disabled={!saveNeeded}
+                onClick={saveUser}>
+                Save changes
             </button>
         </div>
-    )
+    );
 }
 
 
+/* ══════════════════════════════════════════════════════════════════
+   PROJECTS SETTINGS
+   ══════════════════════════════════════════════════════════════════ */
 function ProjectSettings() {
     const [projects, setProjects] = useState([]);
     const { openModal } = useModal();
 
     useEffect(() => {
-        const fetchProjects = async () => {
-            const res = await axios.get("http://localhost:5000/api/projects/user", {
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                }
+        const fetch = async () => {
+            const res = await axios.get("/api/projects/user", {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
             setProjects(res.data);
         };
-        fetchProjects();
+        fetch();
     }, []);
 
     return (
-        <div className={styles.projects}>
-            <p>My projects</p>
-            <div className={styles.projectContainer}>
-                {
-                    projects.map(project => {
-                        const projectObj = {
-                            _id: project._id,
-                            name: project.name
-                        }
-                        return (
-                            <div key={project._id} className={styles.project}>
-                                <div className={styles.projectImage}>
-                                    <img src={project.projectImage.url} />
-                                </div>
-                                <div className={styles.projectInfo}>
-                                    <Link to={`/project/${project._id}`}>{project.name}</Link>
-                                    <p>Project {project.role.toLowerCase()}</p>
-                                </div>
-                                {(project.role === "MEMBER") && <p className={styles.leave} onClick={() => openModal("LEAVE_PROJECT", { project: projectObj })}>Leave</p>}
-                                {(project.role !== "MEMBER") &&
-                                    <Link
-                                        to={`/settings/project/${project._id}`}
-                                        state={{ origin: `${project._id}` }}
-                                        className={styles.settings}>
-                                        Settings
-                                    </Link>
-                                }
+        <div className={styles.projectsPanel}>
+            <h2 className={styles.sectionHeading}>Projects</h2>
+
+            {projects.length > 0 && (
+                <div className={styles.projectList}>
+                    {projects.map(project => (
+                        <div key={project._id} className={styles.projectRow}>
+                            <div className={styles.projectThumbnail}>
+                                <img src={project.projectImage.url} />
                             </div>
-                        )
-                    })
-                }
-            </div>
-            <div className={styles.create} onClick={() => openModal("CREATE_PROJECT")}>
+
+                            <div className={styles.projectRowInfo}>
+                                <Link to={`/project/${project._id}`} className={styles.projectRowName}>
+                                    {project.name}
+                                </Link>
+                                <span className={styles.projectRowRole}>{project.role.toLowerCase()}</span>
+                            </div>
+
+                            {project.role === "MEMBER" ? (
+                                <span
+                                    className={styles.projectRowLeave}
+                                    onClick={() => openModal("LEAVE_PROJECT", {
+                                        project: {
+                                            _id: project._id,
+                                            name: project.name
+                                        }
+                                    })}>
+                                    Leave
+                                </span>
+                            ) : (
+                                <Link
+                                    to={`/settings/project/${project._id}`}
+                                    state={{ origin: project._id }}
+                                    className={styles.projectRowSettings}>
+                                    Settings
+                                </Link>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <button className={styles.createProjectButton} onClick={() => openModal("CREATE_PROJECT")}>
                 <img src={add_svg} />
                 <p>Create a new project</p>
-            </div>
+            </button>
         </div>
-    )
+    );
 }
 
 
+/* ══════════════════════════════════════════════════════════════════
+   ROOT — UserSettings
+   ══════════════════════════════════════════════════════════════════ */
 function UserSettings() {
-
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState("general");
     const navigate = useNavigate();
-
     const { openModal } = useModal();
+    const { tab } = useParams();
 
     useEffect(() => {
-        let link = document.querySelector("link[rel='icon']");
+        if (tab) setActiveTab(tab);
+    }, [user]);
+
+    useEffect(() => {
+        const link = document.querySelector("link[rel='icon']");
         link.href = favicon;
-        document.title = "Settings";
+        document.title = "Vynce | Settings";
 
-        const token = localStorage.getItem("token");
-
-        const fetchUser = async () => {
+        const fetch = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/users/user", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                const res = await axios.get("/api/users/user", {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
                 setUser(res.data);
             } catch (err) {
@@ -242,51 +261,76 @@ function UserSettings() {
                 setUser(false);
             }
         };
-
-        fetchUser();
+        fetch();
     }, []);
 
-    if (!user) return <p>Loading user...</p>;
+    if (!user) return <Loading />;
+
+    const navItems = [
+        {
+            id: "general",
+            icon: settings_svg,
+            label: "General",
+            action: () => setActiveTab("general")
+        },
+        {
+            id: "projects",
+            icon: project_svg,
+            label: "Projects",
+            action: () => setActiveTab("projects")
+        },
+    ];
 
     const renderContent = () => {
-        switch (activeTab) {
-            case "general": return <GeneralSettings user={user} setUser={setUser} />;
-            case "projects": return <ProjectSettings />;
-            case "logout": return <GeneralSettings user={user} setUser={setUser} />;
-            default: return <GeneralSettings user={user} setUser={setUser} />;
-        }
+        if (activeTab === "projects") return <ProjectSettings />;
+        return <GeneralSettings user={user} setUser={setUser} />;
     };
-
-    const Button = ({ img, size, text, onSelect = "", dialogue = "", active }) => (
-        <button className={activeTab === active ? `${styles.active}` : ""} onClick={() => {
-            if (onSelect) setActiveTab(onSelect);
-            if (dialogue) openModal(dialogue.toString());
-        }}>
-            <img src={img} width={size} height={size} />
-            <p style={{ flexShrink: "0" }} >{text}</p>
-        </button>
-    )
 
     return (
         <div className={styles.canvas}>
             <Header />
             <div className={styles.container}>
                 <Sidebar />
+
                 <main className={styles.userSettings}>
-                    <button className={styles.back} onClick={() => navigate(-1)}>
-                        <img src={back_svg} />
-                    </button>
-                    <aside className={styles.sidebar}>
-                        <p>All Settings</p>
-                        <Button img={settings_svg} size="15" text="General" active="general" onSelect="general" />
-                        <Button img={project_svg} size="15" text="Projects" active="projects" onSelect="projects" />
-                        <Button img={logout_svg} size="15" text="Log out" active="logout" dialogue="LOGOUT" />
-                    </aside>
-                    {renderContent(activeTab)}
+                    <div className={styles.settingsInner}>
+
+                        {/* ── Left nav ─────────────────────────────── */}
+                        <nav className={styles.settingsNav}>
+                            <button className={styles.settingsNavBack} onClick={() => navigate(-1)}>
+                                <img src={back_svg} />
+                            </button>
+
+                            <span className={styles.settingsNavLabel}>Settings</span>
+
+                            {navItems.map(item => (
+                                <button
+                                    key={item.id}
+                                    className={`${styles.settingsNavButton} ${activeTab === item.id ? styles.settingsNavButtonActive : ""}`}
+                                    onClick={item.action}>
+                                    <img src={item.icon} />
+                                    <p>{item.label}</p>
+                                </button>
+                            ))}
+
+                            <div className={styles.settingsNavDivider} />
+
+                            <button className={`${styles.settingsNavButton} ${styles.settingsNavButtonLogout}`} onClick={() => openModal("LOGOUT")}>
+                                <img src={logout_svg} />
+                                <p>Log out</p>
+                            </button>
+                        </nav>
+
+                        {/* ── Content ──────────────────────────────── */}
+                        <div className={styles.settingsContent}>
+                            {renderContent()}
+                        </div>
+
+                    </div>
                 </main>
             </div>
         </div>
-    )
+    );
 }
 
 export default UserSettings;

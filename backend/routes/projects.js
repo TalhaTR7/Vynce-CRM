@@ -179,19 +179,21 @@ router.patch("/project/:id/", authMiddleware, imageUpload.single("image"), async
         const userIds = members.map(member => member.userId);
 
         if (userIds.length > 0) {
-            await Notification.create({
-                users: userIds,
-                type: "EDIT_PROJECT",
-                icon: {
-                    type: "PROJECT",
-                    refId: id
-                },
-                title: `${editor.firstname} ${editor.lastname} made edits to the project. Click to view changes!`,
-                action: {
-                    type: "NAVIGATE",
-                    url: `/project/${id}`
-                }
-            });
+            await Promise.all(userIds.map(userId =>
+                Notification.create({
+                    users: [{ _id: userId }],
+                    type: "EDIT_PROJECT",
+                    icon: {
+                        type: "PROJECT",
+                        refId: id
+                    },
+                    title: `${editor.firstname} ${editor.lastname} made edits to the project. Click to view changes!`,
+                    action: {
+                        type: "NAVIGATE",
+                        url: `/project/${id}`
+                    }
+                })
+            ))
         }
 
         res.status(200).json(project);

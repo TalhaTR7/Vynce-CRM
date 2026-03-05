@@ -1,4 +1,4 @@
-
+// Direct message chat page
 import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -11,34 +11,36 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Loading from "../components/Loading";
 
+
 function Chat() {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const scrollRef = useRef(null);
+    const dropdownRef = useRef(null);
+
     const [messages, setMessages] = useState([]);
     const [otherUser, setOtherUser] = useState(null);
     const [message, setMessage] = useState("");
-    const scrollRef = useRef(null);
     const [openDropdown, setOpenDropdown] = useState(false);
-    const dropdownRef = useRef(null);
-    const navigate = useNavigate();
 
+    /* ── Fetch messages (polled every 2s) ─────────────────────── */
     useEffect(() => {
         const fetchMessages = async () => {
             const token = localStorage.getItem("token");
             const currentUserId = localStorage.getItem("_id");
-            const res = await axios.get(`http://localhost:5000/api/messages/chat/${id}`, {
+            const res = await axios.get(`/api/messages/chat/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
-            const chatUsers = res.data.chat.participants;
-            const other = chatUsers.find(user => user._id !== currentUserId);
+            const other = res.data.chat.participants.find(u => u._id !== currentUserId);
             setOtherUser(other);
             setMessages(res.data.messages);
-        }
+        };
         fetchMessages();
         const interval = setInterval(fetchMessages, 2000);
         return () => clearInterval(interval);
     }, [id]);
 
+    /* ── Close dropdown on outside click ─────────────────────── */
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target))
@@ -46,55 +48,47 @@ function Chat() {
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [openDropdown]);
+    }, []);
 
+    /* ── Page title ───────────────────────────────────────────── */
     useEffect(() => {
-        let link = document.querySelector("link[rel='icon']");
+        const link = document.querySelector("link[rel='icon']");
         link.href = favicon;
-        document.title = `Vynce | ${otherUser?.firstname}  ${otherUser?.lastname}`;
-    })
+        if (otherUser) document.title = `Vynce | ${otherUser.firstname} ${otherUser.lastname}`;
+    }, [otherUser]);
 
+    /* ── Auto-scroll to bottom when near bottom ──────────────── */
     useEffect(() => {
         const container = scrollRef.current;
         if (!container || messages.length === 0) return;
-
         const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
-
-        if (isNearBottom) {
+        if (isNearBottom)
             container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
-        }
     }, [messages]);
 
+    /* ── Guard ────────────────────────────────────────────────── */
     if (!messages || !otherUser) return <Loading />;
 
+    /* ── Actions ──────────────────────────────────────────────── */
     const sendMessage = async () => {
         if (!message.trim()) return;
         try {
-            const res = await axios.post(`http://localhost:5000/api/messages/user/${otherUser._id}`, {
-                content: message
-            }, {
+            const res = await axios.post(`/api/messages/user/${otherUser._id}`, { content: message }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
-            const pushMessage = res.data.message;
-            setMessages(prev => [...prev, pushMessage]);
+            setMessages(prev => [...prev, res.data.message]);
             scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
             setMessage("");
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) { console.error(err); }
     };
 
     const closeChat = async () => {
         try {
-            await axios.patch(`http://localhost:5000/api/messages/chat/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                },
+            await axios.patch(`/api/messages/chat/${id}`, {}, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
             navigate("/dashboard");
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) { console.error(err); }
     };
 
 
@@ -103,58 +97,92 @@ function Chat() {
             <Header />
             <div className={styles.container}>
                 <Sidebar />
+
                 <main className={styles.chat}>
-                    <div className={styles.userPane}>
-                        <div className={styles.otherUser}>
-                            <div className={styles.profileImage}>
+
+                    {/* ── Chat header ──────────────────────────── */}
+                    <div className={styles.chatHeader}>
+                        <div className={styles.chatHeaderUser}>
+                            <div className={styles.chatHeaderAvatar}>
                                 <img src={otherUser.profileImage.url} />
                             </div>
-                            <p>{otherUser.firstname} {otherUser.lastname}</p>
+                            <p className={styles.chatHeaderName}>
+                                {otherUser.firstname} {otherUser.lastname}
+                            </p>
                         </div>
-                        <div className={styles.options} ref={dropdownRef}>
-                            <img src={more_svg} className={styles.more} onClick={() => setOpenDropdown(openDropdown ? false : true)} />
-                            <ul className={`${styles.dropdown} ${openDropdown ? styles.dropdownOpen : styles.dropdownClosed}`}>
-                                <li className={`${styles.option}`} onClick={() => closeChat()}>
+
+                        <div className={styles.chatOptionsWrapper} ref={dropdownRef}>
+                            <div
+                                className={styles.chatOptionsButton}
+                                onClick={() => setOpenDropdown(prev => !prev)}
+                                role="button"
+                                aria-label="Chat options">
+                                <img src={more_svg} />
+                            </div>
+                            <ul className={`${styles.chatDropdown} ${openDropdown ? styles.chatDropdownOpen : styles.chatDropdownClosed}`}>
+                                <li className={`${styles.chatDropdownOption} ${styles.chatDropdownOptionDestructive}`} onClick={closeChat}>
                                     <img src={close_svg} />
                                     <span>Close chat</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
+
+                    {/* ── Message list ─────────────────────────── */}
                     <div className={styles.messageContainer} ref={scrollRef}>
-                        {messages.map((message, index) => {
-                            const createdAt = new Date(message.createdAt).toLocaleDateString("en-GB", {
-                                day: "numeric",
-                                month: "short",
-                            });
+                        {messages.map((msg, index) => {
+                            const createdAt = new Date(msg.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+                            const prevSender = index > 0 ? messages[index - 1].sender._id : null;
+                            const nextSender = index < messages.length - 1 ? messages[index + 1].sender._id : null;
+                            const isGroupStart = prevSender !== msg.sender._id;
+                            const isGroupEnd = nextSender !== msg.sender._id;
 
-                            const showProfileImage = index === 0 || messages[index - 1].sender._id !== message.sender._id;
-                            const messageClass = `${styles.message} ${showProfileImage ? '' : ''}`;
+                            const rowClass = [
+                                styles.messageRow,
+                                msg.isMine ? styles.messageRowMine : styles.messageRowTheirs,
+                                isGroupStart ? styles.messageRowGroupStart : styles.messageRowGrouped,
+                            ].join(" ");
 
-                            if (!message.isMine) return (
-                                <div key={message._id} className={messageClass} style={{ justifyContent: "flex-start" }}>
-                                    <div className={styles.profileImage}>
-                                        {showProfileImage && <img src={message.sender.profileImage.url} alt="" />}
-                                    </div>
-                                    <p className={styles.content}>{message.content}</p>
-                                    <p className={styles.time}>{createdAt}</p>
+                            const bubbleClass = [
+                                styles.messageBubble,
+                                msg.isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs,
+                            ].join(" ");
+
+                            if (!msg.isMine) return (
+                                <div key={msg._id} className={rowClass}>
+                                    {/* Avatar on last message of group, placeholder otherwise */}
+                                    {isGroupEnd ?
+                                        <div className={styles.messageAvatar}>
+                                            <img src={msg.sender.profileImage.url} />
+                                        </div>
+                                        : <div className={styles.messageAvatarPlaceholder} />
+                                    }
+                                    <p className={bubbleClass}>{msg.content}</p>
+                                    <span className={styles.messageTime}>{createdAt}</span>
                                 </div>
-                            )
-                            else return (
-                                <div key={message._id} className={messageClass} style={{ justifyContent: "flex-end" }}>
-                                    <p className={styles.time}>{createdAt}</p>
-                                    <p className={styles.content} style={{ backgroundColor: "#093f38ff" }}>{message.content}</p>
-                                    <div className={styles.profileImage}>
-                                        {showProfileImage && <img src={message.sender.profileImage.url} alt="" />}
-                                    </div>
+                            );
+
+                            return (
+                                <div key={msg._id} className={rowClass}>
+                                    <span className={styles.messageTime}>{createdAt}</span>
+                                    <p className={bubbleClass}>{msg.content}</p>
+                                    {isGroupEnd ?
+                                        <div className={styles.messageAvatar}>
+                                            <img src={msg.sender.profileImage.url} />
+                                        </div>
+                                        : <div className={styles.messageAvatarPlaceholder} />
+                                    }
                                 </div>
-                            )
+                            );
                         })}
                     </div>
-                    <div className={styles.inputField}>
+
+                    {/* ── Input bar ────────────────────────────── */}
+                    <div className={styles.chatInputBar}>
                         <input
                             type="text"
-                            placeholder="Type a message"
+                            placeholder="Type a message…"
+                            className={styles.chatInput}
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             onKeyDown={(e) => {
@@ -163,14 +191,15 @@ function Chat() {
                                     sendMessage();
                                 }
                             }} />
-                        <button onClick={sendMessage}>
+                        <button className={styles.chatSendButton} onClick={sendMessage}>
                             <img src={send_svg} />
                         </button>
                     </div>
+
                 </main>
             </div>
         </div>
-    )
+    );
 }
 
 export default Chat;

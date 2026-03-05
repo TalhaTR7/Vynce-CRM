@@ -187,10 +187,11 @@ router.delete("/user", authMiddleware, async (req, res) => {
     await Membership.deleteMany({ userId: req.user.id });
     // deleting his projects won't matter since user is forced
     // to delete owned projects first before deleting account
-    await User.findByIdAndDelete(req.user.id);
 
     const uploadsDir = path.resolve(__dirname, "..", "uploads", "users");
     const imagePath = path.join(uploadsDir, `${user._id}.png`);
+
+    await User.findByIdAndDelete(req.user.id);
     try {
       await fs.unlink(imagePath);
     } catch (fileErr) {

@@ -195,7 +195,7 @@ router.get("/dashboard/:boardId", authMiddleware, async (req, res) => {
             })
             .select("projectId title ethereum activity createdAt dueDate worktime")
             .sort({ dueDate: 1 })
-            .limit(3);
+            .limit(5);
 
         const response = tasks.map(task => {
             return ({
@@ -804,19 +804,21 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
             .findById(req.user.id)
             .select("firstname lastname");
 
-        await Notification.create({
-            users: [{ _id: commentor._id.equals(task.assigneeId) ? task.creatorId : task.assigneeId }],
-            type: "COMMENT",
-            icon: {
-                type: "PROJECT",
-                refId: task.projectId
-            },
-            title: `${commentor.firstname} ${commentor.lastname} added a comment. Click to view!`,
-            action: {
-                type: "NAVIGATE",
-                url: `/task/${task._id}`
-            },
-        })
+	if (!commentor._id.equals(req.user.id)) {
+            await Notification.create({
+       	        users: [{ _id: commentor._id.equals(req.user.id) ? task.creatorId : task.assigneeId }],
+                type: "COMMENT",
+                    icon: {
+                    type: "PROJECT",
+                    refId: task.projectId
+                },
+                title: `${commentor.firstname} ${commentor.lastname} added a comment. Click to view!`,
+                action: {
+                    type: "NAVIGATE",
+                    url: `/task/${task._id}`
+                },
+            })
+	}
 
         res.status(200).json({
             comment,

@@ -1,130 +1,187 @@
-.sponsors {
+/* ─────────────────────────────────────────────────────────────────
+   Footer.module.scss
+   Matches the Landing page design system:
+     - CSS variables from :root (--green, --border, --text-*, etc.)
+     - Fonts: Syne (headings), DM Sans (body), DM Mono (labels)
+     - Border treatment: 1px solid var(--border)
+     - Hover: underline offset + color lift, no box shadows on text
+   ───────────────────────────────────────────────────────────────── */
+
+/* ─── Sponsors Strip ─────────────────────────────────────────────── */
+.sponsorsStrip {
     display: flex;
     flex-direction: row;
-    margin: 50px 350px;
+    align-items: center;
     justify-content: space-between;
+    padding: 48px 200px;
+    border-top: 1px solid var(--border);
+    position: relative;
 
-    img {
-        height: 40px;
+    .sponsorLogo {
+        height: 35px;
         user-select: none;
         pointer-events: none;
+        opacity: 0.7;
+        filter: grayscale(1);
+        transition:
+            opacity 0.25s ease,
+            filter 0.25s ease;
+
+        &:hover {
+            opacity: 0.65;
+            filter: grayscale(0.3);
+        }
     }
 }
 
-.weblinks {
+/* ─── Weblinks Section ───────────────────────────────────────────── */
+.weblinksSection {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    margin: 50px auto;
-    border-top: 1px solid #242424;
+    border-top: 1px solid var(--border);
 
-    h5 {
-        margin: auto 350px;
-        margin-top: 50px;
-        font: 24px Roboto;
-        color: #aaa;
+    .weblinksTagline {
+        padding: 52px 200px 0;
+        font-size: 22px;
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-secondary);
+
+        /* Green dot accent */
+        &::after {
+            content: " ✦";
+            color: var(--green);
+            font-size: 16px;
+        }
     }
 
-    .links {
-        margin: 20px 350px;
+    .weblinksColumns {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: flex-start;
+        padding: 40px 200px 60px;
 
-        .columns {
+        .linkColumn {
             display: flex;
             flex-direction: column;
+            gap: 20px;
 
-            h6 {
-                font: 20px Roboto;
-                color: #aaa;
+            .linkColumnHeading {
+                font-size: 12px;
+                font-family: 'DM Mono', monospace;
+                letter-spacing: 0.14em;
+                color: var(--text-muted);
+                text-transform: uppercase;
                 margin: 0;
             }
 
-            ul {
+            .linkColumnList {
                 list-style: none;
                 padding: 0;
+                margin: 0;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
-                margin: 20px 0;
+                gap: 12px;
 
-                li a {
-                    font: 18px Roboto;
-                    color: #888;
+                .linkColumnItem {
+                    font-size: 15px;
+                    font-family: 'DM Sans', sans-serif;
+                    color: var(--text-secondary);
                     cursor: pointer;
-                    width: auto;
+                    transition: color 0.18s ease;
+                    text-decoration: none;
+                    display: inline-block;
 
                     &:hover {
+                        color: var(--text-primary);
                         text-decoration: underline;
+                        text-decoration-color: var(--green);
+                        text-underline-offset: 3px;
                     }
                 }
             }
         }
 
-        img {
-            height: 70px;
+        /* Brand favicon tucked in the corner of the link grid */
+        .weblinksCornerIcon {
+            height: 52px;
             user-select: none;
+            pointer-events: none;
+            opacity: 0.7;
+            align-self: flex-start;
         }
     }
 }
 
-.copyrights {
+/* ─── Copyrights Bar ─────────────────────────────────────────────── */
+.copyrightsBar {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    border-top: 1px solid #242424;
-    background-color: #0f0f0f;
+    align-items: center;
+    padding: 10px 10%;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.01);
 
-    .documents {
-        margin-left: 350px;
+    .copyrightsDocuments {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-items: flex-start;
-        gap: 15px;
+        gap: 16px;
         cursor: default;
 
-        p,
-        span {
-            font: 16px Roboto;
-            color: #999;
+        .copyrightsText {
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-muted);
         }
 
-        span {
-            font-size: 20px;
+        .copyrightsDivider {
+            font-size: 16px;
+            color: var(--border);
             user-select: none;
         }
 
-        .document {
-            font: 16px Roboto;
-            color: #999;
+        .copyrightsLink {
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.18s ease;
 
             &:hover {
-                cursor: pointer;
+                color: var(--text-secondary);
                 text-decoration: underline;
+                text-underline-offset: 3px;
             }
         }
     }
 
-    .language {
-        margin-right: 350px;
+    .languageSelector {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-items: flex-end;
-        gap: 10px;
+        gap: 8px;
+        cursor: pointer;
+        transition: opacity 0.18s ease;
+        opacity: 0.6;
 
-        p {
-            font: 16px Roboto;
-            color: #999;
+        &:hover {
+            opacity: 1;
         }
 
-        img {
-            width: 20px;
-            opacity: 0.7;
+        .languageIcon {
+            width: 16px;
+            opacity: 0.8;
             user-select: none;
+        }
+
+        .languageLabel {
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-muted);
         }
     }
 }

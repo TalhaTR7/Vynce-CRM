@@ -1,14 +1,14 @@
+// Modal — Base + Popup / Popover / Dialogue / Modal variants
 import { useEffect, useRef, useState } from "react";
 import styles from "./css/Modal.module.scss";
 
-function Base({ children, onClose, className, closeOnOverlay=false }) {
+
+function Base({ children, onClose, className, closeOnOverlay = false }) {
     const [visibility, setVisibility] = useState(false);
     const contentRef = useRef(null);
 
     useEffect(() => {
-        requestAnimationFrame(() => {
-            setVisibility(true);
-        });
+        requestAnimationFrame(() => setVisibility(true));
     }, []);
 
     const handleClose = () => {
@@ -18,14 +18,20 @@ function Base({ children, onClose, className, closeOnOverlay=false }) {
 
     const handleOverlayClick = (e) => {
         if (!closeOnOverlay) return;
-        if (contentRef.current && !contentRef.current.contains(e.target)) {
+        if (contentRef.current && !contentRef.current.contains(e.target))
             handleClose();
-        }
     };
 
     return (
-        <div className={`${styles.overlay} ${visibility ? styles.show : ""}`} onMouseDown={handleOverlayClick}>
-            <div className={`${className} ${visibility ? styles.show : ""}`} ref={contentRef} onMouseDown={(e) => e.stopPropagation()}>
+        <div
+            className={`${styles.overlay} ${visibility ? styles.show : ""}`}
+            onMouseDown={handleOverlayClick}
+        >
+            <div
+                className={`${className} ${visibility ? styles.show : ""}`}
+                ref={contentRef}
+                onMouseDown={(e) => e.stopPropagation()}
+            >
                 {typeof children === "function" ? children({ handleClose }) : children}
             </div>
         </div>

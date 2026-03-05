@@ -21,7 +21,8 @@ function SelectDate({ dueDate, onChange, placeholder = "None", disabled }) {
                 onChange={(date) => {
                     onChange(date);
                     setIsOpen(false);
-                }} />
+                }}
+            />
         </div>
     );
 }

@@ -1,16 +1,16 @@
-
 import styles from "../css/Header.module.scss";
-import coin_svg from "../assets/icons/coin.svg"
-import level_svg from "../assets/icons/level.svg"
+import coin_svg from "../assets/icons/coin.svg";
+import level_svg from "../assets/icons/level.svg";
 import Loading from "./Loading";
 import settings_svg from "../assets/icons/settings.svg";
+import project_svg from "../assets/icons/project.svg";
 import mood_svg from "../assets/icons/mood.svg";
 import add_svg from "../assets/icons/add.svg";
 import logout_svg from "../assets/icons/logout.svg";
 import mood from "../context/MoodContext";
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
 
 
@@ -25,7 +25,7 @@ function Header() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/users/user", {
+                const res = await axios.get("/api/users/user", {
                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
                 setUser(res.data);
@@ -41,12 +41,11 @@ function Header() {
             const day = now.toLocaleString("en-US", { day: "numeric" });
             const month = now.toLocaleString("en-US", { month: "short" });
             const time = now.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit" });
-            setDateTime(`${weekday}, ${day} ${month}, ${time}`);
+            setDateTime(`${weekday}, ${day} ${month}  ·  ${time}`);
         };
 
         updateTime();
         const interval = setInterval(updateTime, 1000 * 60);
-
         return () => clearInterval(interval);
     }, []);
 
@@ -57,57 +56,116 @@ function Header() {
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [openDropdown]);
+    }, []);
 
     if (!user) return <Loading />;
 
+    const dropdownClass = `${styles.dropdownMenu} ${openDropdown ? styles.dropdownOpen : styles.dropdownClosed}`;
+
     return (
-        <header className={styles.Header}>
-            <div className={styles.currentTime}>{dateTime}</div>
+        <header className={styles.appHeader}>
+
+            {/* ── Left — current date + time ────────────────────── */}
+            <span className={styles.currentTime}>{dateTime}</span>
+
+            {/* ── Centre — mood indicator ───────────────────────── */}
             <div className={styles.currentMood}>
-                <p>I am feeling</p>
-                <img src={mood[user.currentMood]} />
-                <p>right now</p>
+                <p className={styles.currentMoodLabel}>feeling</p>
+                <img src={mood[user.currentMood]} className={styles.currentMoodIcon} />
+                <p className={styles.currentMoodLabel}>right now</p>
             </div>
+
+            {/* ── Right — stats + profile menu ─────────────────── */}
             <div className={styles.userElements}>
-                <div className={styles.ethereum}>
-                    <img src={coin_svg} style={{ width: "20px" }} />
-                    <p>{user.ethereum}</p>
+
+                {/* Ethereum / coins */}
+                <div className={styles.statPill}>
+                    <img src={coin_svg} className={styles.statPillIcon} />
+                    <span className={styles.statPillValue}>{user.ethereum}</span>
                 </div>
-                <div className={styles.motivation}>
-                    <div className={styles.wrapper}>
-                        <img src={level_svg} style={{ width: "30px" }} />
-                        <span>{user.motivationLevel}</span>
+
+                {/* Motivation level + score */}
+                <div className={styles.motivationWrapper}>
+                    <div className={styles.motivationIconWrapper}>
+                        <img src={level_svg} className={styles.motivationIcon} />
+                        <span className={styles.motivationLevelBadge}>{user.motivationLevel}</span>
                     </div>
-                    <p>{user.motivationScore.toLocaleString()}</p>
+                    <span className={styles.motivationScore}>
+                        {user.motivationScore.toLocaleString()}
+                    </span>
                 </div>
-                <div className={styles.menu} ref={dropdownRef}>
-                    <div className={styles.profileImage} onClick={() => setOpenDropdown(openDropdown ? false : true)}>
+
+                <div className={styles.headerSeparator} />
+
+                {/* Profile avatar + dropdown */}
+                <div className={styles.profileMenu} ref={dropdownRef}>
+                    <div
+                        className={styles.profileAvatar}
+                        onClick={() => setOpenDropdown((prev) => !prev)}
+                        role="button"
+                        aria-label="Open user menu"
+                        aria-expanded={openDropdown}>
                         <img src={user.profileImage.url} />
                     </div>
-                    <ul className={`${styles.dropdown} ${openDropdown ? styles.dropdownOpen : styles.dropdownClosed}`}>
-                        <Link to={"/settings/user"} className={styles.option}>
-                            <img src={settings_svg} />
-                            <span>Settings</span>
+
+                    <ul className={dropdownClass}>
+
+                        {/* User identity */}
+                        <div className={styles.dropdownHeader}>
+                            <p className={styles.dropdownUserName}>
+                                {user.firstname} {user.lastname}
+                            </p>
+                            <p className={styles.dropdownUserEmail}>{user.email}</p>
+                        </div>
+
+                        {/* Settings */}
+                        <Link to="/settings/user" className={styles.dropdownOption} onClick={() => setOpenDropdown(false)}>
+                            <img src={settings_svg} className={styles.dropdownOptionIcon} />
+                            <span className={styles.dropdownOptionLabel}>Settings</span>
                         </Link>
-                        <li className={styles.option}>
-                            <img src={mood_svg} />
-                            <span>Mood swing</span>
+
+                        {/* My projects */}
+                        <Link to="/settings/user/projects" className={styles.dropdownOption} onClick={() => setOpenDropdown(false)}>
+                            <img src={project_svg} className={styles.dropdownOptionIcon} />
+                            <span className={styles.dropdownOptionLabel}>My projects</span>
+                        </Link>
+
+                        {/* Mood swing */}
+                        <li className={styles.dropdownOption} onClick={() => setOpenDropdown(false)}>
+                            <img src={mood_svg} className={styles.dropdownOptionIcon} />
+                            <span className={styles.dropdownOptionLabel}>Mood swing</span>
                         </li>
-                        <li className={styles.option} onClick={() => { openModal("CREATE_PROJECT"); setOpenDropdown(false) }}>
-                            <img src={add_svg} />
-                            <span>Create project</span>
+
+                        <div className={styles.dropdownDivider} />
+
+                        {/* Create project */}
+                        <li className={styles.dropdownOption}
+                            onClick={() => {
+                                openModal("CREATE_PROJECT");
+                                setOpenDropdown(false);
+                            }}>
+                            <img src={add_svg} className={styles.dropdownOptionIcon} />
+                            <span className={styles.dropdownOptionLabel}>Create project</span>
                         </li>
-                        <div className={styles.divider} />
-                        <li className={styles.option} onClick={() => { openModal("LOGOUT"); setOpenDropdown(false) }}>
-                            <img src={logout_svg} style={{ width: "18px" }} />
-                            <span>Logout</span>
+
+                        <div className={styles.dropdownDivider} />
+
+                        {/* Logout — destructive */}
+                        <li className={`${styles.dropdownOption} ${styles.dropdownOptionDestructive}`}
+                            onClick={() => {
+                                openModal("LOGOUT");
+                                setOpenDropdown(false);
+                            }}>
+                            <img src={logout_svg} className={styles.dropdownOptionIcon} />
+                            <span className={styles.dropdownOptionLabel}>Logout</span>
                         </li>
+
                     </ul>
                 </div>
+
             </div>
         </header>
-    )
+    );
 }
 
 export default Header;

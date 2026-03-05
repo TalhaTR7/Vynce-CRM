@@ -6,11 +6,11 @@ const wrapperStyle = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    pointerEvents: "none",
+    pointerEvents: "none"
 };
 
 const imgStyle = {
-    width: "120px",
+    width: "120px"
 };
 
 function Loading() {
