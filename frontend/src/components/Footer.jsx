@@ -1,5 +1,5 @@
 import favicon from "../assets/icons/favicon.svg"
-import styles from "../css/Footer.module.scss"
+import styles from "./css/Footer.module.scss"
 import sponsor1 from "../assets/sponsors/sponsor-1.png"
 import sponsor2 from "../assets/sponsors/sponsor-2.png"
 import sponsor3 from "../assets/sponsors/sponsor-3.png"

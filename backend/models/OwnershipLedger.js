@@ -5,7 +5,10 @@ const ownershipLedgerSchema = new mongoose.Schema({
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     adminId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     status: { type: String, enum: ["PENDING", "ACCEPTED", "DECLINED"], default: "PENDING", required: true }
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    versionKey: false
+});
 
 ownershipLedgerSchema.index(
     { projectId: 1 },

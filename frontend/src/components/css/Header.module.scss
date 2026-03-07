@@ -1,0 +1,296 @@
+/* ─── Header Root ────────────────────────────────────────────────── */
+.appHeader {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 20px;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    cursor: default;
+    user-select: none;
+}
+
+/* ─── Current Time ───────────────────────────────────────────────── */
+.currentTime {
+    font-size: 13px;
+    font-family: var(--font-body);
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    min-width: 200px;
+}
+
+/* ─── Current Mood (centred absolutely) ─────────────────────────── */
+.currentMood {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+
+    .currentMoodLabel {
+        font-size: 14px;
+        font-family: var(--font-body);
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .currentMoodIcon {
+        height: 20px;
+        pointer-events: none;
+    }
+}
+
+/* ─── Right-side User Elements ───────────────────────────────────── */
+.userElements {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ─── Shared pill style for Ethereum + Motivation ────────────────── */
+.statPill {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: default;
+    transition:
+        border-color 0.18s ease,
+        background 0.18s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--border);
+    }
+
+    .statPillIcon {
+        width: 21px;
+        height: 21px;
+        flex-shrink: 0;
+        padding: 2px 0;
+    }
+
+    .statPillValue {
+        font-size: 18px;
+        font-family: var(--font-mono);
+        font-weight: 500;
+        color: var(--text-primary);
+        letter-spacing: 0.1em;
+    }
+}
+
+/* ─── Motivation level badge (icon + level badge overlay) ────────── */
+.motivationWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition:
+        border-color 0.18s ease,
+        background 0.18s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--border);
+    }
+
+    .motivationIconWrapper {
+        position: relative;
+        width: 25px;
+        height: 25px;
+        flex-shrink: 0;
+
+        .motivationIcon {
+            width: 25px;
+            height: 25px;
+        }
+
+        .motivationLevelBadge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -55%);
+            font-size: 11px;
+            font-family: var(--font-main);
+            font-weight: 800;
+            color: #0a0a0a;
+            pointer-events: none;
+            line-height: 1;
+        }
+    }
+
+    .motivationScore {
+        font-size: 18px;
+        font-family: var(--font-mono);
+        font-weight: 500;
+        color: var(--text-primary);
+        letter-spacing: 0.1em;
+    }
+}
+
+/* ─── Vertical separator ─────────────────────────────────────────── */
+.headerSeparator {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
+/* ─── Profile menu ───────────────────────────────────────────────── */
+.profileMenu {
+    position: relative;
+}
+
+.profileAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    transition:
+        border-color 0.18s ease,
+        transform 0.18s ease;
+
+    &:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+}
+
+/* ─── Dropdown ───────────────────────────────────────────────────── */
+.dropdownMenu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 188px;
+    padding: 6px;
+    background: #111111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
+    transition:
+        opacity 0.15s ease,
+        transform 0.15s ease;
+
+    .dropdownHeader {
+        padding: 8px 10px 10px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 4px;
+
+        .dropdownUserName {
+            font-size: 13px;
+            font-family: var(--font-body);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 2px;
+        }
+
+        .dropdownUserEmail {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            margin: 0;
+            letter-spacing: 0.02em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+.dropdownOpen {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdownClosed {
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+}
+
+/* ─── Dropdown option ────────────────────────────────────────────── */
+.dropdownOption {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+        background: var(--hover);
+    }
+
+    .dropdownOptionIcon {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        opacity: 0.55;
+    }
+
+    .dropdownOptionLabel {
+        font-size: 13px;
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+        margin: 0;
+        transition: color 0.14s ease;
+    }
+
+    &:hover .dropdownOptionLabel {
+        color: var(--text-primary);
+    }
+
+    &.dropdownOptionDestructive {
+        &:hover {
+            background: rgba(220, 60, 60, 0.08);
+
+            .dropdownOptionLabel {
+                color: var(--red-soft);
+            }
+
+            .dropdownOptionIcon {
+                opacity: 0.8;
+            }
+        }
+    }
+}
+
+/* ─── Dropdown divider ───────────────────────────────────────────── */
+.dropdownDivider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 4px;
+}

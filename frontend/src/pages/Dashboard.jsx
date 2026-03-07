@@ -12,7 +12,7 @@ import tasks_svg from "../assets/icons/tasks.svg";
 import leaderboard_svg from "../assets/icons/leaderboard.svg";
 import info_svg from "../assets/icons/info.svg";
 import emptyBox_svg from "../assets/icons/emptyBox.svg";
-import styles from "../css/Dashboard.module.scss";
+import styles from "./css/Dashboard.module.scss";
 import { useModal } from "../context/ModalContext";
 import { useState, useEffect } from 'react';
 import axios from "axios";
@@ -53,7 +53,7 @@ function Dashboard() {
         const fetchProjects = async () => {
             try {
                 const res = await axios.get("/api/projects/user", { headers });
-                setProjects(res.data);
+                setProjects(Array.isArray(res.data) ? res.data : []);
             } catch (err) {
                 console.error(err);
             }

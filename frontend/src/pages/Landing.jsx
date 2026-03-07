@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import styles from "../css/Landing.module.scss"
+import styles from "./css/Landing.module.scss"
 import Footer from "../components/Footer"
 import favicon from "../assets/icons/favicon.svg"
 import logo from "../assets/backgrounds/logo.png"

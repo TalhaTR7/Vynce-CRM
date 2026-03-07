@@ -23,20 +23,19 @@ router.get("/user", authMiddleware, async (req, res) => {
 
         inbox = await Promise.all(
             inbox.map(async mail => {
-                const userEntry = mail.users.find(id => id.user === req.user.id);
                 if (mail.icon.type === "PROJECT") {
                     const project = await Project
                         .findById(mail.icon.refId)
                         .select("projectImage")
                         .lean();
-                    mail.icon.url = formatImage(project.projectImage);
+                    if (project) mail.icon.url = formatImage(project.projectImage);
                 }
                 else if (mail.icon.type === "USER") {
                     const user = await User
                         .findById(mail.icon.refId)
                         .select("profileImage")
                         .lean();
-                    mail.icon.url = formatImage(user.profileImage);
+                    if (user) mail.icon.url = formatImage(user.profileImage);
                 }
                 return mail;
             })

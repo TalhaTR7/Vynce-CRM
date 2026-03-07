@@ -1,0 +1,542 @@
+/* KANBAN CARD ══════════════════════════════════════════════════════ */
+.card {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    background: #111111;
+    border: 1px solid #1f1f1f;
+    border-radius: 5px;
+    box-sizing: border-box;
+    position: relative;
+    user-select: none;
+    transition:
+        border-color 0.14s ease,
+        background 0.14s ease;
+
+    &:hover {
+        border-color: #ffffff1a;
+        background: #141414;
+    }
+
+    &:active {
+        cursor: grab;
+    }
+
+    /* ── Info row: status pill + due-in pill ─────────────────────────── */
+    .cardInfoRow {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 10px 4px;
+
+        .cardStatusPill {
+            font-size: 12px;
+            font-family: var(--font-body);
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 60%;
+        }
+
+        .cardDuePill {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+
+            img {
+                width: 15px;
+                opacity: 0.5;
+            }
+
+            p {
+                font-family: var(--font-body);
+                font-size: 12px;
+                color: var(--text-secondary);
+                margin: 0;
+            }
+
+            &.cardDuePillOverdue {
+                border-color: rgba(224, 92, 92, 0.3);
+
+                p {
+                    color: var(--red-soft);
+                }
+            }
+
+            &.cardDuePillToday {
+                border-color: var(--green-dim);
+
+                p {
+                    color: var(--green);
+                }
+            }
+        }
+    }
+
+    /* ── Task title (navigates to task page) ─────────────────────────── */
+    .cardTitle {
+        font-size: 16px;
+        font-family: var(--font-body);
+        font-weight: 500;
+        color: var(--text-primary);
+        line-height: 1.5;
+        text-decoration: none;
+        display: block;
+        padding: 7px 10px;
+        transition: color 0.12s ease;
+
+        &:hover {
+            color: #fff;
+        }
+    }
+
+    /* ── Difficulty stars ────────────────────────────────────────────── */
+    .cardDifficulty {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 2px;
+        padding: 0 10px 8px;
+        opacity: 0.55;
+
+        img {
+            width: 12px;
+        }
+    }
+
+    /* ── Bottom row: assignee avatar + stats + comment count ─────────── */
+    .cardFooter {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 10px;
+        border-top: 1px solid var(--border);
+
+        .cardAssigneeRow {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+
+            .cardAssigneeAvatar {
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                overflow: hidden;
+                flex-shrink: 0;
+                border: 1px solid var(--border);
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                }
+            }
+
+            .cardStatBadge {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+
+                img {
+                    width: 15px;
+                    opacity: 0.7;
+                }
+
+                p {
+                    font-size: 14px;
+                    font-family: var(--font-mono);
+                    color: var(--text-secondary);
+                    margin: 0;
+                }
+            }
+        }
+
+        .cardCommentBadge {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.5;
+
+            img {
+                width: 15px;
+            }
+
+            p {
+                font-size: 14px;
+                font-family: var(--font-mono);
+                color: var(--text-secondary);
+                margin: 0;
+            }
+        }
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ARCHIVED CARD (.archivedCard)
+   ══════════════════════════════════════════════════════════════════ */
+.archivedCard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #111111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+
+
+    &:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+        background: #141414;
+        transform: translateY(-2px);
+    }
+
+    &.archivedCardSelected {
+        border-color: rgba(255, 255, 255, 0.18);
+        background: #161616;
+    }
+}
+
+/* ── Archive card info row: project identity + comment count ─────── */
+.archivedCardInfoRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px 4px;
+
+    .archivedCardProject {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        overflow: hidden;
+
+        .archivedCardProjectThumbnail {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        p {
+            font-size: 12px;
+            font-family: var(--font-body);
+            color: var(--text-muted);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .archivedCardCommentBadge {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        opacity: 0.45;
+        flex-shrink: 0;
+
+        img {
+            width: 12px;
+        }
+
+        p {
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            margin: 0;
+        }
+    }
+}
+
+.archivedCardTitle {
+    font-size: 14px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin: 0;
+    padding: 2px 10px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.archivedCardFooter {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+
+    .archivedCardDifficulty {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 2px;
+        opacity: 0.5;
+
+        img {
+            width: 12px;
+        }
+    }
+
+    .archivedCardMisc {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+
+        .archivedCardStatBadge {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+
+            img {
+                width: 12px;
+                opacity: 0.5;
+            }
+
+            p {
+                font-size: 12px;
+                font-family: var(--font-mono);
+                color: var(--text-muted);
+                margin: 0;
+            }
+        }
+
+        .archivedCardArchiveIcon {
+            width: 14px;
+            opacity: 0.3;
+            margin-left: 4px;
+        }
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MARKET CARD (.marketCard) — tasks on auction
+   ══════════════════════════════════════════════════════════════════ */
+.marketCard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #111111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-sizing: border-box;
+    user-select: none;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+
+    &:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        background: #141414;
+        transform: translateY(-2px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+/* ── Market card top row ─────────────────────────────────────────── */
+.marketCardTopRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 12px 6px;
+
+    /* Project identity */
+    .marketCardProject {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+        overflow: hidden;
+
+        .marketCardProjectAvatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        p {
+            font-size: 12px;
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .marketCardDuePill {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 3px 9px;
+        flex-shrink: 0;
+
+        img {
+            width: 11px;
+            opacity: 0.5;
+        }
+
+        p {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        &.marketCardDuePillOverdue {
+            border-color: rgba(224, 92, 92, 0.3);
+
+            p {
+                color: var(--red-soft);
+            }
+        }
+
+        &.marketCardDuePillToday {
+            border-color: rgba(0, 232, 122, 0.3);
+
+            p {
+                color: var(--green);
+            }
+        }
+    }
+}
+
+/* ── Market card title ───────────────────────────────────────────── */
+.marketCardTitle {
+    font-size: 16px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    margin: 0;
+    padding: 4px 12px 12px;
+}
+
+/* ── Market card bottom stat row ─────────────────────────────────── */
+.marketCardFooter {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    gap: 4px;
+}
+
+.marketCardStat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 3px;
+    min-width: 0;
+
+    .marketCardStatLabel {
+        font-size: 10px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .marketCardStatValue {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+
+        img {
+            width: 12px;
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        p {
+            font-size: 14px;
+            font-family: var(--font-body);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .marketCardDifficultyStars {
+            display: flex;
+            flex-direction: row;
+            gap: 1px;
+            height: 18px;
+
+            img {
+                width: 11px;
+                opacity: 1;
+            }
+        }
+    }
+}
+
+.marketCardStatDivider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    flex-shrink: 0;
+    align-self: center;
+}

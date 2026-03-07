@@ -9,7 +9,7 @@ import logout_svg from "../assets/icons/logout.svg";
 import lock_svg from "../assets/icons/lock.svg";
 import delete_svg from "../assets/icons/delete.svg";
 import add_svg from "../assets/icons/add.svg";
-import styles from "../css/UserSettings.module.scss";
+import styles from "./css/UserSettings.module.scss";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";

@@ -1,5 +1,5 @@
 // Card components: kanban Card, ArchivedCard, MarketCard (auction)
-import styles from "../css/Card.module.scss";
+import styles from "./css/Card.module.scss";
 import coin_svg from "../assets/icons/coin.svg";
 import points_svg from "../assets/icons/points.svg";
 import clock_svg from "../assets/icons/clock.svg";
@@ -167,12 +167,6 @@ export function ArchivedCard({ task, onClick, isSelected }) {
 /* AUCTIONED CARD ═══════════════════════════════════════════════════ */
 export function MarketCard({ task, auction, onClick }) {
     const due = getDueLabel(task?.dueDate);
-    const bidCount = auction?.bids?.length ?? 0;
-
-    const highestBid = bidCount > 0
-        ? Math.max(...auction.bids.map(b => b.amount))
-        : null;
-    const minBid = highestBid !== null ? highestBid + 1 : auction.baseReward;
 
     const duePillClass = [
         styles.marketCardDuePill,
@@ -232,7 +226,7 @@ export function MarketCard({ task, auction, onClick }) {
                     <span className={styles.marketCardStatLabel}>Min bid</span>
                     <div className={styles.marketCardStatValue}>
                         <img src={coin_svg} />
-                        <p>{minBid}</p>
+                        <p>{auction.minBid}</p>
                     </div>
                 </div>
 
@@ -241,7 +235,7 @@ export function MarketCard({ task, auction, onClick }) {
                 <div className={styles.marketCardStat}>
                     <span className={styles.marketCardStatLabel}>Bids</span>
                     <div className={styles.marketCardStatValue}>
-                        <p>{bidCount}</p>
+                        <p>{auction.bidCount}</p>
                     </div>
                 </div>
 

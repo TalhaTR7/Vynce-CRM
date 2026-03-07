@@ -2,7 +2,7 @@
 import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import styles from "../css/Task.module.scss";
+import styles from "./css/Task.module.scss";
 import back_svg from "../assets/icons/back.svg";
 import archive_svg from "../assets/icons/archive.svg";
 import delete_svg from "../assets/icons/delete.svg";
@@ -20,7 +20,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
 import axios from "axios";
-import SelectDate from "../components/modals/SelectDate";
+import SelectDate from "../modals/SelectDate";
 import Loading from "../components/Loading";
 
 
@@ -498,10 +498,14 @@ function Task() {
                             </div>
                         </div>
                         {isAssignee && (
-                            <button className={styles.auctionButton} onClick={() => openModal("OPEN_BID", { task })}>
-                                <img src={auction_svg} />
-                                <span>Place on auction</span>
-                            </button>
+                            !task.onAuction ?
+                                <button className={styles.auctionButton} onClick={() => openModal("OPEN_BID", { task })}>
+                                    <img src={auction_svg} />
+                                    <span>Place on auction</span>
+                                </button> :
+                                <button className={styles.auctionButtonDisabled} disabled>
+                                    <span>On auction</span>
+                                </button>
                         )}
                     </div>
 

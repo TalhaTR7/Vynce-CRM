@@ -11,7 +11,10 @@ const auctionSchema = new mongoose.Schema({
         amount: { type: Number, required: true },
         createdAt: { type: Date, default: Date.now }
     }]
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    versionKey: false
+});
 
 export default mongoose.model("Auction", auctionSchema);
 

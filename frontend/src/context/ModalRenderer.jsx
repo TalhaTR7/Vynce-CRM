@@ -1,11 +1,11 @@
 import { useModal } from "./ModalContext";
 import ModalPortal from "./ModalPortal";
-import { CreateProject } from "../components/modals/CreateProject";
-import { CreateBoard, EditBoard } from "../components/modals/CreateBoard";
-import { CreateTask, RestoreTask } from "../components/modals/CreateTask";
-import { SetBounty, SetDifficulty } from "../components/modals/Popovers";
-import { CloseTask, DeleteAccount, DeleteBoard, DeleteMails, DeleteProject, DeleteTask, DeleteTasks, DemoteAdmin, FindUser, InvitationResponse, InviteUser, LeaveProject, Logout, OwnershipResponse, PromoteMember, RemoveMembers, ReturnTask, SubmitTask, TransferOwnership, UpdatePassword } from "../components/modals/Dialogues";
-import { OpenBid } from "../components/modals/OpenBid";
+import { CreateProject } from "../modals/CreateProject";
+import { CreateBoard, EditBoard } from "../modals/CreateBoard";
+import { CreateTask, RestoreTask } from "../modals/CreateTask";
+import { SetBounty, SetDifficulty } from "../modals/Popovers";
+import { CloseTask, DeleteAccount, DeleteBoard, DeleteMails, DeleteProject, DeleteTask, DeleteTasks, DemoteAdmin, FindUser, InvitationResponse, InviteUser, LeaveProject, Logout, OwnershipResponse, PromoteMember, RemoveMembers, ReturnTask, SubmitTask, TransferOwnership, UpdatePassword } from "../modals/Dialogues";
+import { OpenBid } from "../modals/OpenBid";
 
 
 function ModalRenderer() {

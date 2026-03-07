@@ -11,6 +11,8 @@ import Task from "./pages/Task";
 import Chat from "./pages/Chat";
 import UserSettings from "./pages/UserSettings";
 import ProjectSettings from "./pages/ProjectSettings";
+import Leaderboards from "./pages/Leaderboards";
+import Shop from "./pages/Shop";
 
 import { ProtectedLayout } from "./context/ProtectedLayout";
 import { ProtectedRoute } from "./context/ProtectedRoute";
@@ -34,6 +36,8 @@ function App() {
           <Route path="/chat/:id" element={<Chat />} />
           <Route path="/settings/user/:tab?" element={<UserSettings />} />
           <Route path="/settings/project/:id/:tab?" element={<ProjectSettings />} />
+          <Route path="/leaderboards" element={<Leaderboards />} />
+          <Route path="/shop" element={<Shop />} />
         </Route>
       </Routes>
       <ModalRenderer />

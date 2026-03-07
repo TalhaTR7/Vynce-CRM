@@ -111,7 +111,7 @@ router.get("/project/:id", authMiddleware, async (req, res) => {
         const boards = await Board.find({ projectId: id }).sort({ position: 1 });
 
         let memberships = await Member.find({ projectId: id })
-            .populate("userId", "firstname lastname email currentMood profileImage");
+            .populate("userId", "firstname lastname email mood profileImage");
 
 
         memberships = memberships.map(membership => {

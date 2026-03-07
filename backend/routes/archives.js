@@ -281,7 +281,7 @@ router.post("/restore/:taskId", authMiddleware, async (req, res) => {
 
         const creator = await User.findById(req.user.id).select("firstname lastname").session(session);
 
-        const assignee = await User.findById(assigneeId).select("currentMood").session(session);
+        const assignee = await User.findById(assigneeId).select("mood").session(session);
         if (!assignee) {
             await session.abortTransaction();
             return res.status(404).json({ msg: "Assignee task not found" });
@@ -305,8 +305,8 @@ router.post("/restore/:taskId", authMiddleware, async (req, res) => {
             NORMAL: 1,
             OKAY: 1.3,
             HAPPY: 1.7,
-            ECSTATIC: 1
-        }[assignee.currentMood] || 1;
+            ECSTATIC: 2
+        }[assignee.mood?.value || "NORMAL"] || 1;
         const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
 
         const [task] = await Task.create([{

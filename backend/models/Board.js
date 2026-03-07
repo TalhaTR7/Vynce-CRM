@@ -7,7 +7,8 @@ const boardSchema = new mongoose.Schema({
     color: { type: String, default: "#CCCCCC" },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
 }, {
-    timestamps: true
+    timestamps: true,
+    versionKey: false
 });
 
 boardSchema.index({ projectId: 1, position: 1 }, { unique: true });

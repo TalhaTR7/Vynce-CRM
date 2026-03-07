@@ -5,7 +5,7 @@ import Sidebar from "../components/Sidebar";
 import more_svg from "../assets/icons/more.svg";
 import close_svg from "../assets/icons/close.svg";
 import send_svg from "../assets/icons/send.svg";
-import styles from "../css/Chat.module.scss";
+import styles from "./css/Chat.module.scss";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";

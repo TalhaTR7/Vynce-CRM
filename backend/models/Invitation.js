@@ -10,7 +10,10 @@ const invitationSchema = new mongoose.Schema({
     default: "PENDING",
     required: true
   }
-}, { timestamps: true });
+}, {
+  timestamps: true,
+  versionKey: false
+});
 
 invitationSchema.index(
   { projectId: 1, inviteeId: 1 },

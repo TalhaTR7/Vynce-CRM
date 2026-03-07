@@ -1,6 +1,6 @@
 // Login page — split-panel layout
 import { Copyrights } from "../components/Footer";
-import styles from "../css/Login.module.scss";
+import styles from "./css/Login.module.scss";
 import favicon from "../assets/icons/favicon.svg";
 import heroArt from "../assets/backgrounds/landing.png";
 import logo from "../assets/backgrounds/logo.png";

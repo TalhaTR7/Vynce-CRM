@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-import Task from "./models/Task.js";
 import dotenv from "dotenv";
-
 
 dotenv.config();
 
@@ -10,20 +8,20 @@ const update = async () => {
     await mongoose.connect(process.env.MONGO_URI);
 
     const result = await mongoose.connection.db
-      .collection("tasks")
+      .collection("users")
       .updateMany(
-        { onAuction: { $exists: false } },
-        {
-          $set: {
-            onAuction: false
-          }
-        }
+        { systemRole: { $exists: true } },
+        { $unset: { systemRole: "" } }
       );
 
-    console.log("Operation complete:", result.modifiedCount, "documents updated");
+    console.log(
+      `✅ Operation complete: ${result.modifiedCount} documents updated`
+    );
+
+    await mongoose.disconnect();
     process.exit(0);
   } catch (err) {
-    console.error("Migration failed:", err);
+    console.error("❌ Migration failed:", err);
     process.exit(1);
   }
 };

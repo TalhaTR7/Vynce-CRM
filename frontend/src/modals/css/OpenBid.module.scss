@@ -1,0 +1,342 @@
+/* ─────────────────────────────────────────────────────────────────
+   OpenBid.module.scss
+   ───────────────────────────────────────────────────────────────── */
+
+/* ─── Header ─────────────────────────────────────────────────────── */
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 16px;
+    border-bottom: 1px solid var(--border);
+
+    .headerTitle {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        h2 {
+            font-size: 16px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+            margin: 0;
+        }
+
+        span {
+            font-size: 10px;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+    }
+
+    .closeButton {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        opacity: 0.4;
+        filter: grayscale(100%);
+        flex-shrink: 0;
+        transition:
+            opacity 0.14s ease,
+            background 0.14s ease,
+            border-color 0.14s ease;
+
+        img {
+            width: 18px;
+            pointer-events: none;
+        }
+
+        &:hover {
+            opacity: 1;
+            filter: none;
+            background: rgba(255, 0, 0, 0.05);
+            border-color: var(--red-soft);
+        }
+    }
+}
+
+/* ─── Body ───────────────────────────────────────────────────────── */
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 22px;
+}
+
+/* ─── Task preview card ──────────────────────────────────────────── */
+/*  Mimics the kanban card aesthetic — inset, darker background,
+    inner border. Feels like the real card pulled into the modal.    */
+.taskCard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.018);
+    padding: 11px 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* Top row: project identity + due date badge */
+.cardMeta {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .cardProject {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+
+        .cardProjectThumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 5px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        span {
+            font-size: 11px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .cardDue {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+        opacity: 0.5;
+
+        img {
+            width: 12px;
+        }
+
+        span {
+            font-size: 10px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+        }
+    }
+}
+
+/* Task title */
+.cardTitle {
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Bottom row: board pill + difficulty stars */
+.cardFooter {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+
+    .cardBoard {
+        font-size: 10px;
+        font-family: 'DM Mono', monospace;
+        color: var(--text-muted);
+        padding: 2px 8px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 120px;
+        letter-spacing: 0.04em;
+    }
+
+    .cardStars {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 3px;
+        opacity: 0.65;
+
+        img {
+            width: 11px;
+        }
+    }
+}
+
+/* ─── Field rows (bounty display + auction end date) ─────────────── */
+.fieldRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    .fieldLabel {
+        font-size: 10px;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+    /* Bounty value */
+    .fieldBounty {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+
+        img {
+            width: 14px;
+            flex-shrink: 0;
+        }
+
+        span {
+            font-size: 14px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+    }
+
+    /* Date picker trigger */
+    .fieldDate {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        height: 30px;
+        padding: 0 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        cursor: pointer;
+        transition: border-color 0.14s ease, background 0.14s ease;
+
+        img {
+            width: 13px;
+            opacity: 0.4;
+            flex-shrink: 0;
+        }
+
+        &:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+        }
+    }
+}
+
+/* ─── Notice strip ───────────────────────────────────────────────── */
+.notice {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.015);
+
+    img {
+        width: 13px;
+        opacity: 0.35;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    p {
+        font-size: 11px;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin: 0;
+    }
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────── */
+.footer {
+    padding: 14px 22px 18px;
+    border-top: 1px solid var(--border);
+
+    .submitButton {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 36px;
+        border-radius: 9px;
+        border: none;
+        background: var(--green);
+        font-size: 14px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 700;
+        color: #0a0a0a;
+        cursor: pointer;
+        user-select: none;
+        transition: filter 0.14s ease, transform 0.1s ease;
+
+        &:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: none;
+            transform: none;
+        }
+    }
+}
+
+/* ─── Loading overlay ────────────────────────────────────────────── */
+.loadingOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: rgba(17, 17, 17, 0.85);
+    z-index: 10;
+
+    img {
+        width: 72px;
+        opacity: 0.8;
+    }
+}

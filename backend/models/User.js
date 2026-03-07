@@ -8,14 +8,17 @@ const userSchema = new mongoose.Schema({
   profileImage: {
     url: { type: String, default: "/assets/profile.png" },
   },
-  currentMood: { type: String, enum: ["ANGRY", "SICK", "DIZZY", "SAD", "NORMAL", "OKAY", "VIBING", "HAPPY", "GLASSES"], default: "NORMAL" },
+  mood: {
+    value: { type: String, enum: ["ANGRY", "CRYING", "SAD", "NORMAL", "OKAY", "HAPPY", "ECSTATIC"], default: "NORMAL" },
+    updatedAt: { type: Date, default: Date.now }
+  },
   motivationScore: { type: Number, default: 0 },
   motivationLevel: { type: Number, default: 0 },
   ethereum: { type: Number, default: 0 },
-  systemRole: { type: String, enum: ["PLATFORM_OWNER", "USER"], default: "USER" },
   worktime: { type: Number, default: 0 },
-},
-  { timestamps: true }
-);
+}, {
+  timestamps: true,
+  versionKey: false
+});
 
 export default mongoose.model("User", userSchema);

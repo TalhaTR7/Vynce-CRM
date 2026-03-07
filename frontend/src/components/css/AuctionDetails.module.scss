@@ -1,0 +1,740 @@
+/* ─────────────────────────────────────────────────────────────────
+   AuctionDetails.module.scss
+   ───────────────────────────────────────────────────────────────── */
+
+/* ─── Scrim ──────────────────────────────────────────────────────── */
+.scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 300;
+    animation: scrimIn 0.2s ease both;
+
+    &.closing {
+        animation: scrimOut 0.2s ease both;
+    }
+}
+
+@keyframes scrimIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scrimOut {
+    to {
+        opacity: 0;
+    }
+}
+
+/* ─── Panel ──────────────────────────────────────────────────────── */
+.panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 460px;
+    max-width: 96vw;
+    background: var(--bg);
+    border-left: 1px solid var(--border);
+    z-index: 301;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: panelIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+    &.closing {
+        animation: panelOut 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+    }
+}
+
+@keyframes panelIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes panelOut {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* ─── Hero ───────────────────────────────────────────────────────── */
+/*  Top section: project identity + close, then big task title,
+    then a row of quick-read pills.                                   */
+.hero {
+    padding: 18px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+}
+
+.heroTop {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+
+    .heroProject {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+
+        .heroThumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        .heroProjectName {
+            font-size: 11px;
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .heroDot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .heroLabel {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            flex-shrink: 0;
+        }
+    }
+
+    .closeBtn {
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 7px;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        opacity: 0.3;
+        flex-shrink: 0;
+        transition: opacity 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+
+        img {
+            width: 12px;
+            pointer-events: none;
+        }
+
+        &:hover {
+            opacity: 1;
+            background: var(--hover);
+            border-color: var(--border);
+        }
+    }
+}
+
+.heroTitle {
+    font-size: 20px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin: 0 0 14px;
+}
+
+/* Pill strip: board · stars · time left */
+.heroPills {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+
+    .pill {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+
+        .pillDot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        span {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+
+        img {
+            width: 11px;
+            opacity: 0.4;
+            flex-shrink: 0;
+        }
+
+        /* Time pill gets green tint when time is running */
+        &.pillTime {
+            border-color: rgba(0, 232, 122, 0.2);
+            background: rgba(0, 232, 122, 0.04);
+
+            img {
+                opacity: 0.5;
+            }
+
+            span {
+                color: var(--green);
+                opacity: 0.8;
+            }
+        }
+
+        &.pillEnded {
+            border-color: var(--red-border);
+            background: var(--red-shade);
+
+            span {
+                color: var(--red-soft);
+                opacity: 0.8;
+            }
+        }
+    }
+
+    .stars {
+        display: flex;
+        flex-direction: row;
+        gap: 2px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+
+        img {
+            width: 11px;
+            opacity: 0.55;
+        }
+    }
+}
+
+/* ─── Body ───────────────────────────────────────────────────────── */
+.body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    &::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--surface);
+        border-radius: 10px;
+    }
+}
+
+/* ─── Description ────────────────────────────────────────────────── */
+.description {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+
+    p {
+        font-size: 13px;
+        font-family: var(--font-body);
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin: 0;
+    }
+}
+
+/* ─── People row ─────────────────────────────────────────────────── */
+/*  Creator and assignee side by side, no grid lines.                */
+.peopleRow {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.personCell {
+    flex: 1;
+    padding: 13px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    &:first-child {
+        border-right: 1px solid var(--border);
+    }
+
+    .personLabel {
+        font-size: 9px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .personValue {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+
+        .personAvatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        span {
+            font-size: 13px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+/* ─── Stats strip ────────────────────────────────────────────────── */
+/*  Bounty · Due · Created — horizontal, borderless.                 */
+.statsStrip {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid var(--border);
+}
+
+.statCell {
+    flex: 1;
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    &:not(:last-child) {
+        border-right: 1px solid var(--border);
+    }
+
+    .statLabel {
+        font-size: 9px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .statValue {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+        font-size: 14px;
+        font-family: var(--font-mono);
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+
+        img {
+            width: 13px;
+            opacity: 0.6;
+            flex-shrink: 0;
+        }
+    }
+}
+
+/* ─── Winner strip ───────────────────────────────────────────────── */
+.winnerStrip {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0, 232, 122, 0.03);
+    border-left: 2px solid var(--green);
+
+    .winnerLabel {
+        font-size: 9px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--green);
+        opacity: 0.7;
+    }
+
+    .winnerValue {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+
+        .winnerAvatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid rgba(0, 232, 122, 0.3);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        span {
+            font-size: 12px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+    }
+}
+
+/* ─── Bid action ─────────────────────────────────────────────────── */
+.bidSection {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .bidLabel {
+        font-size: 9px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .bidControls {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+}
+
+.stepper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    overflow: hidden;
+    background: var(--surface);
+    flex-shrink: 0;
+
+    .stepBtn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 18px;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        transition: background 0.1s ease, color 0.1s ease;
+
+        &:hover {
+            background: var(--hover);
+            color: var(--text-primary);
+        }
+
+        &:active {
+            background: var(--border);
+        }
+    }
+
+    .stepCenter {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 14px;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+
+        img {
+            width: 13px;
+            opacity: 0.55;
+            flex-shrink: 0;
+        }
+
+        input[type="number"] {
+            field-sizing: content;
+            min-width: 2ch;
+            width: auto;
+            font-size: 15px;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            background: transparent;
+            border: none;
+            outline: none;
+            text-align: center;
+
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+        }
+    }
+}
+
+.bidBtn {
+    flex: 1;
+    height: 36px;
+    border: none;
+    border-radius: 9px;
+    background: var(--green);
+    font-size: 13px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: #0a0a0a;
+    cursor: pointer;
+    user-select: none;
+    transition: filter 0.12s ease, transform 0.1s ease;
+
+    &:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        cursor: not-allowed;
+        filter: none;
+        transform: none;
+    }
+}
+
+.removeBtn {
+    width: 100%;
+    height: 36px;
+    border: 1px solid var(--red-border);
+    border-radius: 9px;
+    background: var(--red-shade);
+    font-size: 13px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--red-soft);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+
+    &:hover {
+        background: var(--red-hover);
+        border-color: var(--red-soft);
+        color: #fff;
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+}
+
+/* ─── Bids list ──────────────────────────────────────────────────── */
+.bidsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 20px 28px;
+
+    .bidsLabel {
+        font-size: 9px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+}
+
+.bidsTableHead {
+    display: grid;
+    grid-template-columns: 1fr 68px 68px 56px;
+    padding: 0 6px 6px;
+    border-bottom: 1px solid var(--border);
+
+    span {
+        font-size: 9px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        opacity: 0.5;
+
+        &:not(:first-child) {
+            text-align: right;
+        }
+    }
+}
+
+.bidEntry {
+    display: grid;
+    grid-template-columns: 1fr 68px 68px 56px;
+    align-items: center;
+    padding: 6px 6px;
+    border-radius: 7px;
+    transition: background 0.1s ease;
+
+    &:hover {
+        background: var(--hover);
+    }
+
+    .bidUser {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+
+        .bidIndex {
+            flex-shrink: 0;
+            width: 16px;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .bidIndexFirst {
+            color: var(--green);
+        }
+
+        .bidAvatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        span {
+            font-size: 12px;
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .bidAmount {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+
+        img {
+            width: 11px;
+            opacity: 0.5;
+            flex-shrink: 0;
+        }
+
+        span {
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+        }
+    }
+
+    .bidDate,
+    .bidTime {
+        font-size: 11px;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        text-align: right;
+        letter-spacing: 0.02em;
+    }
+}
+
+.bidsEmpty {
+    padding: 32px 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    p {
+        font-size: 12px;
+        font-family: var(--font-body);
+        color: var(--text-muted);
+        margin: 0;
+    }
+}

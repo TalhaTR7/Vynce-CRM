@@ -292,7 +292,7 @@ router.get("/project/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
         const memberships = await Membership.find({ projectId: id })
-            .populate("userId", "profileImage firstname lastname email currentMood");
+            .populate("userId", "profileImage firstname lastname email mood");
 
         const users = memberships.map(membership => {
             const user = membership.userId.toObject();

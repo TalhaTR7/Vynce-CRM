@@ -5,8 +5,9 @@ const projectSchema = new mongoose.Schema({
     projectImage: {
         url: { type: String, default: "/assets/project.png" },
     },
-},
-    { timestamps: true }
-);
+}, {
+    timestamps: true,
+    versionKey: false
+});
 
 export default mongoose.model("Project", projectSchema);

@@ -47,9 +47,10 @@ const taskSchema = new mongoose.Schema({
     }],
     closed: { type: Boolean, default: false },
     onAuction: { type: Boolean, default: false }
-},
-    { timestamps: true }
-);
+}, {
+    timestamps: true,
+    versionKey: false
+});
 
 taskSchema.index({ projectId: 1, boardId: 1 });
 taskSchema.index({ assigneeId: 1 });

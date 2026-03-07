@@ -1,5 +1,5 @@
 // Signup page — split-panel layout (mirrors Login)
-import styles from "../css/Signup.module.scss"
+import styles from "./css/Signup.module.scss"
 import favicon from "../assets/icons/favicon.svg"
 import logo from "../assets/backgrounds/logo.png"
 import heroArt from "../assets/backgrounds/landing.png"

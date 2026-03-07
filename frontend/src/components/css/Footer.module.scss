@@ -1,0 +1,186 @@
+/* ─────────────────────────────────────────────────────────────────
+   Footer.module.scss
+   Matches the Landing page design system:
+     - CSS variables from :root (--green, --border, --text-*, etc.)
+     - Fonts: Syne (headings), DM Sans (body), DM Mono (labels)
+     - Border treatment: 1px solid var(--border)
+     - Hover: underline offset + color lift, no box shadows on text
+   ───────────────────────────────────────────────────────────────── */
+
+/* ─── Sponsors Strip ─────────────────────────────────────────────── */
+.sponsorsStrip {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 48px 200px;
+    border-top: 1px solid var(--border);
+    position: relative;
+
+    .sponsorLogo {
+        height: 35px;
+        user-select: none;
+        pointer-events: none;
+        opacity: 0.7;
+        filter: grayscale(1);
+        transition:
+            opacity 0.25s ease,
+            filter 0.25s ease;
+
+        &:hover {
+            opacity: 0.65;
+            filter: grayscale(0.3);
+        }
+    }
+}
+
+/* ─── Weblinks Section ───────────────────────────────────────────── */
+.weblinksSection {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border);
+
+    .weblinksTagline {
+        padding: 52px 200px 0;
+        font-size: 22px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-secondary);
+
+        &::after {
+            content: " ✦";
+            color: var(--green);
+            font-size: 16px;
+        }
+    }
+
+    .weblinksColumns {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 40px 200px 60px;
+
+        .linkColumn {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            .linkColumnHeading {
+                font-size: 12px;
+                font-family: var(--font-mono);
+                letter-spacing: 0.14em;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                margin: 0;
+            }
+
+            .linkColumnList {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+
+                .linkColumnItem {
+                    font-size: 15px;
+                    font-family: var(--font-body);
+                    color: var(--text-secondary);
+                    cursor: pointer;
+                    transition: color 0.18s ease;
+                    text-decoration: none;
+                    display: inline-block;
+
+                    &:hover {
+                        color: var(--text-primary);
+                        text-decoration: underline;
+                        text-decoration-color: var(--green);
+                        text-underline-offset: 3px;
+                    }
+                }
+            }
+        }
+
+        /* Brand favicon tucked in the corner of the link grid */
+        .weblinksCornerIcon {
+            height: 52px;
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.7;
+            align-self: flex-start;
+        }
+    }
+}
+
+/* ─── Copyrights Bar ─────────────────────────────────────────────── */
+.copyrightsBar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10%;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.01);
+
+    .copyrightsDocuments {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+        cursor: default;
+
+        .copyrightsText {
+            font-size: 13px;
+            font-family: var(--font-body);
+            color: var(--text-muted);
+        }
+
+        .copyrightsDivider {
+            font-size: 16px;
+            color: var(--border);
+            user-select: none;
+        }
+
+        .copyrightsLink {
+            font-size: 13px;
+            font-family: var(--font-body);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.18s ease;
+
+            &:hover {
+                color: var(--text-secondary);
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+        }
+    }
+
+    .languageSelector {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: opacity 0.18s ease;
+        opacity: 0.6;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        .languageIcon {
+            width: 16px;
+            opacity: 0.8;
+            user-select: none;
+        }
+
+        .languageLabel {
+            font-size: 13px;
+            font-family: var(--font-body);
+            color: var(--text-muted);
+        }
+    }
+}

@@ -1,3 +1,4 @@
+/* ─── Import fonts ──────────────────────────────────────────────── */
 @font-face {
   font-family: 'Syne';
   src: url('./assets/fonts/Syne.TTF');
@@ -16,20 +17,32 @@
 
 /* ─── CSS Variables ─────────────────────────────────────────────── */
 :root {
+  --font-main: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
   --body: #0f0f0f;
+
   --green: #00e87a;
   --green-dim: #00e87a1f;
   --green-glow: #00e87a59;
   --red: #b31b1b;
+
   --blue: #2f78a3;
+
   --red-soft: #e05c5c;
+  --red-hover: #e05c5c14;
+  --red-border: #e05c5c33;
+  --red-shade: #eb424208;
+
+  --border: #ffffff11;
   --bg: #0a0a0a;
   --surface: #121212;
-  --border: #ffffff11;
+  --hover: #181818;
+
   --text-primary: #dddddd;
   --text-secondary: #999999;
   --text-muted: #555555;
-  --hover: #181818;
 }
 
 

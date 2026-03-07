@@ -9,14 +9,10 @@ const wrapperStyle = {
     pointerEvents: "none"
 };
 
-const imgStyle = {
-    width: "120px"
-};
-
 function Loading() {
     return (
         <div style={wrapperStyle}>
-            <img src={loading} style={imgStyle} />
+            <img src={loading} style={{ width: "120px" }} />
         </div>
     );
 }

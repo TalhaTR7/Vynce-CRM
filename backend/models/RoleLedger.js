@@ -6,7 +6,10 @@ const roleLedgerSchema = new mongoose.Schema({
     action: { type: String, enum: ["PROMOTION", "DEMOTION"], required: true },
     oldRole: { type: String, enum: ["ADMIN", "MEMBER"], required: true },
     newRole: { type: String, enum: ["ADMIN", "MEMBER"], required: true }
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    versionKey: false
+});
 
 roleLedgerSchema.index({ membershipId: 1 });
 

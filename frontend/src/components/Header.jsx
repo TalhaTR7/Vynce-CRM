@@ -1,4 +1,4 @@
-import styles from "../css/Header.module.scss";
+import styles from "./css/Header.module.scss";
 import coin_svg from "../assets/icons/coin.svg";
 import level_svg from "../assets/icons/level.svg";
 import Loading from "./Loading";
@@ -10,8 +10,9 @@ import logout_svg from "../assets/icons/logout.svg";
 import mood from "../context/MoodContext";
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
+import MoodPrompt from "../modals/MoodPrompt";
 
 
 function Header() {
@@ -19,6 +20,7 @@ function Header() {
     const [user, setUser] = useState(null);
     const [dateTime, setDateTime] = useState("");
     const [openDropdown, setOpenDropdown] = useState(false);
+    const [moodTrigger, setMoodTrigger] = useState(0);
     const dropdownRef = useRef(null);
     const { openModal } = useModal();
 
@@ -31,6 +33,7 @@ function Header() {
                 setUser(res.data);
             } catch (err) {
                 console.error("Failed to fetch user:", err);
+                setUser(false);
             }
         };
         fetchUser();
@@ -71,7 +74,7 @@ function Header() {
             {/* ── Centre — mood indicator ───────────────────────── */}
             <div className={styles.currentMood}>
                 <p className={styles.currentMoodLabel}>feeling</p>
-                <img src={mood[user.currentMood]} className={styles.currentMoodIcon} />
+                <img src={mood[user.mood?.value] || mood.NORMAL} className={styles.currentMoodIcon} />
                 <p className={styles.currentMoodLabel}>right now</p>
             </div>
 
@@ -81,7 +84,7 @@ function Header() {
                 {/* Ethereum / coins */}
                 <div className={styles.statPill}>
                     <img src={coin_svg} className={styles.statPillIcon} />
-                    <span className={styles.statPillValue}>{user.ethereum}</span>
+                    <span className={styles.statPillValue}>{user.ethereum ?? 0}</span>
                 </div>
 
                 {/* Motivation level + score */}
@@ -91,7 +94,7 @@ function Header() {
                         <span className={styles.motivationLevelBadge}>{user.motivationLevel}</span>
                     </div>
                     <span className={styles.motivationScore}>
-                        {user.motivationScore.toLocaleString()}
+                        {(user.motivationScore ?? 0).toLocaleString()}
                     </span>
                 </div>
 
@@ -105,7 +108,7 @@ function Header() {
                         role="button"
                         aria-label="Open user menu"
                         aria-expanded={openDropdown}>
-                        <img src={user.profileImage.url} />
+                        <img src={user.profileImage?.url} />
                     </div>
 
                     <ul className={dropdownClass}>
@@ -131,7 +134,11 @@ function Header() {
                         </Link>
 
                         {/* Mood swing */}
-                        <li className={styles.dropdownOption} onClick={() => setOpenDropdown(false)}>
+                        <li className={styles.dropdownOption}
+                            onClick={() => {
+                                setMoodTrigger(prev => prev + 1);
+                                setOpenDropdown(false);
+                            }}>
                             <img src={mood_svg} className={styles.dropdownOptionIcon} />
                             <span className={styles.dropdownOptionLabel}>Mood swing</span>
                         </li>
@@ -164,6 +171,7 @@ function Header() {
                 </div>
 
             </div>
+            <MoodPrompt user={user} setUser={setUser} externalTrigger={moodTrigger} />
         </header>
     );
 }

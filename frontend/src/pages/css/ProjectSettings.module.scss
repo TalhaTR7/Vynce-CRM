@@ -1,0 +1,1242 @@
+/* ─── Page canvas ────────────────────────────────────────────────── */
+.canvas {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ─── Settings main area ─────────────────────────────────────────── */
+.projectSettings {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    justify-content: center;
+}
+
+.settingsInner {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 1080px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ─── Back button (top-left of the inner wrapper) ────────────────── */
+.backButton {
+    position: absolute;
+    top: 108px;
+    left: 20px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.4;
+    transition:
+        opacity 0.14s ease,
+        background 0.14s ease;
+
+    img {
+        width: 16px;
+        pointer-events: none;
+    }
+
+    &:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   LEFT NAV SIDEBAR
+   ══════════════════════════════════════════════════════════════════ */
+.settingsSidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 20px 12px;
+    padding-top: 152px;
+    width: 180px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    height: 100%;
+    box-sizing: border-box;
+
+    .settingsSidebarLabel {
+        font-size: 10px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0 8px 8px;
+        pointer-events: none;
+    }
+
+    .settingsNavButton {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        padding: 7px 10px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.14s ease, border-color 0.14s ease;
+
+        img {
+            width: 14px;
+            height: 14px;
+            opacity: 0.45;
+            flex-shrink: 0;
+            pointer-events: none;
+            transition: opacity 0.14s ease;
+        }
+
+        p {
+            font-size: 14px;
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            margin: 0;
+            transition: color 0.14s ease;
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.04);
+
+            img {
+                opacity: 0.7;
+            }
+
+            p {
+                color: var(--text-primary);
+            }
+        }
+
+        &.settingsNavButtonActive {
+            border-color: var(--border);
+            background: rgba(255, 255, 255, 0.04);
+
+            img {
+                opacity: 1;
+            }
+
+            p {
+                color: var(--text-primary);
+                font-weight: 600;
+            }
+        }
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SHARED PANEL SHELL — all sub-pages use this as root
+   ══════════════════════════════════════════════════════════════════ */
+.settingsPanel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 108px 40px;
+    gap: 20px;
+    box-sizing: border-box;
+    align-items: stretch;
+
+    &::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #2a2a2a;
+        border-radius: 10px;
+    }
+}
+
+/* ── Shared panel heading row (project identity) ─────────────────── */
+.panelProjectRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+
+    .panelProjectThumbnail {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid var(--border);
+        user-select: none;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    .panelProjectName {
+        font-size: 21px;
+        font-family: var(--font-main);
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .panelRoleBadge {
+        width: 24px;
+        height: 24px;
+        user-select: none;
+        flex-shrink: 0;
+    }
+}
+
+/* ── Shared field label ──────────────────────────────────────────── */
+.fieldLabel {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 5px;
+}
+
+/* ── Section description ─────────────────────────────────────────── */
+.sectionDescription {
+    font-size: 12px;
+    font-family: var(--font-body);
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 520px;
+}
+
+/* ── Shared search field ─────────────────────────────────────────── */
+.sharedSearchField {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.18s ease;
+
+    &:focus-within {
+        border-color: var(--text-muted);
+    }
+
+    img {
+        width: 13px;
+        opacity: 0.35;
+        flex-shrink: 0;
+    }
+
+    input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 14px;
+        font-family: var(--font-body);
+        color: var(--text-primary);
+
+        &::placeholder {
+            color: var(--text-muted);
+        }
+
+        &:focus::placeholder {
+            color: transparent;
+        }
+    }
+}
+
+/* ── Shared action icon button ───────────────────────────────────── */
+.sharedIconButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.5;
+    transition: opacity 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+
+    img {
+        width: 14px;
+        pointer-events: none;
+    }
+
+    &:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    &.sharedIconButtonDestructive {
+        filter: grayscale(100%);
+        opacity: 0.7;
+        transition: all 0.3s ease;
+    }
+
+    &.sharedIconButtonDestructive:hover {
+        filter: none;
+        opacity: 1;
+        background: rgba(220, 60, 60, 0.08);
+        border-color: rgba(220, 60, 60, 0.3);
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   GENERAL SETTINGS
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Project image + info card ───────────────────────────────────── */
+.generalProjectCard {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    max-width: 520px;
+
+    .generalProjectImage {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+        transition: border-color 0.14s ease;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: filter 0.18s ease;
+        }
+
+        /* Edit overlay */
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45) url("../assets/icons/edit.svg") no-repeat center / 32%;
+            opacity: 0;
+            transition: opacity 0.18s ease;
+        }
+
+        &:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+
+            img {
+                filter: brightness(0.6);
+            }
+
+            &::after {
+                opacity: 1;
+            }
+        }
+    }
+
+    .generalProjectMeta {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+        min-width: 0;
+
+        .generalProjectMetaName {
+            font-size: 16px;
+            font-family: var(--font-main);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: -0.01em;
+        }
+
+        .generalProjectMetaDate {
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            margin: 0;
+        }
+    }
+
+    .generalRoleBadge {
+        width: 24px;
+        height: 24px;
+        user-select: none;
+        flex-shrink: 0;
+    }
+}
+
+/* ── Text input field ────────────────────────────────────────────── */
+.generalInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-width: 520px;
+
+    input {
+        height: 36px;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0 12px;
+        font-size: 14px;
+        width: 554px;
+        font-family: var(--font-body);
+        color: var(--text-primary);
+        box-sizing: border-box;
+        transition: border-color 0.18s ease;
+
+        &:focus {
+            outline: none;
+            border-color: var(--text-muted);
+        }
+    }
+}
+
+/* ── Boards drag-sort list ───────────────────────────────────────── */
+.generalBoardsGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-width: 240px;
+
+    .generalBoardsScroll {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        max-height: 150px;
+        overflow-y: auto;
+        mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+        padding-bottom: 40px;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    .generalBoardRow {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.01);
+        transition: background 0.12s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .generalBoardDragHandle {
+            width: 14px;
+            height: 14px;
+            opacity: 0.3;
+            cursor: grab;
+            flex-shrink: 0;
+            transition: opacity 0.12s ease;
+
+            &:hover {
+                opacity: 0.7;
+            }
+        }
+
+        .generalBoardColorDot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        p {
+            font-size: 14px;
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            margin: 0;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: default;
+        }
+    }
+
+    .generalBoardCreateButton {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        opacity: 0.4;
+        transition: opacity 0.14s ease;
+        user-select: none;
+        width: fit-content;
+        padding: 4px 0;
+        background: none;
+        border: none;
+
+        img {
+            width: 13px;
+            pointer-events: none;
+        }
+
+        p {
+            font-size: 12px;
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+/* ── Danger zone ─────────────────────────────────────────────────── */
+.dangerZone {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--red-border);
+    border-radius: 10px;
+    max-width: 520px;
+    background-color: var(--red-shade);
+
+
+    .dangerZoneLabel {
+        font-size: 14px;
+        font-family: var(--font-body);
+        font-weight: 600;
+        color: var(--red-soft);
+        margin: 0;
+        opacity: 0.8;
+    }
+
+    .dangerZoneDivider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dangerZoneRow {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+
+        p {
+            font-size: 12px;
+            font-family: var(--font-body);
+            color: var(--text-muted);
+            margin: 0;
+            flex: 1;
+        }
+
+        .dangerZoneButton {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 7px;
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0;
+            user-select: none;
+            transition: filter 0.14s ease, transform 0.1s ease;
+
+            img {
+                width: 13px;
+                pointer-events: none;
+            }
+
+            p {
+                font-size: 12px;
+                font-family: var(--font-body);
+                margin: 0;
+                font-weight: 600;
+            }
+
+            &:hover {
+                filter: brightness(1.1);
+                transform: translateY(-1px);
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+        }
+    }
+}
+
+/* ── Transfer dropdown ───────────────────────────────────────────── */
+.transferWrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.transferButton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.14s ease, border-color 0.14s ease;
+
+    p {
+        font-size: 12px;
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+        margin: 0;
+        font-weight: 600;
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.14);
+    }
+}
+
+.transferDropdown {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    z-index: 300;
+    width: 210px;
+    background: #111111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    animation: dropdownReveal 0.14s ease both;
+}
+
+@keyframes dropdownReveal {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.transferOption {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.12s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .transferOptionAvatar {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid var(--border);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    span {
+        font-size: 14px;
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.transferSearchField {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-top: 1px solid var(--border);
+    margin-top: 2px;
+
+    img {
+        width: 11px;
+        opacity: 0.35;
+    }
+
+    input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 12px;
+        font-family: var(--font-body);
+        color: var(--text-primary);
+
+        &::placeholder {
+            color: var(--text-muted);
+        }
+    }
+}
+
+/* ── Save button ─────────────────────────────────────────────────── */
+.saveButton {
+    height: 34px;
+    width: 100%;
+    max-width: 554px;
+    border: none;
+    border-radius: 8px;
+    background: var(--green);
+    font-size: 14px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: #0a0a0a;
+    opacity: 0.25;
+    cursor: not-allowed;
+    transition: opacity 0.18s ease, transform 0.1s ease, filter 0.14s ease;
+    flex-shrink: 0;
+
+    &.saveButtonActive {
+        opacity: 1;
+        cursor: pointer;
+
+        &:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MEMBER SETTINGS
+   ══════════════════════════════════════════════════════════════════ */
+.memberToolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.memberInviteButton {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    user-select: none;
+    transition:
+        background 0.14s ease,
+        border-color 0.14s ease;
+    margin-left: auto;
+
+    img {
+        width: 13px;
+        opacity: 0.5;
+        flex-shrink: 0;
+    }
+
+    p {
+        font-size: 12px;
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+        margin: 0;
+        font-weight: 600;
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.14);
+    }
+}
+
+/* ── Member table ────────────────────────────────────────────────── */
+.memberTable {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 1;
+    overflow: visible;
+}
+
+.memberTableHead {
+    display: grid;
+    grid-template-columns: 20px 1fr 210px 100px 44px 90px 36px;
+    align-items: center;
+    padding: 9px 16px;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+
+    label {
+        font-size: 10px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+}
+
+.memberTableBody {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: clip;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.memberRow {
+    display: grid;
+    grid-template-columns: 20px 1fr 210px 100px 44px 90px 36px;
+    align-items: center;
+    padding: 9px 16px;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    position: relative;
+    transition: background 0.12s ease;
+
+    &:first-child {
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        border-bottom-color: transparent;
+    }
+
+    &:has(+ .memberRow:hover) {
+        border-bottom-color: transparent;
+    }
+
+    /* ── In-flow checkbox (first grid cell) ───────────────────────── */
+    .memberCheckbox {
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        background: transparent;
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        box-sizing: border-box;
+        flex-shrink: 0;
+        transition: background 0.14s ease, border-color 0.14s ease;
+
+        &:checked {
+            background: var(--green);
+            border-color: var(--green);
+
+            &::before {
+                content: "";
+                display: block;
+                width: 10px;
+                height: 10px;
+                background: url("../assets/icons/check.svg") no-repeat center / contain;
+            }
+        }
+    }
+
+    /* Invisible spacer when no checkbox (OWNER row or non-owner viewer) */
+    .memberCheckboxSpacer {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+    }
+
+    .memberIdentity {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 9px;
+        min-width: 0;
+
+        .memberAvatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        p {
+            font-size: 14px;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    p {
+        font-size: 14px;
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ── Role pill ────────────────────────────────────────────────── */
+    .memberRolePill {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        width: fit-content;
+        user-select: none;
+
+        &.memberRolePillOwner {
+            background: rgba(255, 196, 0, 0.1);
+            border: 1px solid rgba(255, 196, 0, 0.3);
+            color: #ffc400;
+        }
+
+        &.memberRolePillAdmin {
+            background: rgba(0, 232, 122, 0.08);
+            border: 1px solid rgba(0, 232, 122, 0.25);
+            color: var(--green);
+        }
+
+        &.memberRolePillMember {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+    }
+
+    .memberMood {
+        width: 18px;
+        justify-self: center;
+        user-select: none;
+    }
+}
+
+/* ── Per-row more button ─────────────────────────────────────────── */
+.memberRowOptions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .memberRowMoreButton {
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 7px;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        opacity: 0;
+        transition:
+            opacity 0.14s ease,
+            background 0.14s ease;
+
+        img {
+            width: 14px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+}
+
+.memberRow:hover .memberRowMoreButton {
+    opacity: 1;
+}
+
+.memberRowDropdownPortal {
+    position: fixed;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 190px;
+    padding: 6px;
+    background: #111111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    list-style: none;
+    margin: 0;
+    animation: dropdownReveal 0.14s ease both;
+}
+
+.memberRowOption {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    list-style: none;
+
+    &:hover {
+        background: var(--hover);
+    }
+
+    img {
+        width: 13px;
+        height: 13px;
+        opacity: 0.45;
+        flex-shrink: 0;
+    }
+
+    span {
+        font-size: 14px;
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+    }
+
+    &.memberRowOptionDestructive {
+        img {
+            filter: grayscale(100%);
+            opacity: 1;
+        }
+
+        &:hover {
+            background: var(--red-hover);
+
+            span {
+                color: var(--red-soft);
+            }
+
+            img {
+                opacity: 0.85;
+                filter: none;
+            }
+        }
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ARCHIVE SETTINGS & MARKETPLACE — card browser panel
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Section intro (project row + description) ───────────────────── */
+.cardSectionHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+
+    .cardSectionHeaderLeft {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+/* ── Browser panel: sticky toolbar + scrollable card grid ────────── */
+.cardBrowser {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding-top: 3px;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.cardBrowserToolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 20px;
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cardBrowserGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    align-content: start;
+    gap: 10px 7px;
+    width: 100%;
+    padding-top: 2px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 700px;
+    flex: 1;
+
+    &::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #2a2a2a;
+        border-radius: 10px;
+    }
+}
+
+.cardBrowserEmpty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 60px 20px;
+    user-select: none;
+    pointer-events: none;
+
+    img {
+        width: 52px;
+        opacity: 0.1;
+    }
+
+    p {
+        font-size: 12px;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        margin: 0;
+        text-align: center;
+        line-height: 1.6;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   UNAUTHORIZED STATE
+   ══════════════════════════════════════════════════════════════════ */
+.unauthorized {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex: 1;
+    user-select: none;
+    pointer-events: none;
+
+    img {
+        width: 80px;
+        opacity: 0.1;
+    }
+
+    p {
+        font-size: 14px;
+        font-family: var(--font-main);
+        font-weight: 700;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    span {
+        font-size: 12px;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        opacity: 0.5;
+        margin: 0;
+    }
+}

@@ -3,7 +3,7 @@ import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Board from "../components/Board";
-import styles from "../css/Project.module.scss";
+import styles from "./css/Project.module.scss";
 import owner_svg from "../assets/icons/owner.svg";
 import admin_svg from "../assets/icons/admin.svg";
 import more_svg from "../assets/icons/more.svg";

@@ -1,5 +1,5 @@
 // Kanban board column
-import styles from "../css/Board.module.scss";
+import styles from "./css/Board.module.scss";
 import more_svg from "../assets/icons/more.svg";
 import add_svg from "../assets/icons/add.svg";
 import edit_svg from "../assets/icons/edit.svg";

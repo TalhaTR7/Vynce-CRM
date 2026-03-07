@@ -2,6 +2,7 @@
 import favicon from "../assets/icons/favicon.svg";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import AuctionDetails from "../components/AuctionDetails";
 import back_svg from "../assets/icons/back.svg";
 import settings_svg from "../assets/icons/settings.svg";
 import team_svg from "../assets/icons/team.svg";
@@ -23,7 +24,7 @@ import auction_svg from "../assets/icons/auction.svg";
 import unauthorized_svg from "../assets/icons/unauthorized.svg";
 import Loading from "../components/Loading";
 import mood from "../context/MoodContext";
-import styles from "../css/ProjectSettings.module.scss";
+import styles from "./css/ProjectSettings.module.scss";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
@@ -48,7 +49,7 @@ function GeneralSettings({ project, setProject }) {
     );
 
     const [projectName, setProjectName] = useState("");
-    const [projectImage, setProjectImage] = useState("");
+    const [projectImage, setProjectImage] = useState("../../backend/uploads/projectImages/default.png");
     const [file, setFile] = useState(null);
     const fileInputRef = useRef();
     const { openModal } = useModal();
@@ -155,7 +156,7 @@ function GeneralSettings({ project, setProject }) {
             {/* Project image + meta card */}
             <div className={styles.generalProjectCard}>
                 <div className={styles.generalProjectImage} onClick={() => fileInputRef.current.click()}>
-                    <img src={projectImage || ""} alt={project.name} />
+                    <img src={projectImage} alt={project.name} />
                 </div>
                 <input type="file" accept="image/png" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileChange} />
                 <div className={styles.generalProjectMeta}>
@@ -420,7 +421,7 @@ function MemberSettings({ project, refreshProject }) {
                                 </div>
                                 <p>{member.user.email}</p>
                                 <span className={rolePillClass}>{member.role.toLowerCase()}</span>
-                                <img src={mood[member.user.currentMood]} className={styles.memberMood} alt="" />
+                                <img src={mood[member.user.mood?.value || "NORMAL"]} className={styles.memberMood} alt="" />
                                 <p style={{ textAlign: "center" }}>{joinDate(member.createdAt)}</p>
                                 {project.userRole === "OWNER" && member.role !== "OWNER"
                                     ? <div className={styles.memberRowOptions}>
@@ -572,7 +573,7 @@ function ArchiveSettings({ project }) {
 function Marketplace({ project }) {
     const [cards, setCards] = useState([]);
     const [searchValue, setSearchValue] = useState("");
-    const { openModal } = useModal();
+    const [selected, setSelected] = useState(null);
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -582,7 +583,7 @@ function Marketplace({ project }) {
             setCards(res.data);
         };
         fetchCards();
-    }, [openModal]);
+    }, []);
 
     const visibleCards = cards.filter(({ task }) =>
         !searchValue || task.title.toLowerCase().startsWith(searchValue.toLowerCase())
@@ -626,11 +627,12 @@ function Marketplace({ project }) {
                                 key={auction._id}
                                 task={task}
                                 auction={auction}
-                                onClick={() => openModal("OPEN_BID", { task })} />
+                                onClick={() => setSelected(task._id)} />
                         ))
                     }
                 </div>
             </div>
+            {selected && <AuctionDetails taskId={selected} onClose={() => setSelected(null)} />}
         </div>
     );
 }
@@ -685,7 +687,7 @@ function ProjectSettings() {
         switch (activeTab) {
             case "general": return <GeneralSettings project={project} setProject={setProject} />;
             case "team": return <MemberSettings project={project} refreshProject={refreshProject} />;
-            case "archive": return <ArchiveSettings project={project} />;
+            case "archives": return <ArchiveSettings project={project} />;
             case "markets": return <Marketplace project={project} />;
             default: return <GeneralSettings project={project} setProject={setProject} />;
         }
@@ -720,7 +722,7 @@ function ProjectSettings() {
                             <span className={styles.settingsSidebarLabel}>Settings</span>
                             <NavButton icon={settings_svg} label="General" tabKey="general" hidden={project.userRole === "MEMBER"} />
                             <NavButton icon={team_svg} label="Team" tabKey="team" />
-                            <NavButton icon={archive_svg} label="Archives" tabKey="archive" hidden={project.userRole === "MEMBER"} />
+                            <NavButton icon={archive_svg} label="Archives" tabKey="archives" hidden={project.userRole === "MEMBER"} />
                             <NavButton icon={auction_svg} label="Marketplace" tabKey="markets" />
                         </aside>
 

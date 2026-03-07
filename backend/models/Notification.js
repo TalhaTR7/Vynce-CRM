@@ -52,9 +52,10 @@ const notificationSchema = new mongoose.Schema(
             url: { type: String, required: function () { return this.action.type === "NAVIGATE" } },
         },
         payload: { type: mongoose.Schema.Types.Mixed, required: function () { return this.action.type === "DIALOGUE" } }
-    },
-    { timestamps: true }
-);
+    }, {
+    timestamps: true,
+    versionKey: false
+});
 
 notificationSchema.index({
     "users._id": 1,

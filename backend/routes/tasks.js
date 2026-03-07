@@ -56,7 +56,7 @@ router.post("/create", authMiddleware, async (req, res) => {
 
         const creator = await User.findById(req.user.id).select("firstname lastname");
 
-        const assignee = await User.findById(assigneeId).select("currentMood");
+        const assignee = await User.findById(assigneeId).select("mood");
         if (!assignee) return res.status(404).json({ msg: "Assignee not found" });
 
         membership = await Membership.findOne({
@@ -77,7 +77,7 @@ router.post("/create", authMiddleware, async (req, res) => {
             OKAY: 1.3,
             HAPPY: 1.7,
             ECSTATIC: 1
-        }[assignee.currentMood] || 1;
+        }[assignee.mood?.value || "NORMAL"] || 1;
         const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
 
         const task = await Task.create({
@@ -227,7 +227,7 @@ router.get("/task/:taskId", authMiddleware, async (req, res) => {
             .populate("boardId", "_id projectId name color")
             .populate("projectId", "_id projectImage name")
             .populate("creatorId", "_id profileImage firstname lastname")
-            .populate("assigneeId", "_id profileImage firstname lastname currentMood");
+            .populate("assigneeId", "_id profileImage firstname lastname mood");
         if (!task) return res.status(404).json({ msg: "Task does not exist" });
 
         const membership = await Membership.findOne({
@@ -804,11 +804,11 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
             .findById(req.user.id)
             .select("firstname lastname");
 
-	if (!commentor._id.equals(req.user.id)) {
+        if (!commentor._id.equals(req.user.id)) {
             await Notification.create({
-       	        users: [{ _id: commentor._id.equals(req.user.id) ? task.creatorId : task.assigneeId }],
+                users: [{ _id: commentor._id.equals(req.user.id) ? task.creatorId : task.assigneeId }],
                 type: "COMMENT",
-                    icon: {
+                icon: {
                     type: "PROJECT",
                     refId: task.projectId
                 },
@@ -818,7 +818,7 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
                     url: `/task/${task._id}`
                 },
             })
-	}
+        }
 
         res.status(200).json({
             comment,

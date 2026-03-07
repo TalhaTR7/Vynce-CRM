@@ -11,7 +11,10 @@ const chatSchema = new mongoose.Schema({
     },
     hiddenFor: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    versionKey: false
+});
 
 chatSchema.index({ "participants.0": 1, "participants.1": 1 }, { unique: true });
 

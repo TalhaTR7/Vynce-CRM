@@ -32,6 +32,14 @@ router.get("/user", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-passwordHash");
     if (!user) return res.status(404).json({ msg: "User couldn't found" });
+
+    // Expire mood to NORMAL after 3 hours
+    const threeHours = 3 * 60 * 60 * 1000;
+    if (user.mood && user.mood.value !== "NORMAL" && (Date.now() - new Date(user.mood.updatedAt).getTime() > threeHours)) {
+      user.mood.value = "NORMAL";
+      await user.save();
+    }
+
     user.profileImage = formatImage(user.profileImage);
     res.json(user);
   } catch (err) {
@@ -94,6 +102,27 @@ router.patch("/user", authMiddleware, imageUpload.single("image"), async (req, r
 });
 
 
+// update user mood
+router.patch("/user/mood", authMiddleware, async (req, res) => {
+  const { mood } = req.body;
+
+  if (!mood) return res.status(400).json({ msg: "Mood is required" });
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: { "mood.value": mood, "mood.updatedAt": Date.now() } },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    res.status(200).json({ msg: "Mood updated successfully", currentMood: user.mood.value });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+});
+
+
 // change password
 router.patch("/user/change-password", authMiddleware, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
@@ -115,14 +144,7 @@ router.patch("/user/change-password", authMiddleware, async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-    const userResponse = {
-      _id: user._id,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      email: user.email,
-    };
-
-    res.status(201).json({ msg: "Password changed sccessfully" });
+    res.status(200).json({ msg: "Password changed successfully", token });
   }
   catch (err) {
     res.status(500).json({ error: err.message });

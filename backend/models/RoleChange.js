@@ -8,6 +8,9 @@ const roleChangeSchema = new mongoose.Schema({
     newRole: { type: String, enum: ["OWNER", "ADMIN", "MEMBER"], required: true },
     action: { type: String, enum: ["PROMOTION", "DEMOTION"], required: true },
     status: { type: String, enum: ["COMPLETED", "CANCELLED"], default: "COMPLETED", required: true }
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    versionKey: false
+});
 
 export default mongoose.model("RoleChange", roleChangeSchema);

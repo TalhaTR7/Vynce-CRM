@@ -9,7 +9,7 @@ import auction_svg from "../assets/icons/auction.svg";
 import archive_svg from "../assets/icons/archive.svg";
 import settings_svg from "../assets/icons/settings.svg";
 import shop_svg from "../assets/icons/shop.svg";
-import styles from "../css/Sidebar.module.scss";
+import styles from "./css/Sidebar.module.scss";
 import axios from "axios";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -64,7 +64,7 @@ function ProjectPopout({ project, anchorRect, onClose }) {
                 <img src={team_svg} />
                 <span>Team</span>
             </button>
-            <button className={styles.projectPopoutButton} onClick={() => go(`/settings/project/${project._id}/market`)}>
+            <button className={styles.projectPopoutButton} onClick={() => go(`/settings/project/${project._id}/markets`)}>
                 <img src={auction_svg} />
                 <span>Market</span>
             </button>
@@ -88,26 +88,47 @@ function Sidebar() {
     const [user, setUser] = useState(null);
     const [projects, setProjects] = useState([]);
     const [chats, setChats] = useState([]);
-    const [openPopout, setOpenPopout] = useState(null); // { projectId, anchorRect }
+    const [openPopout, setOpenPopout] = useState(null);
     const { openModal } = useModal();
     const { notifications } = useOutletContext();
     const navigate = useNavigate();
 
-    const userEntry = notifications.map(mail => mail.users.find(u => u._id === localStorage.getItem("_id")));
+    const userEntry = notifications.map(mail => mail.users.find(u => u._id?.toString() === localStorage.getItem("_id")));
     const unreadCount = userEntry.filter(u => u?.read === false).length;
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const headers = { Authorization: `Bearer ${token}` };
 
-        const fetchUser = async () => { const res = await axios.get("/api/users/user", { headers }); setUser(res.data); };
-        const fetchChats = async () => { const res = await axios.get("/api/messages/user", { headers }); setChats(res.data); };
-        const fetchProjects = async () => { const res = await axios.get("/api/projects/user", { headers }); setProjects(res.data); };
+        const fetchUser = async () => {
+            try {
+                const res = await axios.get("/api/users/user", { headers });
+                setUser(res.data);
+            } catch {
+                setUser(false);
+            }
+        };
+
+        const fetchChats = async () => {
+            try {
+                const res = await axios.get("/api/messages/user", { headers });
+                setChats(Array.isArray(res.data) ? res.data : []);
+            } catch {
+                setChats([]);
+            }
+        };
+
+        const fetchProjects = async () => {
+            try {
+                const res = await axios.get("/api/projects/user", { headers });
+                setProjects(Array.isArray(res.data) ? res.data : []);
+            } catch { setProjects([]); }
+        };
 
         fetchUser();
         fetchChats();
         fetchProjects();
-    }, [openModal]);
+    }, []);
 
     const closePopout = useCallback(() => setOpenPopout(null), []);
 
@@ -153,7 +174,7 @@ function Sidebar() {
                     {chats.map((chat) => (
                         <Link to={`/chat/${chat._id}`} key={chat._id} className={styles.chatLink}>
                             <div className={styles.chatAvatar}>
-                                <img src={chat.otherUser.profileImage.url} />
+                                <img src={chat.otherUser?.profileImage?.url} />
                             </div>
                             <span className={styles.chatName}>
                                 {chat.otherUser.firstname} {chat.otherUser.lastname}
