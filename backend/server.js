@@ -13,6 +13,7 @@ import auctionRoutes from "./routes/markets.js";
 import messageRoutes from "./routes/messages.js";
 import mailRoutes from "./routes/inbox.js";
 import inviteRoutes from "./routes/invitations.js";
+import leaderboardRoutes from "./routes/leaderboards.js";
 import "./cron/taskDueNotifications.js";
 import "./cron/cleanupNotifications.js";
 
@@ -33,6 +34,7 @@ app.use("/api/auction", auctionRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/inbox", mailRoutes);
 app.use("/api/invitations", inviteRoutes);
+app.use("/api/leaderboards", leaderboardRoutes);
 app.use("/api/uploads", express.static("uploads"));
 
 mongoose.connect(process.env.MONGO_URI)

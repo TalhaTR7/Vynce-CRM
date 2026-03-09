@@ -27,7 +27,7 @@ import mood from "../context/MoodContext";
 import styles from "./css/ProjectSettings.module.scss";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useModal } from "../context/ModalContext";
 import { ArchivedCard, MarketCard } from "../components/Card";
 import axios from "axios";
@@ -574,6 +574,7 @@ function Marketplace({ project }) {
     const [cards, setCards] = useState([]);
     const [searchValue, setSearchValue] = useState("");
     const [selected, setSelected] = useState(null);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -582,6 +583,11 @@ function Marketplace({ project }) {
             });
             setCards(res.data);
         };
+        const openId = searchParams.get("open");
+        if (openId) {
+            setSelected(openId);
+            setSearchParams({});
+        }
         fetchCards();
     }, []);
 

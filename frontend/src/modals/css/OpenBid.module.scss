@@ -45,8 +45,8 @@
         background: transparent;
         cursor: pointer;
         opacity: 0.4;
-        filter: grayscale(100%);
         flex-shrink: 0;
+        filter: grayscale(100%);
         transition:
             opacity 0.14s ease,
             background 0.14s ease,
@@ -59,7 +59,7 @@
 
         &:hover {
             opacity: 1;
-            filter: none;
+            filter: grayscale(0%);
             background: rgba(255, 0, 0, 0.05);
             border-color: var(--red-soft);
         }

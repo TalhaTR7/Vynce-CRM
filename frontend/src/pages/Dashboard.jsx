@@ -4,8 +4,9 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import add_svg from "../assets/icons/add.svg";
 import coin_svg from "../assets/icons/coin.svg";
+import points_svg from "../assets/icons/points.svg";
 import comment_svg from "../assets/icons/comment.svg";
-import link_svg from "../assets/icons/link.svg";
+import open_svg from "../assets/icons/open.svg";
 import noProject_svg from "../assets/icons/noProject.svg";
 import boards_svg from "../assets/icons/boards.svg";
 import tasks_svg from "../assets/icons/tasks.svg";
@@ -28,6 +29,9 @@ function Dashboard() {
     const [boards, setBoards] = useState([]);
     const [activeBoardId, setActiveBoardId] = useState(null);
     const [tasks, setTasks] = useState([]);
+    const [leaderboard, setLeaderboard] = useState([]);
+    const [lbProjectId, setLbProjectId] = useState(null);
+    const [lbLoading, setLbLoading] = useState(false);
 
     const { notifications, refreshNotifications } = useOutletContext();
     const topNotifications = notifications.slice(0, 7);
@@ -100,8 +104,31 @@ function Dashboard() {
         if (projects.length && !activeProjectId) setActiveProjectId(projects[0]._id);
     }, [projects]);
     useEffect(() => {
+        if (projects.length && !lbProjectId) setLbProjectId(projects[0]._id);
+    }, [projects]);
+    useEffect(() => {
         if (boards.length && !activeBoardId) setActiveBoardId(boards[0]._id);
     }, [boards]);
+
+    /* ── Leaderboard when lbProjectId changes ────────────────── */
+    useEffect(() => {
+        if (!lbProjectId) return;
+        const fetchLeaderboard = async () => {
+            try {
+                setLbLoading(true);
+                const res = await axios.get(`/api/leaderboards/project/${lbProjectId}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                });
+                setLeaderboard(res.data);
+            } catch (err) {
+                console.error(err);
+                setLeaderboard([]);
+            } finally {
+                setLbLoading(false);
+            }
+        };
+        fetchLeaderboard();
+    }, [lbProjectId]);
 
     /* ── Guards ───────────────────────────────────────────────── */
     if (user === null) return <Loading />;
@@ -256,7 +283,7 @@ function Dashboard() {
                             {/* Open project link */}
                             {boards.length > 0 && tasks.length > 0 && (
                                 <Link to={`/project/${activeProjectId}`} className={styles.panelLink}>
-                                    <img src={link_svg} />
+                                    <img src={open_svg} />
                                     <p>Open project</p>
                                 </Link>
                             )}
@@ -282,7 +309,7 @@ function Dashboard() {
                     {/* ══ LEADERBOARDS ════════════════════════════ */}
                     <section className={styles.leaderboards}>
                         <h2 className={styles.panelHeading}>Weekly leaderboards</h2>
-                        {projects.length === 0 && (
+                        {projects.length === 0 ? (
                             <div className={styles.emptyState}>
                                 <img src={leaderboard_svg} className={styles.emptyStateIcon} />
                                 <p className={styles.emptyStateMessage}>
@@ -293,6 +320,56 @@ function Dashboard() {
                                     <p>Join or create a project to come alive</p>
                                 </div>
                             </div>
+                        ) : (
+                            <>
+                                {/* Project switcher */}
+                                <div className={styles.lbProjectPane}>
+                                    {projects.map(project => (
+                                        <div
+                                            key={project._id}
+                                            className={`${styles.lbProjectTab} ${lbProjectId === project._id ? styles.lbProjectTabActive : ""}`}
+                                            onClick={() => setLbProjectId(project._id)}
+                                        >
+                                            <div className={styles.lbProjectThumb}>
+                                                <img src={project.projectImage.url} />
+                                            </div>
+                                            <span>{project.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Rankings */}
+                                <div className={styles.lbList}>
+                                    {lbLoading ? (
+                                        <div className={styles.lbEmpty}>
+                                            <p>Loading…</p>
+                                        </div>
+                                    ) : leaderboard.length === 0 ? (
+                                        <div className={styles.lbEmpty}>
+                                            <p>No activity this week yet.</p>
+                                        </div>
+                                    ) : leaderboard.map((entry) => (
+                                        <div
+                                            key={entry.user._id}
+                                            className={`${styles.lbRow} ${entry.isMe ? styles.lbRowMe : ""}`}
+                                        >
+                                            <span className={`${styles.lbRank} ${entry.rank === 1 ? styles.lbRankFirst : ""}`}>
+                                                {entry.rank}
+                                            </span>
+                                            <div className={styles.lbAvatar}>
+                                                <img src={entry.user.profileImage.url} />
+                                            </div>
+                                            <span className={styles.lbName}>
+                                                {entry.user.firstname} {entry.user.lastname}
+                                            </span>
+                                            <div className={styles.lbScore}>
+                                                <img src={points_svg} />
+                                                <span>{entry.weeklyXP.toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
                         )}
                     </section>
 
@@ -336,7 +413,7 @@ function Dashboard() {
                                     })}
                                 </div>
                                 <Link to="/inbox" className={styles.panelLink}>
-                                    <img src={link_svg} />
+                                    <img src={open_svg} />
                                     <p>Open inbox</p>
                                 </Link>
                             </>
@@ -347,7 +424,7 @@ function Dashboard() {
                                     Nothing here yet. Seems your inbox chose peace.
                                 </p>
                                 <Link to="/inbox" className={styles.panelLink} style={{ position: "relative", bottom: "auto", left: "auto", marginTop: "4px" }}>
-                                    <img src={link_svg} />
+                                    <img src={open_svg} />
                                     <p>Open inbox</p>
                                 </Link>
                             </div>

@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800');
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap');
+
 /* ─── Import fonts ──────────────────────────────────────────────── */
 @font-face {
   font-family: 'Syne';
@@ -18,8 +24,9 @@
 /* ─── CSS Variables ─────────────────────────────────────────────── */
 :root {
   --font-main: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --font-mono: 'DM Mono', monospace;
+  --font-body: 'Bricolage Grotesque', sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+  --font-wide: 'Unbounded', sans-serif;
 
   --body: #0f0f0f;
 

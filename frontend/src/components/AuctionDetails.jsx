@@ -59,6 +59,7 @@ export default function AuctionDetails({ taskId, onClose }) {
     const [fetching, setFetching] = useState(true);
     const [loading, setLoading] = useState(false);
     const [closing, setClosing] = useState(false);
+    const [selectedBidderId, setSelectedBidderId] = useState(null);
     const scrimRef = useRef(null);
 
     /* ── Fetch on mount ── */
@@ -70,6 +71,8 @@ export default function AuctionDetails({ taskId, onClose }) {
                 setData(res.data);
                 setBids(res.data.bids ?? []);
                 setBidAmount(res.data.baseReward ?? 1);
+                // Pre-select current winner as default choice for assignee
+                if (res.data.winner) setSelectedBidderId(String(res.data.winner._id));
             } catch (err) {
                 toast.error(err.response?.data?.msg || "Failed to load auction");
                 animatedClose();
@@ -126,6 +129,20 @@ export default function AuctionDetails({ taskId, onClose }) {
         }
     };
 
+    const closeAuction = async () => {
+        if (!selectedBidderId) return;
+        try {
+            setLoading(true);
+            await axios.patch(`/api/auction/task/${taskId}/close`, { winnerId: selectedBidderId }, { headers: AUTH() });
+            toast.success("Auction closed — task assigned");
+            animatedClose();
+        } catch (err) {
+            toast.error(err.response?.data?.msg || "Failed to close auction");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     /* Derived — only valid once data is loaded */
     const isOpen = data?.status === "OPEN";
     const isAssignee = data ? getTokenUserId() === String(data.task?.assignee?._id) : false;
@@ -159,7 +176,7 @@ export default function AuctionDetails({ taskId, onClose }) {
                             )}
                             <span className={styles.heroLabel}>Auction</span>
                         </div>
-                        <button className={styles.closeBtn} onClick={animatedClose} aria-label="Close">
+                        <button className={styles.closeButton} onClick={animatedClose} aria-label="Close">
                             <img src={close_svg} alt="" />
                         </button>
                     </div>
@@ -305,6 +322,9 @@ export default function AuctionDetails({ taskId, onClose }) {
                             <div className={styles.bidsSection}>
                                 <span className={styles.bidsLabel}>
                                     Bids{bids.length > 0 ? ` · ${bids.length}` : ""}
+                                    {isAssignee && bids.length > 0 && (
+                                        <span className={styles.bidsLabelHint}> — tap a row to select winner</span>
+                                    )}
                                 </span>
 
                                 {bids.length > 0 ? (
@@ -315,25 +335,45 @@ export default function AuctionDetails({ taskId, onClose }) {
                                             <span>Date</span>
                                             <span>Time</span>
                                         </div>
-                                        {sorted.map((bid, i) => (
-                                            <div key={bid._id} className={styles.bidEntry}>
-                                                <div className={styles.bidUser}>
-                                                    <span className={`${styles.bidIndex} ${i === 0 ? styles.bidIndexFirst : ""}`}>
-                                                        {i + 1}
-                                                    </span>
-                                                    <div className={styles.bidAvatar}>
-                                                        <img src={bid.bidder?.profileImage?.url} alt="" />
+                                        {sorted.map((bid, i) => {
+                                            const bidderId = String(bid.bidder?._id);
+                                            const isSelected = isAssignee && selectedBidderId === bidderId;
+                                            return (
+                                                <div
+                                                    key={bid._id}
+                                                    className={`${styles.bidEntry} ${isSelected ? styles.bidEntrySelected : ""}`}
+                                                    onClick={isAssignee ? () => setSelectedBidderId(bidderId) : undefined}
+                                                    style={isAssignee ? { cursor: "pointer" } : undefined}
+                                                >
+                                                    <div className={styles.bidUser}>
+                                                        <span className={`${styles.bidIndex} ${i === 0 ? styles.bidIndexFirst : ""}`}>
+                                                            {i + 1}
+                                                        </span>
+                                                        <div className={styles.bidAvatar}>
+                                                            <img src={bid.bidder?.profileImage?.url} alt="" />
+                                                        </div>
+                                                        <span>{bid.bidder?.firstname} {bid.bidder?.lastname}</span>
                                                     </div>
-                                                    <span>{bid.bidder?.firstname} {bid.bidder?.lastname}</span>
+                                                    <div className={styles.bidAmount}>
+                                                        <img src={coin_svg} alt="" />
+                                                        <span>{bid.amount}</span>
+                                                    </div>
+                                                    <span className={styles.bidDate}>{formatDate(bid.createdAt)}</span>
+                                                    <span className={styles.bidTime}>{formatTime(bid.createdAt)}</span>
                                                 </div>
-                                                <div className={styles.bidAmount}>
-                                                    <img src={coin_svg} alt="" />
-                                                    <span>{bid.amount}</span>
-                                                </div>
-                                                <span className={styles.bidDate}>{formatDate(bid.createdAt)}</span>
-                                                <span className={styles.bidTime}>{formatTime(bid.createdAt)}</span>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
+
+                                        {/* Close auction button — assignee only, appears when a row is selected */}
+                                        {isAssignee && selectedBidderId && (
+                                            <button
+                                                className={styles.closeAuctionBtn}
+                                                onClick={closeAuction}
+                                                disabled={loading}
+                                            >
+                                                {loading ? "Closing…" : "Assign & close auction"}
+                                            </button>
+                                        )}
                                     </>
                                 ) : (
                                     <div className={styles.bidsEmpty}>

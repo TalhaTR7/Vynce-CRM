@@ -73,6 +73,7 @@
                 justify-content: center;
                 gap: 10px;
                 margin: auto;
+                background-color: rgb(61, 56, 49);
                 padding: 24px;
                 user-select: none;
 
@@ -576,6 +577,197 @@
             .leaderboards {
                 display: flex;
                 flex-direction: column;
+
+                /* ─── Project switcher ───────────────────────────────────────────── */
+                .lbProjectPane {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 4px;
+                    padding: 8px 16px;
+                    border-bottom: 1px solid var(--border);
+                    overflow-x: auto;
+                    flex-shrink: 0;
+
+                    &::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    .lbProjectTab {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 4px 9px;
+                        border-radius: 7px;
+                        border: 1px solid transparent;
+                        cursor: pointer;
+                        opacity: 0.45;
+                        flex-shrink: 0;
+                        white-space: nowrap;
+                        transition: opacity 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+
+                        &:hover {
+                            opacity: 0.8;
+                        }
+
+                        &.lbProjectTabActive {
+                            opacity: 1;
+                            background: rgba(255, 255, 255, 0.05);
+                            border-color: var(--border);
+                        }
+
+                        .lbProjectThumb {
+                            width: 16px;
+                            height: 16px;
+                            border-radius: 4px;
+                            overflow: hidden;
+                            flex-shrink: 0;
+
+                            img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: block;
+                            }
+                        }
+
+                        span {
+                            font-size: 12px;
+                            font-family: var(--font-body);
+                            color: var(--text-secondary);
+                        }
+                    }
+                }
+
+                /* ─── Rankings list ──────────────────────────────────────────────── */
+                .lbList {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 6px 0;
+
+                    &::-webkit-scrollbar {
+                        display: none;
+                    }
+                }
+
+                .lbEmpty {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    p {
+                        font-size: 13px;
+                        font-family: var(--font-body);
+                        color: var(--text-muted);
+                        margin: 0;
+                        opacity: 0.5;
+                    }
+                }
+
+                .lbRow {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 9px 20px;
+                    border-radius: 0;
+                    transition: background 0.1s ease;
+                    position: relative;
+
+                    &:hover {
+                        background: var(--hover);
+                    }
+
+                    &.lbRowMe {
+                        background: rgba(0, 232, 122, 0.04);
+
+                        &::before {
+                            content: "";
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            bottom: 0;
+                            width: 2px;
+                            background: var(--green);
+                            border-radius: 0 2px 2px 0;
+                        }
+
+                        .lbName {
+                            color: var(--text-primary);
+                        }
+
+                        &:hover {
+                            background: var(--green-dim);
+                        }
+                    }
+
+                    .lbRank {
+                        width: 20px;
+                        font-size: 18px;
+                        font-family: var(--font-main);
+                        color: var(--text-muted);
+                        font-weight: 700;
+                        text-align: right;
+                        font-style: italic;
+                        flex-shrink: 0;
+
+                        &.lbRankFirst {
+                            color: var(--green);
+                        }
+                    }
+
+                    .lbAvatar {
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 50%;
+                        overflow: hidden;
+                        flex-shrink: 0;
+                        border: 1px solid var(--border);
+
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            display: block;
+                        }
+                    }
+
+                    .lbName {
+                        flex: 1;
+                        font-size: 14px;
+                        font-family: var(--font-body);
+                        color: var(--text-secondary);
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    .lbScore {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: flex-start;
+                        gap: 5px;
+                        flex-shrink: 0;
+                        width: 100px;
+
+                        img {
+                            width: 18px;
+                        }
+
+                        span {
+                            font-size: 15px;
+                            font-family: var(--font-wide);
+                            color: var(--text-primary);
+                            font-weight: 500;
+                            letter-spacing: -0.01em;
+                        }
+                    }
+                }
             }
         }
     }

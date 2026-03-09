@@ -606,7 +606,7 @@
     }
 
     .auctionButton,
-    .auctionButtonDisabled {
+    .onAuctionButton {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -637,14 +637,17 @@
         }
     }
 
-    .auctionButtonDisabled {
+    .onAuctionButton {
         background-color: var(--green-dim);
         border-color: var(--green-glow);
-        pointer-events: none;
         opacity: 0.8;
 
         span {
             color: var(--green);
+        }
+
+        &:hover {
+            border-color: var(--green-glow);
         }
     }
 }

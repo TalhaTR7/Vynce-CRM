@@ -240,7 +240,7 @@
                     content: "";
                     position: absolute;
                     inset: 0;
-                    background: #0000008c url("../assets/icons/edit.svg") no-repeat center / 38%;
+                    background: #0000008c url("../../assets/icons/edit.svg") no-repeat center / 38%;
                     opacity: 0;
                     transition: opacity 0.2s ease;
                 }
@@ -249,7 +249,7 @@
                     border-color: var(--green);
 
                     img {
-                        filter: brightness(0.65);
+                        filter: brightness(0.6);
                     }
 
                     &::after {

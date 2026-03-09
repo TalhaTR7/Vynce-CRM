@@ -7,7 +7,7 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(1px);
     z-index: 300;
     animation: scrimIn 0.2s ease both;
 
@@ -110,8 +110,9 @@
         }
 
         .heroProjectName {
-            font-size: 11px;
+            font-size: 12px;
             font-family: var(--font-body);
+            letter-spacing: 0.07em;
             color: var(--text-secondary);
             white-space: nowrap;
             overflow: hidden;
@@ -136,29 +137,34 @@
         }
     }
 
-    .closeBtn {
-        width: 26px;
-        height: 26px;
+    .closeButton {
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 7px;
+        border-radius: 8px;
         border: 1px solid transparent;
         background: transparent;
         cursor: pointer;
-        opacity: 0.3;
+        opacity: 0.4;
         flex-shrink: 0;
-        transition: opacity 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+        filter: grayscale(100%);
+        transition:
+            opacity 0.14s ease,
+            background 0.14s ease,
+            border-color 0.14s ease;
 
         img {
-            width: 12px;
+            width: 18px;
             pointer-events: none;
         }
 
         &:hover {
             opacity: 1;
-            background: var(--hover);
-            border-color: var(--border);
+            filter: grayscale(0%);
+            background: rgba(255, 0, 0, 0.05);
+            border-color: var(--red-soft);
         }
     }
 }
@@ -612,6 +618,47 @@
         text-transform: uppercase;
         color: var(--text-muted);
         margin-bottom: 2px;
+
+        .bidsLabelHint {
+            font-size: 9px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            opacity: 0.5;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+    }
+}
+
+.closeAuctionBtn {
+    width: 100%;
+    height: 34px;
+    margin-top: 6px;
+    border: none;
+    border-radius: 9px;
+    background: var(--green);
+    font-size: 13px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: #0a0a0a;
+    cursor: pointer;
+    user-select: none;
+    transition: filter 0.12s ease, transform 0.1s ease;
+
+    &:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        filter: none;
+        transform: none;
     }
 }
 
@@ -645,6 +692,15 @@
 
     &:hover {
         background: var(--hover);
+    }
+
+    &.bidEntrySelected {
+        background: rgba(0, 232, 122, 0.05);
+        outline: 1px solid rgba(0, 232, 122, 0.2);
+
+        .bidIndex {
+            color: var(--green);
+        }
     }
 
     .bidUser {

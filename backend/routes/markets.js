@@ -1,4 +1,4 @@
-import express, { response } from "express";
+import express from "express";
 import authMiddleware from "../middleware/auth.js";
 import Task from "../models/Task.js";
 import Auction from "../models/Auction.js";
@@ -241,9 +241,45 @@ router.patch("/task/:taskId/", authMiddleware, async (req, res) => {
         }, auction.bids[0]);
 
         auction.winnerId = lowestBid.userId;
-        
+
         await auction.save();
         res.status(200).json({ msg: "Bid submitted successfully" });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+
+// manually choose a winner
+router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const { winnerId } = req.body;
+
+    if (!winnerId) return res.status(400).json({ msg: "winnerId is required" });
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return res.status(404).json({ msg: "Task not found" });
+
+        if (!task.assigneeId.equals(req.user.id))
+            return res.status(403).json({ msg: "Only the assignee can close the auction" });
+
+        const auction = await Auction.findOne({ taskId });
+        if (!auction) return res.status(404).json({ msg: "Auction not found" });
+        if (auction.status !== "OPEN") return res.status(400).json({ msg: "Auction is not active" });
+
+        const winningBid = auction.bids.find(b => b.userId.equals(winnerId));
+        if (!winningBid) return res.status(400).json({ msg: "Selected winner has not placed a bid" });
+
+        auction.status = "CLOSED";
+        auction.winnerId = winningBid.userId;
+        await auction.save();
+
+        task.assigneeId = winningBid.userId;
+        task.onAuction = false;
+        await task.save();
+
+        res.status(200).json({ msg: "Auction closed, task assigned successfully" });
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }

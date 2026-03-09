@@ -7,17 +7,28 @@ const update = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
 
-    const result = await mongoose.connection.db
-      .collection("users")
-      .updateMany(
-        { systemRole: { $exists: true } },
-        { $unset: { systemRole: "" } }
-      );
+    const members = await mongoose.connection.db
+      .collection("members")
+      .find({ weeklyXP: { $exists: false } })
+      .toArray();
 
-    console.log(
-      `✅ Operation complete: ${result.modifiedCount} documents updated`
-    );
+    for (const member of members) {
+      const newDoc = {
+        _id: member._id,
+        projectId: member.projectId,
+        userId: member.userId,
+        role: member.role,
+        weeklyXP: 0,
+        createdAt: member.createdAt,
+        updatedAt: member.updatedAt,
+      };
 
+      await mongoose.connection.db
+        .collection("members")
+        .replaceOne({ _id: member._id }, newDoc);
+    }
+
+    console.log(`✅ Weekly XP added to ${members.length} documents`);
     await mongoose.disconnect();
     process.exit(0);
   } catch (err) {

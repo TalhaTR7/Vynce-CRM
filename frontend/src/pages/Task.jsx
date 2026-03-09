@@ -503,7 +503,7 @@ function Task() {
                                     <img src={auction_svg} />
                                     <span>Place on auction</span>
                                 </button> :
-                                <button className={styles.auctionButtonDisabled} disabled>
+                                <button className={styles.onAuctionButton} onClick={() => navigate(`/settings/project/${task.project._id}/markets?open=${task._id}`)}>
                                     <span>On auction</span>
                                 </button>
                         )}

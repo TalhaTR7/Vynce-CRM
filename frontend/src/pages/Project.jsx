@@ -9,6 +9,7 @@ import admin_svg from "../assets/icons/admin.svg";
 import more_svg from "../assets/icons/more.svg";
 import person_svg from "../assets/icons/person.svg";
 import team_svg from "../assets/icons/team.svg";
+import auction_svg from "../assets/icons/auction.svg";
 import archive_svg from "../assets/icons/archive.svg";
 import settings_svg from "../assets/icons/settings.svg";
 import boards_svg from "../assets/icons/boards.svg";
@@ -213,6 +214,10 @@ function Project() {
                                 <Link to={`/settings/project/${project._id}/team`} className={styles.dropdownOption} onClick={() => setOpenDropdown(false)}>
                                     <img src={team_svg} className={styles.dropdownOptionIcon} />
                                     <span className={styles.dropdownOptionLabel}>People</span>
+                                </Link>
+                                <Link to={`/settings/project/${project._id}/markets`} className={styles.dropdownOption} onClick={() => setOpenDropdown(false)}>
+                                    <img src={auction_svg} className={styles.dropdownOptionIcon} />
+                                    <span className={styles.dropdownOptionLabel}>Markets</span>
                                 </Link>
 
                                 {isElevated && <>
