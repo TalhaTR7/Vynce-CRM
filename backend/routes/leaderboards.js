@@ -26,7 +26,7 @@ router.get("/project/:projectId", authMiddleware, async (req, res) => {
 
         const top5 = await Membership.find({ projectId })
             .sort({ weeklyXP: -1 })
-            .limit(5)
+            .limit(7)
             .populate({ path: "userId", select: "firstname lastname profileImage motivationScore" })
             .lean();
 
