@@ -102,13 +102,18 @@ router.patch("/task/close", authMiddleware, async (req, res) => {
 
         // reward assignee
         if (!task.isRewarded) {
-            const assignee = await User
-                .findById(task.assigneeId)
-                .session(session);
-
+            const assignee = await User.findById(task.assigneeId).session(session);
             if (!assignee) {
                 await session.abortTransaction();
-                return res.status(404).json({ msg: "Assignee couldn't found" });
+                return res.status(404).json({ msg: "Assignee couldn't be found" });
+            }
+
+            // Overdue penalty — deduct 10% per day overdue, floor at 20% of original
+            let finalReward = task.ethereum.calculated;
+            if (task.dueDate && new Date() > new Date(task.dueDate)) {
+                const daysLate = Math.ceil((new Date() - new Date(task.dueDate)) / (1000 * 60 * 60 * 24));
+                const penalty = Math.min(0.8, daysLate * 0.10); // max 80% deduction
+                finalReward = Math.max(1, Math.floor(task.ethereum.calculated * (1 - penalty)));
             }
 
             const THRESHOLD = 3000;
@@ -118,15 +123,16 @@ router.patch("/task/close", authMiddleware, async (req, res) => {
 
             await User.findByIdAndUpdate(assignee._id, {
                 $inc: {
-                    ethereum: task.ethereum.calculated,
+                    ethereum: finalReward,   // was task.ethereum.calculated
                     motivationLevel: MP_LEVEL
                 },
-                $set: {
-                    motivationScore: MP_REM
-                }
+                $set: { motivationScore: MP_REM }
             }, { session });
+
             task.isRewarded = true;
         }
+
+        const isOverdue = task.dueDate && new Date() > new Date(task.dueDate);
 
         // make notification
         if (!task.assigneeId.equals(task.creatorId)) {
@@ -137,7 +143,7 @@ router.patch("/task/close", authMiddleware, async (req, res) => {
                     type: "PROJECT",
                     refId: task.projectId
                 },
-                title: `Task was closed and you were rewarded [${task.title}]`,
+                title: `Task was closed and you were rewarded ${isOverdue ? "(overdue penalty applied)" : ""}`,
                 action: {
                     type: "MESSAGE"
                 }

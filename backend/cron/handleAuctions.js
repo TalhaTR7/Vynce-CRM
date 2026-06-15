@@ -3,7 +3,6 @@ import Auction from "../models/Auction.js";
 import Task from "../models/Task.js";
 import Notification from "../models/Notification.js";
 
-
 // every 15 minutes
 cron.schedule("*/15 * * * *", async () => {
     try {
@@ -16,12 +15,15 @@ cron.schedule("*/15 * * * *", async () => {
 
         for (const auction of expiredAuctions) {
             const task = await Task.findById(auction.taskId);
-            if (!task) continue;
+            if (!task) {
+                await Auction.deleteOne({ _id: auction._id });
+                continue;
+            }
 
             if (auction.bids.length === 0) {
-                // no bids — expire it, task stays with original assignee
-                auction.status = "EXPIRED";
                 task.onAuction = false;
+                await task.save();
+                await Auction.deleteOne({ _id: auction._id });
 
                 await Notification.create({
                     users: [{ _id: task.assigneeId }],
@@ -30,21 +32,20 @@ cron.schedule("*/15 * * * *", async () => {
                     title: `Your auction for "${task.title}" ended with no bids — task remains yours`,
                     action: { type: "NAVIGATE", url: `/task/${task._id}` },
                 });
-            }
-            else {
-                // auto-assign top bidder (lowest amount, earliest if tied)
+
+            } else {
                 const topBid = auction.bids.reduce((winner, bid) => {
                     if (bid.amount < winner.amount) return bid;
                     if (bid.amount === winner.amount && new Date(bid.createdAt) < new Date(winner.createdAt)) return bid;
                     return winner;
                 }, auction.bids[0]);
 
-                auction.status = "CLOSED";
-                auction.winnerId = topBid.userId;
+                const previousAssigneeId = task.assigneeId;
                 task.assigneeId = topBid.userId;
                 task.onAuction = false;
+                await task.save();
+                await Auction.deleteOne({ _id: auction._id });
 
-                // Notify winner
                 await Notification.create({
                     users: [{ _id: topBid.userId }],
                     type: "TASK_ASSIGNED",
@@ -53,18 +54,14 @@ cron.schedule("*/15 * * * *", async () => {
                     action: { type: "NAVIGATE", url: `/task/${task._id}` },
                 });
 
-                // Notify assignee their task was auto-reassigned
                 await Notification.create({
-                    users: [{ _id: task.assigneeId }],
+                    users: [{ _id: previousAssigneeId }],
                     type: "TASK_REASSIGNED",
                     icon: { type: "PROJECT", refId: task.projectId },
                     title: `Your auction for "${task.title}" ended — top bidder was automatically assigned`,
                     action: { type: "NAVIGATE", url: `/settings/project/${task.projectId}/markets` },
                 });
             }
-
-            await auction.save();
-            await task.save();
         }
     } catch (err) {
         console.error("[CRON] handleAuctions:", err);

@@ -307,9 +307,7 @@ router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
         const winningBid = auction.bids.find(b => b.userId.equals(winnerId));
         if (!winningBid) return res.status(400).json({ msg: "Selected winner has not placed a bid" });
 
-        auction.status = "CLOSED";
-        auction.winnerId = winningBid.userId;
-        await auction.save();
+        await Auction.deleteOne({ _id: auction._id });
 
         task.assigneeId = winningBid.userId;
         task.onAuction = false;

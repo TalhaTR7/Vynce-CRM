@@ -383,10 +383,12 @@ export default function AuctionDetails({ taskId, onClose }) {
                                             <span>Amount</span>
                                             <span>Date</span>
                                             <span>Time</span>
+                                            {/* <span>Reputation</span> */}
                                         </div>
                                         {sorted.map((bid, i) => {
                                             const bidderId = String(bid.bidder?._id);
                                             const isSelected = isAssignee && selectedBidderId === bidderId;
+                                            console.log(bid.bidder);
                                             return (
                                                 <div
                                                     key={bid._id}
@@ -409,6 +411,7 @@ export default function AuctionDetails({ taskId, onClose }) {
                                                     </div>
                                                     <span className={styles.bidDate}>{formatDate(bid.createdAt)}</span>
                                                     <span className={styles.bidTime}>{formatTime(bid.createdAt)}</span>
+                                                    {/* <span className={styles.bidTime}>{bid.bidder.weej}</span> */}
                                                 </div>
                                             );
                                         })}
