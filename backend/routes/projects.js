@@ -157,10 +157,10 @@ router.patch("/project/:id/", authMiddleware, imageUpload.single("image"), async
         const editor = await Membership.findOne({
             projectId: id,
             userId: req.user.id,
-            role: "OWNER"
+            role: { $in: ["ADMIN", "OWNER"] }
         }).populate("userId", "firstname lastname");
 
-        if (!editor) return res.status(403).json({ msg: "Unauthorized" });
+        if (!editor) return res.status(403).json({ msg: "Not an ADMIN or OWNER" });
 
         const project = await Project.findByIdAndUpdate(
             id,

@@ -169,7 +169,7 @@ router.delete("/remove", authMiddleware, async (req, res) => {
             .findOne({
                 projectId,
                 userId: ownerId,
-                role: "OWNER"
+                role: { $in: ["ADMIN", "OWNER"] }
             })
             .populate("userId", "firstname lastname")
             .session(session);
@@ -539,7 +539,7 @@ router.patch("/change-role/promote", authMiddleware, async (req, res) => {
             userId: req.user.id
         }).populate("userId", "firstname lastname profileImage");
         if (!ownership) return res.status(403).json({ msg: "Unauthorized: outsider" });
-        if (ownership.role !== "OWNER") return res.status(403).json({ msg: "Unauthorized: not the OWNER" });
+        if (ownership.role !== "OWNER") return res.status(403).json({ msg: "Not the OWNER" });
 
         const project = membership.projectId;
         const owner = ownership.userId;

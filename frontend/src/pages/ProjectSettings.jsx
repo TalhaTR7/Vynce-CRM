@@ -115,7 +115,10 @@ function GeneralSettings({ project, setProject }) {
             }));
             setFile(null);
             toast.success("Changes saved!");
-        } catch (err) { console.error(err); }
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.msg || "Something went wrong");
+        }
     };
 
     const projectObj = {
@@ -363,7 +366,7 @@ function MemberSettings({ project, refreshProject }) {
                     <img src={search_svg} alt="" />
                     <input type="text" placeholder="Search member…" onChange={(e) => setSearchValue(e.target.value)} />
                 </div>
-                {project.userRole === "OWNER" && (<>
+                {project.userRole !== "MEMBER" && (<>
                     <button className={styles.sharedIconButton} onClick={toggleSelectAll} title="Select all">
                         <img src={selectAll_svg} alt="" />
                     </button>
@@ -397,10 +400,7 @@ function MemberSettings({ project, refreshProject }) {
                 </div>
                 <div className={styles.memberTableBody}>
                     {filteredMembers.map(member => {
-                        const rolePillClass = `${styles.memberRolePill} ${member.role === "OWNER" ? styles.memberRolePillOwner :
-                            member.role === "ADMIN" ? styles.memberRolePillAdmin :
-                                styles.memberRolePillMember
-                            }`;
+                        const rolePillClass = `${styles.memberRolePill} ${member.role === "OWNER" ? styles.memberRolePillOwner : member.role === "ADMIN" ? styles.memberRolePillAdmin : styles.memberRolePillMember}`;
                         return (
                             <div className={styles.memberRow} key={member._id}>
                                 {/* Checkbox slot — always occupies the column */}
@@ -411,7 +411,15 @@ function MemberSettings({ project, refreshProject }) {
                                         checked={selected.includes(member._id)}
                                         onChange={() => toggleSelect(member._id)}
                                     />
-                                    : <div className={styles.memberCheckboxSpacer} />
+                                    :
+                                    project.userRole === "ADMIN" && (member.role !== "OWNER" && member.role !== "ADMIN")
+                                        ? <input
+                                            type="checkbox"
+                                            className={styles.memberCheckbox}
+                                            checked={selected.includes(member._id)}
+                                            onChange={() => toggleSelect(member._id)}
+                                        />
+                                        : <div className={styles.memberCheckboxSpacer} />
                                 }
                                 <div className={styles.memberIdentity}>
                                     <div className={styles.memberAvatar}>
