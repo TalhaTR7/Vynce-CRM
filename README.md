@@ -1,90 +1,67 @@
-# Vynce CRM - Project Overview & Status
+# Vynce-CRM Progress Report
 
-11 March, 2026 — This document provides a comprehensive summary of the current state of the Vynce CRM, the services it provides, its architecture, and the roadmap for future development.
+11th March, 2026 — Vynce-CRM is a specialized project and task management ecosystem designed to blend productivity with gamification. It tracks progress and user engagement through mood-based rewards, motivation scoring, and a competitive marketplace for tasks.
 
-## Project Goal
-Vynce CRM is a gamified task and project management system designed to track productivity, monitor user mood/motivation, and manage collaborative efforts through a bounty-based system.
+---
 
-## Current Software Capabilities
+## 🛠️ Service Architecture & Features
 
-### 1. User Management & Authentication
-- **Secure Auth**: Signup and Login using JWT and Bcrypt hashing.
-- **Profiles**: Customizable user profiles with images and mood tracking.
-- **Mood System**: Users can set their status (ECSTATIC, HAPPY, NORMAL, SAD, etc.), which influences their motivation scores.
-- **Experience points (Ethereum)**: System to reward users with "points" for task completion.
+### 1. **Project & Workspace Management**
+*   **Dynamic Creation**: Users can create projects with custom branding (Project Images).
+*   **Role-Based Access Control**: Standardized roles (`OWNER`, `ADMIN`, `MEMBER`) governing permissions.
+*   **Board System**: Each project can host multiple Kanban boards to categorize workflows.
+*   **Project Settings**: Complete management of project metadata, board configurations, and member lists.
 
-### 2. Project & Task Management
-- **Hierarchical Structure**: Projects containing multiple Boards (Kanban style).
-- **Task Lifecycle**: Creation, Assignment, Description, Due Dates, and Difficulty levels.
-- **Interactive Boards**: Support for moving tasks between boards (ToDo, In Progress, Review, Done).
-- **Bounty System**: Individual tasks can be assigned "Ethereum" rewards (points).
+### 2. **Advanced Task Management**
+*   **Full CRUD**: Create, read, update, and delete tasks with ease.
+*   **Detailed Tracking**: Tasks support titles, descriptions, difficulty levels, and due dates.
+*   **Dynamic Rewards (Ethereum)**: 
+    *   Tasks carry "Ethereum" rewards.
+    *   **Mood-Based Multipliers**: Rewards are automatically scaled based on the assignee's current mood (ANGRY, CRYING, SAD, NORMAL, OKAY, HAPPY, ECSTATIC), rewarding users for persistence during difficult states.
+*   **Precision Timer**: Integrated stopwatch to track exact `worktime` spent on tasks.
+*   **Motivation Scoring**: Automatically calculates and rewards user "Motivation" based on active work segments.
 
-### 3. Productivity Tools
-- **Live Timer**: Track time spent on specific tasks directly from the UI.
-- **Worktime Management**: Aggregation of time spent across all tasks for productivity analytics.
+### 3. **The Marketplace (Task Auctions)**
+*   **Open Bidding**: Users can put their tasks on the marketplace for others to bid on.
+*   **Earliest Bidder Strategy**: Automatic winner selection based on the lowest bid and earliest submission.
+*   **Manual Control**: Task owners can manually close auctions and select a winner from the bidders.
+*   **Fluid Reassignment**: Automated transfer of task ownership upon auction closure.
 
-### 4. Communication & Collaboration
-- **Direct Messaging**: Chat system for team communication.
-- **Inbox/Mail**: Internal notification and mail system.
-- **Invitations**: System to invite users to projects and manage memberships.
+### 4. **Social & Collaboration**
+*   **Real-time Chat**: Integrated messaging system for direct communication between users.
+*   **Real-time Activity Logs**: Every change (title, status, bounty, etc.) is recorded in a task-specific activity feed.
+*   **Communication**: Integrated comment system within each task for direct collaboration.
+*   **Invitation System**: Standardized invitation flow with pending, accepted, and declined states.
+*   **Notifications (Inbox)**: Personalized inbox notifying users of assignments, invitations, project changes, and more.
 
-### 5. Analytics & Gamification
-- **Leaderboards**: Ranking users based on motivation and productivity.
-- **Experience/Motivation Tracking**: Dynamic scores based on activity and mood.
+### 5. **Gamification & Analytics**
+*   **Weekly Leaderboards**: Competitive rankings based on `WeeklyXP`.
+*   **Automated Resets**: Scheduled worker (`node-cron`) that resets competitive stats every Sunday.
+*   **Motivation Profiles**: User profiles track overall motivation scores and mood history.
 
-## Tools & Tech Stack
+---
 
-### Backend
-- **Express.js**: Web framework for API development.
-- **MongoDB & Mongoose**: NoSQL database and object modeling.
-- **JWT**: Secure authentication.
-- **Multer**: Handling file uploads (profile pictures, etc.).
-- **Node-cron**: Automated tasks (notifications, cleanup).
+## 🏗️ Technology Stack
 
-### Frontend
-- **React 19**: Modern UI framework.
-- **Vite**: Fast build tool and dev server.
-- **SASS**: Advanced styling and theming.
-- **Axios**: API communication.
-- **Dnd-kit**: Drag-and-drop functionality for Kanban boards.
-- **React Router 7**: Client-side routing.
+| Component | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Backend** | Node.js & Express | Core API & Routing |
+| **Database** | MongoDB & Mongoose | Data modeling and persistence |
+| **Authentication** | JWT & Bcrypt | Secure login and request authorization |
+| **File Handling** | Multer | Image uploads for projects and users |
+| **Frontend** | React (v19) & Vite | Fast, reactive user interface |
+| **Styling** | Sass (SCSS) | Modular and structured CSS |
+| **State** | React Context API | Global state for Modals and Moods |
+| **Interaction** | @dnd-kit | High-performance drag and drop |
+| **Automation** | Node-cron | Scheduled database maintenance |
 
-## Services & Architecture
+---
 
-- **RESTful API**: The backend provides a series of endpoints grouped by resource (users, projects, tasks, messages).
-- **State Management**: React context/hooks are used for managing authentication and UI state.
-- **Cron Services**: Background processes handle:
-  - Task due date notifications.
-  - Notification cleanup.
-- **Real-time potential**: While using REST, the foundation for chat is in place for real-time interaction.
-
-## Completed Milestones
-- [x] **Core Backend Architecture**: Express server with robust routing and MongoDB integration.
-- [x] **Authentication System**: Fully functional signup, login, and protected routes.
-- [x] **Task Management Core**: Full CRUD for tasks, boards, and projects.
-- [x] **Timer & Worktime Logic**: Functional task timers that persist to the database.
-- [x] **Mood & Motivation Tracking**: Integration of user state into the profile and leaderboard systems.
-- [x] **UI Framework**: Responsive layout with Sidebar, Header, and modular page structure.
-
-## Roadmap & Remaining Work
-
-### Near Term
-- [ ] **Implementation of the Shop**: A marketplace for exchanging reward points.
-- [ ] **Advanced Analytics Dashboard**: Visualizations for worktime and productivity trends.
-- [ ] **Mobile Optimization**: Reflowing the complex Kanban boards for mobile devices.
-
-### Long Term
-- [ ] **WebSockets**: Transitioning chat to real-time via Socket.io.
-- [ ] **Automated Reporting**: Weekly productivity summaries sent via email.
-- [ ] **Third-party Integrations**: Sync with Google Calendar or Slack.
-
-## Verification Plan
-
-### Automated Tests
-- Run `npm test` in the backend (once implemented) to verify API routes.
-- Linting checks using `npm run lint` in the frontend.
-
-### Manual Verification
-1. **Auth Flow**: Register a new user, log out, and log back in.
-2. **Task Workflow**: Create a project, add a board, add a task, start/stop the timer, and move it to "Done".
-3. **Collaboration**: Invite another user to a project and verify they can see the boards.
+## 📈 Summary of Achievements
+*   [x] Robust Authentication and User Session management.
+*   [x] Fully functional Project and Kanban Board system.
+*   [x] Complex Task lifecycle (Timer, Rewards, Mood integration).
+*   [x] Integrated Marketplace for internal task trading.
+*   [x] Automated Notification and Inbox services.
+*   [x] Weekly competitive metrics and automated cron jobs.
+*   [x] Integrated Messaging/Chat system.
