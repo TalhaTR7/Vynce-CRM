@@ -70,13 +70,13 @@ router.post("/create", authMiddleware, async (req, res) => {
 
         const setReward = Math.max(1, Number(ethereum) || 1);
         const multiplier = {
-            ANGRY: 2,
-            CRYING: 1.7,
-            SAD: 1.3,
-            NORMAL: 1,
-            OKAY: 1.3,
-            HAPPY: 1.7,
-            ECSTATIC: 1
+            ANGRY: 1.5,
+            CRYING: 1.3,
+            SAD: 1.2,
+            NORMAL: 1.0,
+            OKAY: 1.0,
+            HAPPY: 1.0,
+            ECSTATIC: 1.0
         }[assignee.mood?.value || "NORMAL"] || 1;
         const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
 
@@ -612,16 +612,14 @@ router.patch("/task/:taskId/changeBounty", authMiddleware, async (req, res) => {
 
         const setReward = Math.max(1, Number(bounty) || 1);
         const multiplier = {
-            ANGRY: 2,
-            EXHAUSTED: 1.8,
-            SICK: 1.6,
-            SAD: 1.5,
-            NORMAL: 1.5,
-            OKAY: 1.5,
-            VIBING: 1.4,
-            HAPPY: 1.2,
-            CHILLING: 1
-        }[mood] || 1;
+            ANGRY: 1.5,
+            CRYING: 1.3,
+            SAD: 1.2,
+            NORMAL: 1.0,
+            OKAY: 1.0,
+            HAPPY: 1.0,
+            ECSTATIC: 1.0,
+        }[mood] ?? 1.0;
         const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
 
         task.ethereum.assigned = setReward;
@@ -798,27 +796,37 @@ router.patch("/task/:taskId/addComment", authMiddleware, async (req, res) => {
         response.user = response.userId;
         response.userId = undefined;
 
+        const commentorId = req.user.id;
+        const isAssignee = task.assigneeId.equals(commentorId);
+        const isCreator = task.creatorId.equals(commentorId);
+
+        const recipients = [];
+        if (isAssignee) recipients.push({ _id: task.creatorId });
+        else if (isCreator) recipients.push({ _id: task.assigneeId });
+        else {
+            recipients.push({ _id: task.creatorId });
+            recipients.push({ _id: task.assigneeId });
+        }
+
         // make notification
 
         const commentor = await User
-            .findById(req.user.id)
+            .findById(commentorId)
             .select("firstname lastname");
 
-        if (!commentor._id.equals(req.user.id)) {
-            await Notification.create({
-                users: [{ _id: commentor._id.equals(req.user.id) ? task.creatorId : task.assigneeId }],
-                type: "COMMENT",
-                icon: {
-                    type: "PROJECT",
-                    refId: task.projectId
-                },
-                title: `${commentor.firstname} ${commentor.lastname} added a comment. Click to view!`,
-                action: {
-                    type: "NAVIGATE",
-                    url: `/task/${task._id}`
-                },
-            })
-        }
+        await Notification.create({
+            users: recipients,
+            type: "COMMENT",
+            icon: {
+                type: "PROJECT",
+                refId: task.projectId
+            },
+            title: `${commentor.firstname} ${commentor.lastname} added a comment. Click to view!`,
+            action: {
+                type: "NAVIGATE",
+                url: `/task/${task._id}`
+            },
+        });
 
         res.status(200).json({
             comment,
@@ -860,7 +868,7 @@ router.patch("/task/submit", authMiddleware, async (req, res) => {
         });
 
         // make notification
-        if (!task.assigneeId.equals(req.user.id)) {
+        if (!task.creatorId.equals(req.user.id)) {
             await Notification.create({
                 users: recipients([task.creatorId]),
                 type: "TASK_SUBMITTED",
@@ -873,7 +881,7 @@ router.patch("/task/submit", authMiddleware, async (req, res) => {
                     type: "NAVIGATE",
                     url: `/task/${task._id}`
                 },
-            })
+            });
         }
 
         task.isTimerRunning = false;
@@ -914,7 +922,7 @@ router.patch("/task/return", authMiddleware, async (req, res) => {
             type: "ACTION",
             userId: req.user.id,
             action: "TASK_RETURNED",
-            content: `${creator.firstname} ${creator.lastname} retruned this task`,
+            content: `${creator.firstname} ${creator.lastname} returned this task`,
             time: new Date()
         });
 

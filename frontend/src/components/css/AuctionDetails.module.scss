@@ -70,8 +70,6 @@
 }
 
 /* ─── Hero ───────────────────────────────────────────────────────── */
-/*  Top section: project identity + close, then big task title,
-    then a row of quick-read pills.                                   */
 .hero {
     padding: 18px 20px 16px;
     border-bottom: 1px solid var(--border);
@@ -137,6 +135,44 @@
         }
     }
 
+    .heroActions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .goToTaskButton {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        opacity: 0.4;
+        flex-shrink: 0;
+        transition:
+            opacity 0.14s ease,
+            background 0.14s ease,
+            border-color 0.14s ease;
+
+        img {
+            width: 14px;
+            pointer-events: none;
+            rotate: 90deg;
+        }
+
+        &:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border);
+        }
+    }
+
     .closeButton {
         width: 28px;
         height: 28px;
@@ -179,7 +215,6 @@
     margin: 0 0 14px;
 }
 
-/* Pill strip: board · stars · time left */
 .heroPills {
     display: flex;
     flex-direction: row;
@@ -197,13 +232,6 @@
         border: 1px solid var(--border);
         background: var(--bg);
 
-        .pillDot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
         span {
             font-size: 10px;
             font-family: var(--font-mono);
@@ -218,7 +246,6 @@
             flex-shrink: 0;
         }
 
-        /* Time pill gets green tint when time is running */
         &.pillTime {
             border-color: rgba(0, 232, 122, 0.2);
             background: rgba(0, 232, 122, 0.04);
@@ -230,6 +257,30 @@
             span {
                 color: var(--green);
                 opacity: 0.8;
+            }
+        }
+
+        &.pillBidding {
+            border-color: rgba(0, 232, 122, 0.2);
+            background: rgba(0, 232, 122, 0.04);
+
+            img {
+                opacity: 0.5;
+            }
+
+            span {
+                color: var(--green);
+                opacity: 0.8;
+            }
+        }
+
+        &.pillReview {
+            border-color: rgba(255, 196, 0, 0.25);
+            background: rgba(255, 196, 0, 0.05);
+
+            span {
+                color: #ffc400;
+                opacity: 0.9;
             }
         }
 
@@ -293,7 +344,6 @@
 }
 
 /* ─── People row ─────────────────────────────────────────────────── */
-/*  Creator and assignee side by side, no grid lines.                */
 .peopleRow {
     display: flex;
     flex-direction: row;
@@ -355,7 +405,6 @@
 }
 
 /* ─── Stats strip ────────────────────────────────────────────────── */
-/*  Bounty · Due · Created — horizontal, borderless.                 */
 .statsStrip {
     display: flex;
     flex-direction: row;
@@ -395,6 +444,12 @@
             width: 13px;
             opacity: 0.6;
             flex-shrink: 0;
+        }
+
+        &.statValueMuted {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            opacity: 0.5;
         }
     }
 }
@@ -474,6 +529,18 @@
     }
 }
 
+.reviewNote {
+    font-size: 12px;
+    font-family: var(--font-body);
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 196, 0, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 196, 0, 0.04);
+}
+
 .stepper {
     display: flex;
     flex-direction: row;
@@ -505,6 +572,11 @@
 
         &:active {
             background: var(--border);
+        }
+
+        &:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
     }
 

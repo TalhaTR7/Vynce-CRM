@@ -3,10 +3,13 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import styles from "./css/AuctionDetails.module.scss";
 import close_svg from "../assets/icons/close.svg";
+import open_svg from "../assets/icons/open.svg";
 import clock_svg from "../assets/icons/clock.svg";
 import coin_svg from "../assets/icons/coin.svg";
 import difficultyOn_svg from "../assets/icons/difficultyOn.svg";
 import difficultyOff_svg from "../assets/icons/difficultyOff.svg";
+import { useNavigate } from "react-router-dom";
+
 
 const AUTH = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
@@ -61,6 +64,7 @@ export default function AuctionDetails({ taskId, onClose }) {
     const [closing, setClosing] = useState(false);
     const [selectedBidderId, setSelectedBidderId] = useState(null);
     const scrimRef = useRef(null);
+    const navigate = useNavigate();
 
     /* ── Fetch on mount ── */
     useEffect(() => {
@@ -71,7 +75,6 @@ export default function AuctionDetails({ taskId, onClose }) {
                 setData(res.data);
                 setBids(res.data.bids ?? []);
                 setBidAmount(res.data.baseReward ?? 1);
-                // Pre-select current winner as default choice for assignee
                 if (res.data.winner) setSelectedBidderId(String(res.data.winner._id));
             } catch (err) {
                 toast.error(err.response?.data?.msg || "Failed to load auction");
@@ -143,10 +146,15 @@ export default function AuctionDetails({ taskId, onClose }) {
         }
     };
 
-    /* Derived — only valid once data is loaded */
+    /* ── Derived — only valid once data is loaded ── */
+    const now = new Date();
     const isOpen = data?.status === "OPEN";
+    const biddingEnded = data ? now > new Date(data.biddingEndsAt) : false;
+    const auctionEnded = data ? now > new Date(data.endsAt) : false;
+    const canBid = isOpen && !biddingEnded;
     const isAssignee = data ? getTokenUserId() === String(data.task?.assignee?._id) : false;
-    const timeLeft = data ? formatTimeRemaining(data.endsAt) : null;
+    const biddingTimeLeft = data ? formatTimeRemaining(data.biddingEndsAt) : null;
+    const auctionTimeLeft = data ? formatTimeRemaining(data.endsAt) : null;
     const sorted = sortBids(bids);
 
     return (
@@ -161,7 +169,7 @@ export default function AuctionDetails({ taskId, onClose }) {
             {/* Panel */}
             <div className={`${styles.panel} ${closing ? styles.closing : ""}`}>
 
-                {/* ── Hero — always visible, uses card-level data while loading ── */}
+                {/* ── Hero ── */}
                 <div className={styles.hero}>
                     <div className={styles.heroTop}>
                         <div className={styles.heroProject}>
@@ -176,9 +184,21 @@ export default function AuctionDetails({ taskId, onClose }) {
                             )}
                             <span className={styles.heroLabel}>Auction</span>
                         </div>
-                        <button className={styles.closeButton} onClick={animatedClose} aria-label="Close">
-                            <img src={close_svg} alt="" />
-                        </button>
+                        <div className={styles.heroActions}>
+                            {data && (
+                                <button
+                                    className={styles.goToTaskButton}
+                                    onClick={() => navigate(`/task/${data.task._id}`)}
+                                    title="Go to task"
+                                    type="button"
+                                >
+                                    <img src={open_svg} alt="" />
+                                </button>
+                            )}
+                            <button className={styles.closeButton} onClick={animatedClose} aria-label="Close">
+                                <img src={close_svg} alt="" />
+                            </button>
+                        </div>
                     </div>
 
                     {fetching ? (
@@ -195,10 +215,27 @@ export default function AuctionDetails({ taskId, onClose }) {
                                 ))}
                             </div>
                         )}
-                        {timeLeft && (
-                            <div className={`${styles.pill} ${timeLeft.ended ? styles.pillEnded : styles.pillTime}`}>
+
+                        {/* Bidding active — show bidding countdown */}
+                        {!fetching && canBid && biddingTimeLeft && (
+                            <div className={`${styles.pill} ${styles.pillBidding}`}>
                                 <img src={clock_svg} alt="" />
-                                <span>{timeLeft.label}</span>
+                                <span>Bidding ends {biddingTimeLeft.label}</span>
+                            </div>
+                        )}
+
+                        {/* Bidding closed, auction still running — review window */}
+                        {!fetching && biddingEnded && !auctionEnded && isOpen && (
+                            <div className={`${styles.pill} ${styles.pillReview}`}>
+                                <span>Review period</span>
+                                {auctionTimeLeft && <span>· ends {auctionTimeLeft.label}</span>}
+                            </div>
+                        )}
+
+                        {/* Auction over */}
+                        {!fetching && (auctionEnded || !isOpen) && (
+                            <div className={`${styles.pill} ${styles.pillEnded}`}>
+                                <span>ended</span>
                             </div>
                         )}
                     </div>
@@ -244,7 +281,7 @@ export default function AuctionDetails({ taskId, onClose }) {
                                 </div>
                             </div>
 
-                            {/* Bounty · Due · Ends */}
+                            {/* Bounty · Bidding ends · Auction ends · Due */}
                             <div className={styles.statsStrip}>
                                 <div className={styles.statCell}>
                                     <span className={styles.statLabel}>Base bounty</span>
@@ -254,16 +291,22 @@ export default function AuctionDetails({ taskId, onClose }) {
                                     </div>
                                 </div>
                                 <div className={styles.statCell}>
+                                    <span className={styles.statLabel}>Bidding ends</span>
+                                    <div className={`${styles.statValue} ${biddingEnded ? styles.statValueMuted : ""}`}>
+                                        {formatDate(data.biddingEndsAt)}
+                                    </div>
+                                </div>
+                                <div className={styles.statCell}>
+                                    <span className={styles.statLabel}>Auction ends</span>
+                                    <div className={styles.statValue}>{formatDate(data.endsAt)}</div>
+                                </div>
+                                <div className={styles.statCell}>
                                     <span className={styles.statLabel}>Due</span>
                                     <div className={styles.statValue}>{formatDate(data.task.dueDate)}</div>
                                 </div>
-                                <div className={styles.statCell}>
-                                    <span className={styles.statLabel}>Ends</span>
-                                    <div className={styles.statValue}>{formatDate(data.endsAt)}</div>
-                                </div>
                             </div>
 
-                            {/* Winner strip — only when there's a current leader */}
+                            {/* Winner strip */}
                             {data.winner && (
                                 <div className={styles.winnerStrip}>
                                     <span className={styles.winnerLabel}>Current winner</span>
@@ -281,37 +324,43 @@ export default function AuctionDetails({ taskId, onClose }) {
                                 {isAssignee ? (
                                     <>
                                         <span className={styles.bidLabel}>Your listing</span>
-                                        <button
-                                            className={styles.removeBtn}
-                                            onClick={removeFromMarket}
-                                            disabled={loading}
-                                        >
-                                            {loading ? "Removing…" : "Take off marketplace"}
-                                        </button>
+                                        {!biddingEnded ? (
+                                            <button
+                                                className={styles.removeBtn}
+                                                onClick={removeFromMarket}
+                                                disabled={loading}
+                                            >
+                                                {loading ? "Removing…" : "Take off marketplace"}
+                                            </button>
+                                        ) : (
+                                            <p className={styles.reviewNote}>
+                                                Bidding has closed. Select a winner below or the top bidder will be assigned automatically when the auction ends.
+                                            </p>
+                                        )}
                                     </>
                                 ) : (
                                     <>
                                         <span className={styles.bidLabel}>Your bid</span>
                                         <div className={styles.bidControls}>
                                             <div className={styles.stepper}>
-                                                <button type="button" className={styles.stepBtn} onClick={decrease} disabled={!isOpen}>−</button>
+                                                <button type="button" className={styles.stepBtn} onClick={decrease} disabled={!canBid}>−</button>
                                                 <div className={styles.stepCenter}>
                                                     <img src={coin_svg} alt="" />
                                                     <input
                                                         type="number"
                                                         value={bidAmount}
                                                         onChange={(e) => setBidAmount(Math.max(1, Number(e.target.value)))}
-                                                        disabled={!isOpen}
+                                                        disabled={!canBid}
                                                     />
                                                 </div>
-                                                <button type="button" className={styles.stepBtn} onClick={increase} disabled={!isOpen}>+</button>
+                                                <button type="button" className={styles.stepBtn} onClick={increase} disabled={!canBid}>+</button>
                                             </div>
                                             <button
                                                 className={styles.bidBtn}
                                                 onClick={placeBid}
-                                                disabled={loading || !isOpen}
+                                                disabled={loading || !canBid}
                                             >
-                                                {loading ? "Placing…" : isOpen ? "Place bid" : "Auction closed"}
+                                                {loading ? "Placing…" : canBid ? "Place bid" : biddingEnded ? "Bidding closed" : "Auction closed"}
                                             </button>
                                         </div>
                                     </>
@@ -322,7 +371,7 @@ export default function AuctionDetails({ taskId, onClose }) {
                             <div className={styles.bidsSection}>
                                 <span className={styles.bidsLabel}>
                                     Bids{bids.length > 0 ? ` · ${bids.length}` : ""}
-                                    {isAssignee && bids.length > 0 && (
+                                    {isAssignee && bids.length > 0 && biddingEnded && (
                                         <span className={styles.bidsLabelHint}> — tap a row to select winner</span>
                                     )}
                                 </span>
@@ -342,8 +391,8 @@ export default function AuctionDetails({ taskId, onClose }) {
                                                 <div
                                                     key={bid._id}
                                                     className={`${styles.bidEntry} ${isSelected ? styles.bidEntrySelected : ""}`}
-                                                    onClick={isAssignee ? () => setSelectedBidderId(bidderId) : undefined}
-                                                    style={isAssignee ? { cursor: "pointer" } : undefined}
+                                                    onClick={isAssignee && biddingEnded ? () => setSelectedBidderId(bidderId) : undefined}
+                                                    style={isAssignee && biddingEnded ? { cursor: "pointer" } : undefined}
                                                 >
                                                     <div className={styles.bidUser}>
                                                         <span className={`${styles.bidIndex} ${i === 0 ? styles.bidIndexFirst : ""}`}>
@@ -364,8 +413,8 @@ export default function AuctionDetails({ taskId, onClose }) {
                                             );
                                         })}
 
-                                        {/* Close auction button — assignee only, appears when a row is selected */}
-                                        {isAssignee && selectedBidderId && (
+                                        {/* Only show close button during review window */}
+                                        {isAssignee && selectedBidderId && biddingEnded && !auctionEnded && (
                                             <button
                                                 className={styles.closeAuctionBtn}
                                                 onClick={closeAuction}

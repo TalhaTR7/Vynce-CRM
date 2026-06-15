@@ -1,19 +1,13 @@
 import express from "express";
-import cron from "node-cron";
 import authMiddleware from "../middleware/auth.js";
 import Membership from "../models/Membership.js";
 
 const router = express.Router();
 
-// Reset every Sunday at 23:59
-cron.schedule("59 23 * * 0", async () => {
-    await Membership.updateMany({}, { weeklyXP: 0 });
-});
-
 // helper function
 function formatImage(image) {
-  const url = image?.url;
-  return { url: `http://localhost:${process.env.PORT}/api${url}` };
+    const url = image?.url;
+    return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
 // GET /api/leaderboards/project/:projectId

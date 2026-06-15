@@ -264,34 +264,88 @@
             animation: fadeUp 0.8s 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 
             .btnCta {
+                position: relative;
                 display: inline-flex;
                 align-items: center;
-                gap: 10px;
-                padding: 14px 32px;
+                gap: 12px;
+                padding: 16px 36px;
                 background: var(--green);
-                color: #080808;
+                color: #0a0a0a;
                 border: none;
-                border-radius: 10px;
-                font-size: 15px;
+                border-radius: 12px;
+                font-size: 15.5px;
                 font-family: var(--font-body);
-                font-weight: 600;
+                font-weight: 700;
                 text-decoration: none;
                 cursor: pointer;
-                transition: background 0.2s ease, box-shadow 0.2s ease;
+                overflow: hidden;
+                transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+                box-shadow:
+                    0 8px 16px rgba(0, 232, 122, 0.15),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.4);
 
-                &:hover {
-                    background: #00ff8c;
-                    box-shadow: 0 6px 40px var(--green-glow);
+                &::before {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg,
+                            rgba(255, 255, 255, 0.25) 0%,
+                            transparent 50%,
+                            rgba(0, 0, 0, 0.05) 100%);
+                    opacity: 0;
+                    transition: opacity 0.4s ease;
+                }
 
-                    svg {
-                        transform: translateX(3px);
-                    }
+                &::after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: -200%;
+                    width: 100%;
+                    height: 100%;
+                    transform: skewX(-30deg);
+                    transition: none;
+                    pointer-events: none;
+                    background: linear-gradient(90deg,
+                            transparent,
+                            rgba(255, 255, 255, 0.6),
+                            transparent);
                 }
 
                 svg {
-                    width: 16px;
-                    height: 16px;
-                    transition: transform 0.2s;
+                    width: 18px;
+                    height: 18px;
+                    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+                    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+                }
+
+                &:hover {
+                    background: #00ff9d;
+                    transform: translateY(-2px) scale(1.03);
+                    box-shadow:
+                        0 20px 40px rgba(0, 232, 122, 0.3),
+                        0 0 80px rgba(0, 232, 122, 0.15),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.5);
+
+                    &::before {
+                        opacity: 1;
+                    }
+
+                    &::after {
+                        left: 200%;
+                        transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+                    }
+
+                    svg {
+                        transform: translateX(6px) rotate(-12deg) scale(1.1);
+                    }
+                }
+
+                &:active {
+                    transform: translateY(-2px) scale(0.97);
+                    box-shadow:
+                        0 10px 20px rgba(0, 232, 122, 0.12),
+                        inset 0 2px 5px rgba(0, 0, 0, 0.15);
                 }
             }
 
@@ -692,24 +746,88 @@
         gap: 12px;
 
         .btnCtaLarge {
+            position: relative;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            padding: 16px 44px;
+            gap: 12px;
+            padding: 18px 48px;
             background: var(--green);
-            color: #080808;
+            color: #0a0a0a;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            border-radius: 14px;
+            font-size: 16.5px;
             font-family: var(--font-body);
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
-            transition: background 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow:
+                0 10px 20px rgba(0, 232, 122, 0.18),
+                inset 0 1px 1px rgba(255, 255, 255, 0.4);
+
+            &::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg,
+                        rgba(255, 255, 255, 0.25) 0%,
+                        transparent 50%,
+                        rgba(0, 0, 0, 0.05) 100%);
+                opacity: 0;
+                transition: opacity 0.4s ease;
+            }
+
+            &::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: -200%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg,
+                        transparent,
+                        rgba(255, 255, 255, 0.6),
+                        transparent);
+                transform: skewX(-30deg);
+                transition: none;
+                pointer-events: none;
+            }
+
+            svg {
+                width: 20px;
+                height: 20px;
+                transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+                filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+            }
 
             &:hover {
-                background: #00ff8c;
-                box-shadow: 0 0 40px var(--green-glow);
+                background: #00ff9d;
+                transform: translateY(-2px) scale(1.03);
+                box-shadow:
+                    0 24px 48px rgba(0, 232, 122, 0.35),
+                    0 0 90px rgba(0, 232, 122, 0.2),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+
+                &::before {
+                    opacity: 1;
+                }
+
+                &::after {
+                    left: 200%;
+                    transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+                }
+
+                svg {
+                    transform: translateX(7px) rotate(-12deg) scale(1.1);
+                }
+            }
+
+            &:active {
+                transform: translateY(-2px) scale(0.97);
+                box-shadow:
+                    0 12px 24px rgba(0, 232, 122, 0.15),
+                    inset 0 2px 5px rgba(0, 0, 0, 0.15);
             }
         }
 

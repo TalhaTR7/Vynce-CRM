@@ -18,17 +18,6 @@ function formatImage(image) {
 }
 
 
-// get all membership data
-router.get("/", authMiddleware, async (req, res) => {
-    try {
-        const memberships = await Membership.find();
-        res.status(200).json(memberships);
-    } catch (err) {
-        res.status(500).json({ msg: err.message });
-    }
-});
-
-
 // leave the project
 router.delete("/leave", authMiddleware, async (req, res) => {
     const { projectId } = req.body;

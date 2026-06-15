@@ -221,7 +221,7 @@ function Project() {
                                 </Link>
 
                                 {isElevated && <>
-                                    <Link to={`/settings/project/${project._id}/archive`} className={styles.dropdownOption} onClick={() => setOpenDropdown(false)}>
+                                    <Link to={`/settings/project/${project._id}/archives`} className={styles.dropdownOption} onClick={() => setOpenDropdown(false)}>
                                         <img src={archive_svg} className={styles.dropdownOptionIcon} />
                                         <span className={styles.dropdownOptionLabel}>Archives</span>
                                     </Link>

@@ -369,7 +369,7 @@ function MemberSettings({ project, refreshProject }) {
                     </button>
                     <button
                         className={`${styles.sharedIconButton} ${styles.sharedIconButtonDestructive}`}
-                        title="Remove selected"
+                        title="Remove from project"
                         onClick={() => selected.length && openModal("REMOVE_MEMBERS", {
                             memberIds: { projectId: project._id, memberships: selected },
                             onSuccess: refreshProject,

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const auctionSchema = new mongoose.Schema({
     taskId: { type: mongoose.Schema.Types.ObjectId, ref: "Task", required: true, unique: true },
     baseReward: { type: Number, required: true },
+    biddingEndsAt: { type: Date, required: true },
     endsAt: { type: Date, required: true },
     status: { type: String, enum: ["OPEN", "CLOSED", "EXPIRED"], default: "OPEN" },
     winnerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },

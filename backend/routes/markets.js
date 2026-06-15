@@ -4,6 +4,9 @@ import Task from "../models/Task.js";
 import Auction from "../models/Auction.js";
 import Membership from "../models/Membership.js";
 import Project from "../models/Project.js";
+import Notification from "../models/Notification.js";
+import User from "../models/User.js";
+
 
 const router = express.Router();
 
@@ -32,14 +35,20 @@ router.post("/task/:taskId/", authMiddleware, async (req, res) => {
         if (!task.dueDate) return res.status(400).json({ msg: "Task must have a due date to be auctioned" });
 
         const now = new Date();
-        if (endsAt <= now) return res.status(400).json({ msg: "Auction end time must be in the future" });
-
         const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+        const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
+
+        if (endsAt <= now) return res.status(400).json({ msg: "Auction end time must be in the future" });
+        if (endsAt.getTime() - now.getTime() < THREE_DAYS)
+            return res.status(400).json({ msg: "Auction must end at least 3 days from now" });
         if (task.dueDate.getTime() - endsAt.getTime() < THREE_DAYS)
             return res.status(400).json({ msg: "Auction must end at least 3 days before the due date" });
 
         if (task.onAuction)
             return res.status(400).json({ msg: "Task is already on the marketplace" });
+
+        // Bidding closes 2 days before auction ends — derived, not user-supplied
+        const biddingEndsAt = new Date(endsAt.getTime() - TWO_DAYS);
 
         task.onAuction = true;
         await task.save();
@@ -47,11 +56,24 @@ router.post("/task/:taskId/", authMiddleware, async (req, res) => {
         await Auction.create({
             taskId,
             baseReward: task.ethereum.assigned,
+            biddingEndsAt,
             endsAt,
             status: "OPEN",
             winnerId: null,
             bids: [],
         });
+
+        // Notify task creator
+        if (!task.creatorId.equals(req.user.id)) {
+            const assignee = await User.findById(req.user.id).select("firstname lastname");
+            await Notification.create({
+                users: [{ _id: task.creatorId }],
+                type: "BID_CREATED",
+                icon: { type: "PROJECT", refId: task.projectId },
+                title: `${assignee.firstname} ${assignee.lastname} put your task "${task.title}" on auction`,
+                action: { type: "NAVIGATE", url: `/task/${task._id}` },
+            });
+        }
 
         res.status(201).json({ msg: "Task placed on marketplace" });
     } catch (err) {
@@ -150,7 +172,7 @@ router.get("/project/:projectId/", authMiddleware, async (req, res) => {
 
         const taskIds = tasks.map(t => t._id);
         const auctions = await Auction.find({ taskId: { $in: taskIds }, status: "OPEN" })
-            .select("taskId baseReward endsAt status bids")
+            .select("taskId baseReward endsAt biddingEndsAt status bids")
             .lean();
 
         const auctionMap = {};
@@ -176,6 +198,7 @@ router.get("/project/:projectId/", authMiddleware, async (req, res) => {
                     auction: {
                         _id: auction._id,
                         baseReward: auction.baseReward,
+                        biddingEndsAt: auction.biddingEndsAt,
                         endsAt: auction.endsAt,
                         status: auction.status,
                         bidCount: auction.bids.length,
@@ -214,6 +237,7 @@ router.patch("/task/:taskId/", authMiddleware, async (req, res) => {
         const auction = await Auction.findOne({ taskId });
         if (!auction) return res.status(404).json({ msg: "Auction not found" });
         if (auction.status !== "OPEN") return res.status(400).json({ msg: "Auction is not active" });
+        if (new Date() > auction.biddingEndsAt) return res.status(400).json({ msg: "Bidding period has ended" });
 
         const existingBid = auction.bids.find(b => b.userId.equals(req.user.id));
         if (existingBid) {
@@ -241,8 +265,20 @@ router.patch("/task/:taskId/", authMiddleware, async (req, res) => {
         }, auction.bids[0]);
 
         auction.winnerId = lowestBid.userId;
-
         await auction.save();
+
+        const bidder = await User.findById(req.user.id).select("firstname lastname");
+        const recipients = [{ _id: task.assigneeId }];
+        if (!task.creatorId.equals(task.assigneeId)) recipients.push({ _id: task.creatorId });
+
+        await Notification.create({
+            users: recipients,
+            type: "BID_PLACED",
+            icon: { type: "PROJECT", refId: task.projectId },
+            title: `${bidder.firstname} ${bidder.lastname} placed a bid on your task`,
+            action: { type: "NAVIGATE", url: `/settings/project/${task.projectId}/markets?open=${task._id}` },
+        });
+
         res.status(200).json({ msg: "Bid submitted successfully" });
     } catch (err) {
         res.status(500).json({ msg: err.message });
@@ -279,6 +315,14 @@ router.patch("/task/:taskId/close", authMiddleware, async (req, res) => {
         task.onAuction = false;
         await task.save();
 
+        await Notification.create({
+            users: [{ _id: winningBid.userId }],
+            type: "TASK_ASSIGNED",
+            icon: { type: "PROJECT", refId: task.projectId },
+            title: `You won the auction and have been assigned "${task.title}"`,
+            action: { type: "NAVIGATE", url: `/task/${task._id}` },
+        });
+
         res.status(200).json({ msg: "Auction closed, task assigned successfully" });
     } catch (err) {
         res.status(500).json({ msg: err.message });
@@ -306,8 +350,23 @@ router.delete("/task/:taskId/", authMiddleware, async (req, res) => {
         if (!auction) return res.status(404).json({ msg: "Auction not found" });
         if (auction.status !== "OPEN") return res.status(400).json({ msg: "Auction has expired" });
 
-        await Auction.deleteOne({ _id: auction._id });
+        if (auction.bids.length > 0) {
+            const bidderIds = auction.bids
+                .filter(b => !b.userId.equals(req.user.id))
+                .map(b => ({ _id: b.userId }));
 
+            if (bidderIds.length > 0) {
+                await Notification.create({
+                    users: bidderIds,
+                    type: "BID_CLOSED",
+                    icon: { type: "PROJECT", refId: task.projectId },
+                    title: `The auction for "${task.title}" was cancelled by the assignee`,
+                    action: { type: "NAVIGATE", url: `/task/${task._id}` },
+                });
+            }
+        }
+
+        await Auction.deleteOne({ _id: auction._id });
         task.onAuction = false;
         await task.save();
 
