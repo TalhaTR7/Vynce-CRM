@@ -112,7 +112,10 @@ router.patch("/task/close", authMiddleware, async (req, res) => {
             let finalReward = task.ethereum.calculated;
             if (task.dueDate && new Date() > new Date(task.dueDate)) {
                 const daysLate = Math.ceil((new Date() - new Date(task.dueDate)) / (1000 * 60 * 60 * 24));
-                const penalty = Math.min(0.8, daysLate * 0.10); // max 80% deduction
+                let penalty;
+                if (daysLate <= 7) penalty = 0.10;
+                else if (daysLate <= 14) penalty = 0.20;
+                else penalty = 0.30;
                 finalReward = Math.max(1, Math.floor(task.ethereum.calculated * (1 - penalty)));
             }
 

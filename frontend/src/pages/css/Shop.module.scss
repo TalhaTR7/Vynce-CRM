@@ -1,0 +1,775 @@
+/* ─── Page shell ─────────────────────────────────────────────────── */
+.canvas {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 32px 36px 56px;
+    gap: 28px;
+    box-sizing: border-box;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ─── Page header ─────────────────────────────────────────────────── */
+.pageHeader {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-shrink: 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pageHeaderLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.pageTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pageTitleDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green-glow);
+    flex-shrink: 0;
+}
+
+.pageTitle {
+    font-size: 22px;
+    font-family: var(--font-wide);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.03em;
+}
+
+.pageSubtitle {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    margin: 0;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-left: 16px;
+}
+
+/* ─── Balance chip ────────────────────────────────────────────────── */
+.balanceChip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+}
+
+.balanceCoin  { width: 16px; opacity: 0.6; }
+
+.balanceAmount {
+    font-size: 16px;
+    font-family: var(--font-wide);
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.balanceLabel {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ─── Section divider ─────────────────────────────────────────────── */
+.sectionLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.sectionDot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.sectionText {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.sectionLine {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.sectionBadge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+
+    span {
+        font-size: 9px;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
+    }
+}
+
+.sectionBadgeIcon {
+    width: 10px;
+    opacity: 0.35;
+}
+
+/* ─── Secure notice ───────────────────────────────────────────────── */
+.secureNotice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-radius: 9px;
+    background: rgba(0, 232, 122, 0.03);
+    border: 1px solid rgba(0, 232, 122, 0.1);
+    flex-shrink: 0;
+    margin-top: -10px;
+}
+
+.secureIcon {
+    width: 13px;
+    opacity: 0.3;
+    flex-shrink: 0;
+}
+
+.secureText {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    margin: 0;
+    letter-spacing: 0.02em;
+    opacity: 0.7;
+    line-height: 1.5;
+}
+
+/* ─── Items grid ──────────────────────────────────────────────────── */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    flex-shrink: 0;
+
+    @media (max-width: 1100px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ─── Card wrap (flash animation host) ───────────────────────────── */
+.cardWrap {
+    border-radius: 16px;
+}
+
+@keyframes flashPulse {
+    0%   { box-shadow: 0 0 0 0   rgba(0, 232, 122, 0.55); }
+    50%  { box-shadow: 0 0 0 8px rgba(0, 232, 122, 0);    }
+    100% { box-shadow: 0 0 0 0   rgba(0, 232, 122, 0);    }
+}
+
+.cardFlash {
+    animation: flashPulse 0.6s ease-out forwards;
+    border-radius: 16px;
+}
+
+/* ─── Item card base ──────────────────────────────────────────────── */
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 18px 16px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    overflow: hidden;
+    transition:
+        transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+    user-select: none;
+
+    &:hover { transform: translateY(-5px); }
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+        background-size: 120px;
+        pointer-events: none;
+        z-index: 0;
+    }
+}
+
+.card_green {
+    border-color: rgba(0, 232, 122, 0.18);
+    &:hover {
+        border-color: rgba(0, 232, 122, 0.35);
+        box-shadow: 0 14px 40px rgba(0,0,0,0.6), 0 0 32px rgba(0,232,122,0.08);
+    }
+}
+.card_blue {
+    border-color: rgba(47, 120, 163, 0.3);
+    &:hover {
+        border-color: rgba(47, 120, 163, 0.55);
+        box-shadow: 0 14px 40px rgba(0,0,0,0.6), 0 0 32px rgba(47,120,163,0.1);
+    }
+}
+.card_gold {
+    border-color: rgba(212, 175, 55, 0.22);
+    &:hover {
+        border-color: rgba(212, 175, 55, 0.45);
+        box-shadow: 0 14px 40px rgba(0,0,0,0.6), 0 0 32px rgba(212,175,55,0.08);
+    }
+}
+
+.cardOwned {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+    transform: none !important;
+}
+
+.cardNoise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ─── Ribbon ──────────────────────────────────────────────────────── */
+.ribbon {
+    position: absolute;
+    top: 14px;
+    right: -1px;
+    font-size: 8px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 10px 3px 8px;
+    border-radius: 4px 0 0 4px;
+    z-index: 5;
+    user-select: none;
+}
+
+.ribbon_green {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid var(--green-glow);
+    border-right: none;
+}
+.ribbon_blue {
+    background: rgba(47, 120, 163, 0.15);
+    color: #5ba8d4;
+    border: 1px solid rgba(47, 120, 163, 0.35);
+    border-right: none;
+}
+.ribbon_gold {
+    background: rgba(212, 175, 55, 0.12);
+    color: #d4af37;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-right: none;
+}
+
+/* ─── Icon wrap ───────────────────────────────────────────────────── */
+.iconWrap {
+    position: relative;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: box-shadow 0.2s ease;
+}
+
+.iconWrap_green {
+    background: rgba(0, 232, 122, 0.06);
+    border-color: rgba(0, 232, 122, 0.18);
+    .card:hover & { box-shadow: 0 0 20px rgba(0, 232, 122, 0.12); }
+}
+.iconWrap_blue {
+    background: rgba(47, 120, 163, 0.08);
+    border-color: rgba(47, 120, 163, 0.25);
+    .card:hover & { box-shadow: 0 0 20px rgba(47, 120, 163, 0.12); }
+}
+.iconWrap_gold {
+    background: rgba(212, 175, 55, 0.06);
+    border-color: rgba(212, 175, 55, 0.2);
+    .card:hover & { box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
+}
+
+.itemIcon {
+    width: 22px;
+    height: 22px;
+    opacity: 0.75;
+    position: relative;
+    z-index: 1;
+}
+
+/* ─── Card body ───────────────────────────────────────────────────── */
+.cardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    position: relative;
+    z-index: 2;
+}
+
+.itemLabel {
+    font-size: 8px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.itemLabel_green { color: var(--green); opacity: 0.7; }
+.itemLabel_blue  { color: #5ba8d4;     opacity: 0.7; }
+.itemLabel_gold  { color: #d4af37;     opacity: 0.7; }
+
+.itemName {
+    font-size: 17px;
+    font-family: var(--font-wide);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+}
+
+.itemTagline {
+    font-size: 12px;
+    font-family: var(--font-body);
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ─── Card footer ─────────────────────────────────────────────────── */
+.cardFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.priceRow {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.coinIcon { width: 14px; opacity: 0.5; }
+
+.priceValue {
+    font-size: 15px;
+    font-family: var(--font-wide);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.priceValue_green { color: var(--green); }
+.priceValue_blue  { color: #5ba8d4; }
+.priceValue_gold  { color: #d4af37; }
+
+.priceCurrency {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    align-self: flex-end;
+    margin-bottom: 2px;
+}
+
+/* ─── Item buy button ─────────────────────────────────────────────── */
+.buyBtn {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 7px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.buyBtn_green {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: var(--green-glow);
+    &:hover { background: rgba(0, 232, 122, 0.18); box-shadow: 0 0 14px rgba(0,232,122,0.2); }
+}
+.buyBtn_blue {
+    background: rgba(47, 120, 163, 0.12);
+    color: #5ba8d4;
+    border-color: rgba(47, 120, 163, 0.3);
+    &:hover { background: rgba(47, 120, 163, 0.22); box-shadow: 0 0 14px rgba(47,120,163,0.15); }
+}
+.buyBtn_gold {
+    background: rgba(212, 175, 55, 0.1);
+    color: #d4af37;
+    border-color: rgba(212, 175, 55, 0.28);
+    &:hover { background: rgba(212, 175, 55, 0.2); box-shadow: 0 0 14px rgba(212,175,55,0.12); }
+}
+
+.buyBtnOwned {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ETH PURCHASE SECTION
+   ════════════════════════════════════════════════════════════════════ */
+
+.ethGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    flex-shrink: 0;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ─── ETH card wrap ───────────────────────────────────────────────── */
+.ethCardWrap {
+    border-radius: 14px;
+}
+
+@keyframes ethFlashPulse {
+    0%   { box-shadow: 0 0 0 0   rgba(0, 232, 122, 0.6); }
+    50%  { box-shadow: 0 0 0 10px rgba(0, 232, 122, 0);  }
+    100% { box-shadow: 0 0 0 0   rgba(0, 232, 122, 0);   }
+}
+
+.ethFlash {
+    animation: ethFlashPulse 0.65s ease-out forwards;
+    border-radius: 14px;
+}
+
+/* ─── ETH card ────────────────────────────────────────────────────── */
+.ethCard {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 20px 22px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    overflow: hidden;
+    transition:
+        transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+    user-select: none;
+
+    &:hover {
+        transform: translateY(-3px);
+        border-color: rgba(0, 232, 122, 0.22);
+        box-shadow: 0 12px 36px rgba(0,0,0,0.55), 0 0 28px rgba(0,232,122,0.06);
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+        background-size: 120px;
+        pointer-events: none;
+        z-index: 0;
+    }
+}
+
+/* featured card glow */
+.ethCardFeatured {
+    border-color: rgba(0, 232, 122, 0.28);
+    background: #0e1612;
+    box-shadow: 0 0 40px rgba(0, 232, 122, 0.05), inset 0 1px 0 rgba(0, 232, 122, 0.06);
+
+    &:hover {
+        border-color: rgba(0, 232, 122, 0.5);
+        box-shadow: 0 14px 44px rgba(0,0,0,0.6), 0 0 40px rgba(0,232,122,0.12);
+    }
+}
+
+.ethCardPurchased {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+    transform: none !important;
+}
+
+/* ─── ETH ribbon ──────────────────────────────────────────────────── */
+.ethRibbon {
+    position: absolute;
+    top: 16px;
+    right: -1px;
+    font-size: 8px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 10px 3px 8px;
+    border-radius: 4px 0 0 4px;
+    border: 1px solid var(--green-glow);
+    border-right: none;
+    background: var(--green-dim);
+    color: var(--green);
+    z-index: 5;
+    user-select: none;
+}
+
+/* ─── ETH left column ─────────────────────────────────────────────── */
+.ethLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    position: relative;
+    z-index: 2;
+    min-width: 0;
+}
+
+.ethAmountRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ethCoinBig {
+    width: 20px;
+    opacity: 0.65;
+    flex-shrink: 0;
+}
+
+.ethAmount {
+    font-size: 28px;
+    font-family: var(--font-wide);
+    font-weight: 900;
+    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    line-height: 1;
+
+    .ethCardFeatured & {
+        color: var(--green);
+    }
+}
+
+.ethBonus {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--green);
+    background: var(--green-dim);
+    border: 1px solid var(--green-glow);
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    align-self: center;
+}
+
+.ethPackLabel {
+    font-size: 8px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    user-select: none;
+
+    .ethCardFeatured & {
+        color: rgba(0, 232, 122, 0.5);
+    }
+}
+
+.ethTagline {
+    font-size: 12px;
+    font-family: var(--font-body);
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.45;
+    max-width: 240px;
+}
+
+/* ─── ETH right column ────────────────────────────────────────────── */
+.ethRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.ethPriceBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.ethPkr {
+    font-size: 20px;
+    font-family: var(--font-wide);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1;
+
+    .ethCardFeatured & {
+        color: var(--green);
+    }
+}
+
+.ethPerUnit {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+}
+
+/* ─── ETH buy button ──────────────────────────────────────────────── */
+.ethBuyBtn {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 7px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--hover);
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.18s ease;
+
+    &:hover {
+        background: rgba(255,255,255,0.07);
+        border-color: rgba(255,255,255,0.15);
+        color: var(--text-primary);
+    }
+}
+
+.ethBuyBtnFeatured {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: var(--green-glow);
+
+    &:hover {
+        background: rgba(0, 232, 122, 0.18);
+        box-shadow: 0 0 16px rgba(0, 232, 122, 0.22);
+    }
+}
+
+.ethBuyBtnPurchased {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* ─── Coming soon strip ───────────────────────────────────────────── */
+.comingSoon {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.comingSoonIcon {
+    width: 16px;
+    opacity: 0.2;
+    flex-shrink: 0;
+}
+
+.comingSoonText {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    margin: 0;
+    letter-spacing: 0.02em;
+    opacity: 0.6;
+}

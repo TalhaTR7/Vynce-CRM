@@ -576,7 +576,7 @@ router.patch("/task/:taskId/stopTimer", authMiddleware, async (req, res) => {
         task.timerStartedAt = null;
 
         const workedMinutes = Math.floor(workedSeconds / 60);
-        task.motivation = (task.motivation || 0) + workedMinutes * 2;
+        task.motivation = (task.motivation || 0) + workedMinutes * 2 * task.difficulty;
 
         const hours = Math.floor(task.worktime / 3600);
         const minutes = Math.floor((task.worktime % 3600) / 60);
