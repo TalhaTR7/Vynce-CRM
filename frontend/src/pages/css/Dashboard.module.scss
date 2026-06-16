@@ -32,7 +32,7 @@
             .myWork,
             .leaderboards,
             .notifications {
-                background: #0f0f0f;
+                background: #efefef;
                 border-radius: 7px;
                 height: 100%;
                 box-sizing: border-box;
@@ -137,7 +137,7 @@
                 }
             }
 
-            /* ─── Panel "Open …" link (bottom-left of panel) ────────────────── */
+            /* ─── Panel "Open …" link ────────────────────────────────────────── */
             .panelLink {
                 display: inline-flex;
                 flex-direction: row;
@@ -205,11 +205,11 @@
 
                         &:hover {
                             opacity: 0.85;
-                            background: rgba(255, 255, 255, 0.04);
+                            background: rgba(0, 0, 0, 0.04);
                         }
 
                         &.projectTabActive {
-                            background: rgba(255, 255, 255, 0.05);
+                            background: rgba(0, 0, 0, 0.05);
                             border-color: var(--border);
                             opacity: 1;
 
@@ -253,13 +253,11 @@
                         opacity: 0.35;
                         flex-shrink: 0;
                         margin-left: auto;
-                        transition:
-                            opacity 0.14s ease,
-                            background 0.14s ease;
+                        transition: opacity 0.14s ease, background 0.14s ease;
 
                         &:hover {
                             opacity: 0.75;
-                            background: rgba(255, 255, 255, 0.04);
+                            background: rgba(0, 0, 0, 0.04);
                         }
 
                         img {
@@ -358,7 +356,7 @@
                         }
 
                         &:hover {
-                            background: #ffffff08;
+                            background: rgba(0, 0, 0, 0.04);
                             border-bottom-color: transparent;
 
                             .taskRowMeta {
@@ -446,7 +444,7 @@
                     }
                 }
 
-                /* ─── "Nothing here" mini-state (inside task area) ───────────────── */
+                /* ─── Nothing state ──────────────────────────────────────────────── */
                 .nothingState {
                     display: flex;
                     flex-direction: column;
@@ -492,26 +490,23 @@
                     flex-direction: column;
                     overflow: hidden;
 
-                    /* ─── Notification row ───────────────────────────────────────────── */
                     .notificationItem {
                         display: flex;
                         flex-direction: row;
                         align-items: center;
                         gap: 14px;
                         padding: 10px 20px;
-                        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+                        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
                         cursor: pointer;
                         text-decoration: none;
-                        transition:
-                            background 0.12s ease,
-                            padding 0.12s ease;
+                        transition: background 0.12s ease, padding 0.12s ease;
 
                         &:first-child {
-                            border-top: 1px solid rgba(255, 255, 255, 0.04);
+                            border-top: 1px solid rgba(0, 0, 0, 0.05);
                         }
 
                         &:hover {
-                            background: rgba(255, 255, 255, 0.03);
+                            background: rgba(0, 0, 0, 0.03);
                             border-bottom-color: transparent;
 
                             .notificationTime {
@@ -579,7 +574,6 @@
                 display: flex;
                 flex-direction: column;
 
-                /* ─── Project switcher ───────────────────────────────────────────── */
                 .lbProjectPane {
                     display: flex;
                     flex-direction: row;
@@ -614,7 +608,7 @@
 
                         &.lbProjectTabActive {
                             opacity: 1;
-                            background: rgba(255, 255, 255, 0.05);
+                            background: rgba(0, 0, 0, 0.05);
                             border-color: var(--border);
                         }
 
@@ -641,7 +635,6 @@
                     }
                 }
 
-                /* ─── Rankings list ──────────────────────────────────────────────── */
                 .lbList {
                     display: flex;
                     flex-direction: column;
@@ -675,7 +668,6 @@
                     align-items: center;
                     gap: 12px;
                     padding: 10px 20px;
-                    border-radius: 0;
                     border-bottom: 1px solid var(--border);
                     transition: background 0.1s ease;
                     position: relative;
@@ -690,7 +682,7 @@
                     }
 
                     &.lbRowMe {
-                        background: rgba(0, 232, 122, 0.04);
+                        background: rgba(0, 168, 84, 0.05);
                         border-bottom-color: transparent;
 
                         &::before {

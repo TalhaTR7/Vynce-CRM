@@ -32,7 +32,7 @@
     position: relative;
 }
 
-/* ─── Back button (top-left of the inner wrapper) ────────────────── */
+/* ─── Back button ────────────────────────────────────────────────── */
 .backButton {
     position: absolute;
     top: 108px;
@@ -48,9 +48,7 @@
     background: transparent;
     cursor: pointer;
     opacity: 0.4;
-    transition:
-        opacity 0.14s ease,
-        background 0.14s ease;
+    transition: opacity 0.14s ease, background 0.14s ease;
 
     img {
         width: 16px;
@@ -59,7 +57,7 @@
 
     &:hover {
         opacity: 1;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.05);
     }
 }
 
@@ -121,7 +119,7 @@
         }
 
         &:hover {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(0, 0, 0, 0.04);
 
             img {
                 opacity: 0.7;
@@ -134,7 +132,7 @@
 
         &.settingsNavButtonActive {
             border-color: var(--border);
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(0, 0, 0, 0.04);
 
             img {
                 opacity: 1;
@@ -149,7 +147,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   SHARED PANEL SHELL — all sub-pages use this as root
+   SHARED PANEL SHELL
    ══════════════════════════════════════════════════════════════════ */
 .settingsPanel {
     display: flex;
@@ -168,12 +166,12 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        background: #2a2a2a;
+        background: #cccccc;
         border-radius: 10px;
     }
 }
 
-/* ── Shared panel heading row (project identity) ─────────────────── */
+/* ── Shared panel heading row ────────────────────────────────────── */
 .panelProjectRow {
     display: flex;
     flex-direction: row;
@@ -246,7 +244,7 @@
     gap: 8px;
     height: 34px;
     padding: 0 12px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.03);
     border: 1px solid var(--border);
     border-radius: 8px;
     transition: border-color 0.18s ease;
@@ -302,8 +300,8 @@
 
     &:hover {
         opacity: 1;
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.04);
+        border-color: rgba(0, 0, 0, 0.14);
     }
 
     &.sharedIconButtonDestructive {
@@ -323,8 +321,6 @@
 /* ══════════════════════════════════════════════════════════════════
    GENERAL SETTINGS
    ══════════════════════════════════════════════════════════════════ */
-
-/* ── Project image + info card ───────────────────────────────────── */
 .generalProjectCard {
     display: flex;
     flex-direction: row;
@@ -333,7 +329,7 @@
     padding: 14px 16px;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
     max-width: 520px;
 
     .generalProjectImage {
@@ -356,7 +352,6 @@
             transition: filter 0.18s ease;
         }
 
-        /* Edit overlay */
         &::after {
             content: "";
             position: absolute;
@@ -470,11 +465,11 @@
         padding: 7px 10px;
         border: 1px solid var(--border);
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.01);
+        background: rgba(0, 0, 0, 0.01);
         transition: background 0.12s ease;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(0, 0, 0, 0.04);
         }
 
         .generalBoardDragHandle {
@@ -553,7 +548,6 @@
     max-width: 520px;
     background-color: var(--red-shade);
 
-
     .dangerZoneLabel {
         font-size: 14px;
         font-family: var(--font-body);
@@ -565,7 +559,7 @@
 
     .dangerZoneDivider {
         height: 1px;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.06);
     }
 
     .dangerZoneRow {
@@ -633,7 +627,7 @@
     padding: 6px 12px;
     border-radius: 7px;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.02);
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.14s ease, border-color 0.14s ease;
@@ -647,8 +641,8 @@
     }
 
     &:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.14);
     }
 }
 
@@ -658,10 +652,10 @@
     right: 0;
     z-index: 300;
     width: 210px;
-    background: #111111;
+    background: #f8f8f8;
     border: 1px solid var(--border);
     border-radius: 10px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
     padding: 6px;
     display: flex;
     flex-direction: column;
@@ -693,7 +687,7 @@
     transition: background 0.12s ease;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.05);
     }
 
     .transferOptionAvatar {
@@ -762,7 +756,7 @@
     font-size: 14px;
     font-family: var(--font-body);
     font-weight: 700;
-    color: #0a0a0a;
+    color: #ffffff;
     opacity: 0.25;
     cursor: not-allowed;
     transition: opacity 0.18s ease, transform 0.1s ease, filter 0.14s ease;
@@ -802,12 +796,10 @@
     padding: 7px 14px;
     border-radius: 8px;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
     cursor: pointer;
     user-select: none;
-    transition:
-        background 0.14s ease,
-        border-color 0.14s ease;
+    transition: background 0.14s ease, border-color 0.14s ease;
     margin-left: auto;
 
     img {
@@ -825,8 +817,8 @@
     }
 
     &:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.14);
     }
 }
 
@@ -872,16 +864,16 @@
     align-items: center;
     padding: 9px 16px;
     gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     position: relative;
     transition: background 0.12s ease;
 
     &:first-child {
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     &:hover {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(0, 0, 0, 0.03);
         border-radius: 8px;
         border-bottom-color: transparent;
     }
@@ -890,12 +882,11 @@
         border-bottom-color: transparent;
     }
 
-    /* ── In-flow checkbox (first grid cell) ───────────────────────── */
     .memberCheckbox {
         appearance: none;
         width: 14px;
         height: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 4px;
         background: transparent;
         cursor: pointer;
@@ -919,7 +910,6 @@
         }
     }
 
-    /* Invisible spacer when no checkbox (OWNER row or non-owner viewer) */
     .memberCheckboxSpacer {
         width: 14px;
         height: 14px;
@@ -970,7 +960,6 @@
         text-overflow: ellipsis;
     }
 
-    /* ── Role pill ────────────────────────────────────────────────── */
     .memberRolePill {
         display: inline-flex;
         align-items: center;
@@ -987,17 +976,17 @@
         &.memberRolePillOwner {
             background: rgba(255, 196, 0, 0.1);
             border: 1px solid rgba(255, 196, 0, 0.3);
-            color: #ffc400;
+            color: #b08800;
         }
 
         &.memberRolePillAdmin {
-            background: rgba(0, 232, 122, 0.08);
-            border: 1px solid rgba(0, 232, 122, 0.25);
+            background: rgba(0, 168, 84, 0.08);
+            border: 1px solid rgba(0, 168, 84, 0.25);
             color: var(--green);
         }
 
         &.memberRolePillMember {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(0, 0, 0, 0.04);
             border: 1px solid var(--border);
             color: var(--text-secondary);
         }
@@ -1027,9 +1016,7 @@
         background: transparent;
         cursor: pointer;
         opacity: 0;
-        transition:
-            opacity 0.14s ease,
-            background 0.14s ease;
+        transition: opacity 0.14s ease, background 0.14s ease;
 
         img {
             width: 14px;
@@ -1038,7 +1025,7 @@
         }
 
         &:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.06);
         }
     }
 }
@@ -1055,10 +1042,10 @@
     gap: 2px;
     width: 190px;
     padding: 6px;
-    background: #111111;
+    background: #f8f8f8;
     border: 1px solid var(--border);
     border-radius: 10px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
     list-style: none;
     margin: 0;
     animation: dropdownReveal 0.14s ease both;
@@ -1113,10 +1100,8 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   ARCHIVE SETTINGS & MARKETPLACE — card browser panel
+   ARCHIVE SETTINGS & MARKETPLACE
    ══════════════════════════════════════════════════════════════════ */
-
-/* ── Section intro (project row + description) ───────────────────── */
 .cardSectionHeader {
     display: flex;
     flex-direction: row;
@@ -1134,7 +1119,6 @@
     }
 }
 
-/* ── Browser panel: sticky toolbar + scrollable card grid ────────── */
 .cardBrowser {
     display: flex;
     flex-direction: column;
@@ -1175,7 +1159,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        background: #2a2a2a;
+        background: #cccccc;
         border-radius: 10px;
     }
 }

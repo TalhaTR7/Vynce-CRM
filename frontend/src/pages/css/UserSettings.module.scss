@@ -58,9 +58,7 @@
                 margin-bottom: 16px;
                 margin-left: 2px;
                 flex-shrink: 0;
-                transition:
-                    opacity 0.14s ease,
-                    background 0.14s ease;
+                transition: opacity 0.14s ease, background 0.14s ease;
 
                 img {
                     width: 16px;
@@ -96,9 +94,7 @@
                 cursor: pointer;
                 text-align: left;
                 user-select: none;
-                transition:
-                    background 0.14s ease,
-                    border-color 0.14s ease;
+                transition: background 0.14s ease, border-color 0.14s ease;
 
                 img {
                     width: 14px;
@@ -118,7 +114,7 @@
                 }
 
                 &:hover {
-                    background: #ffffff08;
+                    background: rgba(0, 0, 0, 0.05);
 
                     img {
                         opacity: 0.7;
@@ -145,7 +141,7 @@
 
                 &.settingsNavButtonLogout {
                     &:hover {
-                        background: #dc3c3c0f;
+                        background: rgba(220, 60, 60, 0.06);
 
                         p {
                             color: var(--red-soft);
@@ -180,7 +176,7 @@
             }
 
             &::-webkit-scrollbar-thumb {
-                background: #2a2a2a;
+                background: #cccccc;
                 border-radius: 10px;
             }
         }
@@ -213,7 +209,7 @@
                 padding: 20px;
                 border: 1px solid var(--border);
                 border-radius: 12px;
-                background: #ffffff05;
+                background: rgba(0, 0, 0, 0.02);
                 margin-bottom: 24px;
             }
 
@@ -240,7 +236,7 @@
                     content: "";
                     position: absolute;
                     inset: 0;
-                    background: #0000008c url("../../assets/icons/edit.svg") no-repeat center / 38%;
+                    background: rgba(0, 0, 0, 0.5) url("../../assets/icons/edit.svg") no-repeat center / 38%;
                     opacity: 0;
                     transition: opacity 0.2s ease;
                 }
@@ -291,7 +287,7 @@
                 }
 
                 input {
-                    background: #ffffff05;
+                    background: rgba(0, 0, 0, 0.03);
                     border: 1px solid var(--border);
                     border-radius: 7px;
                     padding: 10px 14px;
@@ -304,8 +300,8 @@
                     width: 100%;
 
                     &:focus {
-                        border-color: #00e87a66;
-                        box-shadow: 0 0 0 3px #00e87a0f;
+                        border-color: rgba(0, 168, 84, 0.45);
+                        box-shadow: 0 0 0 3px rgba(0, 168, 84, 0.08);
                     }
 
                     &::placeholder {
@@ -313,15 +309,15 @@
                     }
 
                     &:disabled {
-                        background: #ffffff05;
-                        border-color: #ffffff0a;
+                        background: rgba(0, 0, 0, 0.03);
+                        border-color: rgba(0, 0, 0, 0.06);
                         color: var(--text-muted);
                         cursor: not-allowed;
                     }
                 }
             }
 
-            /* ── Inline action row (Change password) ─────────────────────────── */
+            /* ── Inline action row ───────────────────────────────────────────── */
             .inlineActionRow {
                 display: flex;
                 flex-direction: row;
@@ -330,7 +326,7 @@
                 padding: 12px 14px;
                 border: 1px solid var(--border);
                 border-radius: 7px;
-                background: #ffffff05;
+                background: rgba(0, 0, 0, 0.02);
                 margin-bottom: 16px;
 
                 .inlineActionLabel {
@@ -361,9 +357,7 @@
                 font-weight: 600;
                 flex-shrink: 0;
                 user-select: none;
-                transition:
-                    filter 0.14s ease,
-                    transform 0.1s ease;
+                transition: filter 0.14s ease, transform 0.1s ease;
 
                 img {
                     width: 15px;
@@ -420,14 +414,11 @@
                 font-size: 14px;
                 font-family: var(--font-body);
                 font-weight: 700;
-                color: #0a0a0a;
+                color: #ffffff;
                 cursor: not-allowed;
                 opacity: 0.35;
                 user-select: none;
-                transition:
-                    opacity 0.2s ease,
-                    filter 0.14s ease,
-                    transform 0.14s ease;
+                transition: opacity 0.2s ease, filter 0.14s ease, transform 0.14s ease;
 
                 &.saveButtonActive {
                     opacity: 1;
@@ -461,7 +452,6 @@
                 overflow: hidden;
             }
 
-            /* ─── Single project row ─────────────────────────────────────────── */
             .projectRow {
                 display: flex;
                 flex-direction: row;
@@ -536,9 +526,7 @@
                     flex-shrink: 0;
                     opacity: 0.8;
                     user-select: none;
-                    transition:
-                        opacity 0.14s ease,
-                        background 0.14s ease;
+                    transition: opacity 0.14s ease, background 0.14s ease;
 
                     &:hover {
                         opacity: 1;
@@ -556,14 +544,11 @@
                     border: 1px solid var(--border);
                     flex-shrink: 0;
                     opacity: 0.6;
-                    transition:
-                        opacity 0.14s ease,
-                        border-color 0.14s ease,
-                        color 0.14s ease;
+                    transition: opacity 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 
                     &:hover {
                         opacity: 1;
-                        border-color: #ffffff24;
+                        border-color: rgba(0, 0, 0, 0.18);
                         color: var(--text-primary);
                     }
                 }
@@ -577,13 +562,11 @@
                 gap: 8px;
                 padding: 10px 14px;
                 border-radius: 10px;
-                border: 1px dashed #ffffff1a;
+                border: 1px dashed rgba(0, 0, 0, 0.12);
                 background: transparent;
                 cursor: pointer;
                 user-select: none;
-                transition:
-                    background 0.14s ease,
-                    border-color 0.14s ease;
+                transition: background 0.14s ease, border-color 0.14s ease;
 
                 img {
                     width: 12px;
@@ -600,8 +583,8 @@
                 }
 
                 &:hover {
-                    background: #ffffff08;
-                    border-color: #ffffff29;
+                    background: rgba(0, 0, 0, 0.04);
+                    border-color: rgba(0, 0, 0, 0.2);
 
                     img {
                         opacity: 0.7;

@@ -32,34 +32,34 @@
   --font-mono: 'Space Grotesk', monospace;
   --font-wide: 'Unbounded', sans-serif;
 
-  --body: #0f0f0f;
+  --body: #f0f0f0;
 
-  --green: #00e87a;
-  --green-dim: #00e87a1f;
-  --green-glow: #00e87a59;
+  --green: #00a854;
+  --green-dim: #00a8541f;
+  --green-glow: #00a85459;
   --red: #b31b1b;
 
   --blue: #2f78a3;
 
-  --red-soft: #e05c5c;
-  --red-hover: #e05c5c14;
-  --red-border: #e05c5c33;
-  --red-shade: #eb424208;
+  --red-soft: #cc3333;
+  --red-hover: #cc333314;
+  --red-border: #cc333333;
+  --red-shade: #cc333308;
 
-  --border: #ffffff11;
-  --bg: #0a0a0a;
-  --surface: #121212;
-  --hover: #181818;
+  --border: #00000014;
+  --bg: #f5f5f5;
+  --surface: #ebebeb;
+  --hover: #e2e2e2;
 
-  --text-primary: #dddddd;
-  --text-secondary: #999999;
-  --text-muted: #555555;
+  --text-primary: #111111;
+  --text-secondary: #444444;
+  --text-muted: #888888;
 }
 
 
 ::selection {
   background-color: var(--green);
-  color: #111;
+  color: #fff;
 }
 
 body {
@@ -68,11 +68,11 @@ body {
 }
 
 .my-toast {
-  background-color: #111;
-  color: #ccc;
-  border: 2px solid #888;
+  background-color: #ffffff;
+  color: #222;
+  border: 2px solid #ccc;
   border-radius: 10px;
   font-family: Arial;
-  box-shadow: 0 10px 30px #00000055;
+  box-shadow: 0 10px 30px #00000018;
   display: flex;
 }

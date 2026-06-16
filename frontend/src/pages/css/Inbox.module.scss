@@ -37,7 +37,7 @@
                 width: 15px;
                 height: 15px;
                 flex-shrink: 0;
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(0, 0, 0, 0.2);
                 border-radius: 4px;
                 background: transparent;
                 cursor: pointer;
@@ -94,7 +94,7 @@
                 }
             }
 
-            /* ── Action icon buttons (delete, mark read) ─────────────────────── */
+            /* ── Action icon buttons ─────────────────────────────────────────── */
             .toolbarButton {
                 display: flex;
                 align-items: center;
@@ -119,8 +119,8 @@
 
                 &:hover {
                     opacity: 1;
-                    background: rgba(255, 255, 255, 0.04);
-                    border-color: rgba(255, 255, 255, 0.14);
+                    background: rgba(0, 0, 0, 0.04);
+                    border-color: rgba(0, 0, 0, 0.14);
                 }
 
                 &.toolbarButtonDestructive:hover {
@@ -137,7 +137,7 @@
                 flex: 1;
                 height: 30px;
                 gap: 8px;
-                background: rgba(255, 255, 255, 0.03);
+                background: rgba(0, 0, 0, 0.03);
                 border: 1px solid var(--border);
                 border-radius: 8px;
                 padding: 0 12px;
@@ -196,9 +196,7 @@
                     background: transparent;
                     cursor: pointer;
                     opacity: 0.4;
-                    transition:
-                        opacity 0.14s ease,
-                        background 0.14s ease;
+                    transition: opacity 0.14s ease, background 0.14s ease;
 
                     img {
                         width: 7px;
@@ -207,7 +205,7 @@
 
                     &:hover {
                         opacity: 1;
-                        background: rgba(255, 255, 255, 0.04);
+                        background: rgba(0, 0, 0, 0.04);
                     }
 
                     &:disabled {
@@ -231,7 +229,7 @@
                 }
 
                 &::-webkit-scrollbar-thumb {
-                    background: #2a2a2a;
+                    background: #cccccc;
                     border-radius: 10px;
                 }
 
@@ -243,7 +241,7 @@
                     gap: 14px;
                     padding: 11px 18px;
                     margin: 0 24px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
                     cursor: pointer;
                     text-decoration: none;
                     transition:
@@ -253,11 +251,11 @@
                         padding 0.12s ease;
 
                     &:first-child {
-                        border-top: 1px solid rgba(255, 255, 255, 0.04);
+                        border-top: 1px solid rgba(0, 0, 0, 0.05);
                     }
 
                     &:hover {
-                        background: rgba(255, 255, 255, 0.03);
+                        background: rgba(0, 0, 0, 0.03);
                         border-bottom-color: transparent;
                         border-top-color: transparent;
                         border-radius: 10px;
@@ -273,12 +271,10 @@
                         border-bottom-color: transparent;
                     }
 
-                    /* ── Mail checkbox ───────────────────────────────────────────────── */
                     .mailCheckbox {
                         @extend %checkbox-base;
                     }
 
-                    /* ── Mail icon ───────────────────────────────────────────────────── */
                     .mailIcon {
                         width: 34px;
                         height: 34px;
@@ -302,7 +298,6 @@
                         }
                     }
 
-                    /* ── Mail content ────────────────────────────────────────────────── */
                     .mailContent {
                         display: flex;
                         flex-direction: column;
@@ -336,7 +331,6 @@
                         }
                     }
 
-                    /* ── Mail timestamp ──────────────────────────────────────────────── */
                     .mailTime {
                         font-size: 12px;
                         font-family: var(--font-mono);

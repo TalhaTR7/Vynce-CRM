@@ -76,10 +76,9 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     padding-left: 16px;
-    /* aligns under title, past the dot */
 }
 
-/* ─── Project switcher — segmented control style ─────────────────── */
+/* ─── Project switcher ─────────────────────────────────────────────── */
 .projectPane {
     display: flex;
     gap: 0;
@@ -174,7 +173,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   PODIUM — CARDS UNCHANGED
+   PODIUM
    ═══════════════════════════════════════════════════════ */
 .podium {
     display: grid;
@@ -184,7 +183,6 @@
     align-items: end;
 }
 
-/* ── Base card ── */
 .podiumCard {
     position: relative;
     height: 140px;
@@ -213,10 +211,10 @@
         height: 156px;
         background: var(--surface);
         border-color: var(--green-glow);
-        box-shadow: 0 0 48px rgba(0, 232, 122, 0.08), inset 0 1px 0 var(--green-dim);
+        box-shadow: 0 0 48px rgba(0, 168, 84, 0.08), inset 0 1px 0 var(--green-dim);
 
         &:hover {
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7), 0 0 56px rgba(0, 232, 122, 0.12);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12), 0 0 56px rgba(0, 168, 84, 0.1);
         }
 
         .ghostNum {
@@ -263,28 +261,28 @@
 
     &.podiumCard2 {
         background: var(--hover);
-        border-color: rgba(0, 232, 122, 0.18);
+        border-color: rgba(0, 168, 84, 0.18);
 
         &:hover {
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65), 0 0 32px rgba(0, 232, 122, 0.06);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 0 32px rgba(0, 168, 84, 0.06);
         }
 
         .ghostNum {
-            color: rgba(0, 232, 122, 0.08);
+            color: rgba(0, 168, 84, 0.08);
         }
 
         .avatarRing {
-            box-shadow: 0 0 0 2px rgba(0, 232, 122, 0.4), 0 0 14px rgba(0, 232, 122, 0.1);
+            box-shadow: 0 0 0 2px rgba(0, 168, 84, 0.4), 0 0 14px rgba(0, 168, 84, 0.1);
         }
 
         .rankChip {
-            background: rgba(0, 232, 122, 0.07);
-            color: rgba(0, 232, 122, 0.7);
-            border-color: rgba(0, 232, 122, 0.2);
+            background: rgba(0, 168, 84, 0.07);
+            color: rgba(0, 168, 84, 0.7);
+            border-color: rgba(0, 168, 84, 0.2);
         }
 
         .xpNum {
-            color: rgba(0, 232, 122, 0.6);
+            color: rgba(0, 168, 84, 0.6);
         }
 
         .xpLabel {
@@ -292,7 +290,7 @@
         }
 
         .firstName {
-            color: rgba(0, 232, 122, 0.45);
+            color: rgba(0, 168, 84, 0.45);
         }
 
         .lastName {
@@ -309,15 +307,15 @@
         border-color: var(--border);
 
         &:hover {
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
         }
 
         .ghostNum {
-            color: rgba(255, 255, 255, 0.03);
+            color: rgba(0, 0, 0, 0.04);
         }
 
         .avatarRing {
-            box-shadow: 0 0 0 2px rgba(0, 232, 122, 0.22), 0 0 10px rgba(0, 232, 122, 0.05);
+            box-shadow: 0 0 0 2px rgba(0, 168, 84, 0.22), 0 0 10px rgba(0, 168, 84, 0.05);
         }
 
         .rankChip {
@@ -506,7 +504,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   FULL RANKED TABLE — completely new design
+   FULL RANKED TABLE
    ═══════════════════════════════════════════════════════ */
 .tableWrap {
     display: flex;
@@ -518,7 +516,6 @@
     background: var(--surface);
 }
 
-/* ── Table caption bar ── */
 .tableCaption {
     display: flex;
     align-items: center;
@@ -557,7 +554,6 @@
     opacity: 0.5;
 }
 
-/* ── Column headers ── */
 .tableHead {
     display: grid;
     grid-template-columns: 52px 1fr 130px 130px 90px;
@@ -587,7 +583,6 @@
     flex-direction: column;
 }
 
-/* ── Each row ── */
 .tableRow {
     display: grid;
     grid-template-columns: 52px 1fr 130px 130px 90px;
@@ -626,7 +621,6 @@
     }
 }
 
-/* ── Rank cell ── */
 .tdRank {
     font-size: 12px;
     font-family: var(--font-mono);
@@ -643,17 +637,16 @@
     }
 
     &.tdRankSecond {
-        color: rgba(0, 232, 122, 0.55);
+        color: rgba(0, 168, 84, 0.55);
         opacity: 1;
     }
 
     &.tdRankThird {
-        color: rgba(0, 232, 122, 0.38);
+        color: rgba(0, 168, 84, 0.38);
         opacity: 1;
     }
 }
 
-/* ── Member cell ── */
 .tdMember {
     display: flex;
     align-items: center;
@@ -710,7 +703,6 @@
     align-self: center;
 }
 
-/* ── Stat cells ── */
 .tdStat {
     display: flex;
     align-items: center;
@@ -729,7 +721,6 @@
     }
 }
 
-/* ── Reward cell ── */
 .tdReward {
     display: flex;
     align-items: center;

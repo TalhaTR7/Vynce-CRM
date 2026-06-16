@@ -11,7 +11,7 @@
     position: relative;
     width: 45%;
     flex-shrink: 0;
-    background: #0d0d0d;
+    background: #e8e8e8;
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
@@ -27,7 +27,7 @@
         transform: translate(-50%, -50%);
         width: 480px;
         height: 480px;
-        background: radial-gradient(ellipse, rgba(0, 232, 122, 0.12) 0%, transparent 70%);
+        background: radial-gradient(ellipse, rgba(0, 168, 84, 0.12) 0%, transparent 70%);
         pointer-events: none;
         animation: brandGlow 8s ease-in-out infinite;
     }
@@ -37,8 +37,8 @@
         position: absolute;
         inset: 0;
         background-image:
-            linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
         background-size: 40px 40px;
         pointer-events: none;
     }
@@ -85,7 +85,7 @@
 
     .brandArtImage {
         width: 100%;
-        mix-blend-mode: screen;
+        mix-blend-mode: multiply;
         animation: artFloat 6s ease-in-out infinite;
     }
 }
@@ -223,7 +223,7 @@
     gap: 10px;
 }
 
-/* ── Field group (label + input) ─────────────────────────────────── */
+/* ── Field group ─────────────────────────────────────────────────── */
 .fieldGroup {
     display: flex;
     flex-direction: column;
@@ -251,7 +251,7 @@
     width: 100%;
     padding: 11px 16px;
     border-radius: 9px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.03);
     border: 1px solid var(--border);
     color: var(--text-primary);
     font-size: 14px;
@@ -263,7 +263,7 @@
         box-shadow 0.2s ease;
 
     &:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0 30px #121212 inset !important;
+        -webkit-box-shadow: 0 0 0 30px #ebebeb inset !important;
         -webkit-text-fill-color: var(--text-primary) !important;
         caret-color: var(--text-primary) !important;
     }
@@ -273,15 +273,15 @@
     }
 
     &:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.12);
     }
 
     &:focus {
         outline: none;
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(0, 232, 122, 0.45);
-        box-shadow: 0 0 0 3px rgba(0, 232, 122, 0.08);
+        background: rgba(0, 0, 0, 0.04);
+        border-color: rgba(0, 168, 84, 0.45);
+        box-shadow: 0 0 0 3px rgba(0, 168, 84, 0.08);
     }
 }
 
@@ -346,7 +346,7 @@
     border-radius: 9px;
     border: none;
     background: var(--green);
-    color: #0a0a0a;
+    color: #ffffff;
     font-size: 14px;
     font-family: var(--font-body);
     font-weight: 700;
@@ -368,7 +368,7 @@
     }
 
     &:hover {
-        background: #00ff87;
+        background: #009448;
         box-shadow: 0 4px 28px var(--green-glow);
         transform: translateY(-2px);
 
@@ -417,7 +417,7 @@
         height: 40px;
         border-radius: 9px;
         border: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(0, 0, 0, 0.02);
         color: var(--text-secondary);
         font-size: 13px;
         font-family: var(--font-body);
@@ -429,8 +429,8 @@
         transition: all 0.2s ease;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.12);
             color: var(--text-primary);
             transform: translateY(-1px);
         }
