@@ -20,7 +20,7 @@ function formatImage(image) {
 
 
 // create a task
-router.post("/create", authMiddleware, async (req, res) => {
+router.post("/creat", authMiddleware, async (req, res) => {
     const {
         projectId,
         boardId,
@@ -120,7 +120,134 @@ router.post("/create", authMiddleware, async (req, res) => {
 
         res.status(201).json(task);
     } catch (err) {
+        await User.findByIdAndUpdate(req.user.id, { $inc: { ethereum: setReward } });
         res.status(500).json({ msg: err.message });
+    }
+});
+
+// create a task
+router.post("/create", (req, res, next) => {
+    console.log("hit /create before auth");
+    next();
+}, authMiddleware, async (req, res) => {
+    console.log("inside route");
+    const {
+        projectId,
+        boardId,
+        title,
+        description = "",
+        assigneeId,
+        dueDate = null,
+        ethereum = 1,
+        difficulty = 1
+    } = req.body;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        if (!projectId || !boardId || !title || !assigneeId) {
+            await session.abortTransaction();
+            return res.status(400).json({ msg: "Required fields are missing" });
+        }
+
+        const projectExists = await Project.exists({ _id: projectId }).session(session);
+        if (!projectExists) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Project not found" });
+        }
+
+        const boardExists = await Board.exists({ _id: boardId, projectId }).session(session);
+        if (!boardExists) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Board does not exist" });
+        }
+
+        let membership = await Membership.findOne({ projectId, userId: req.user.id }).select("role").session(session);
+        if (!membership) {
+            await session.abortTransaction();
+            return res.status(403).json({ msg: "Not a member of this project" });
+        }
+        if (!["OWNER", "ADMIN"].includes(membership.role)) {
+            await session.abortTransaction();
+            return res.status(403).json({ msg: "Not an OWNER or ADMIN" });
+        }
+
+        const assignee = await User.findById(assigneeId).select("mood").session(session);
+        if (!assignee) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Assignee not found" });
+        }
+
+        membership = await Membership.findOne({ projectId, userId: assignee._id }).select("role").session(session);
+        if (!membership) {
+            await session.abortTransaction();
+            return res.status(403).json({ msg: "Assignee is not a member of this project" });
+        }
+
+        const setReward = Math.max(1, Number(ethereum) || 1);
+
+        // Atomically deduct ethereum within the transaction
+        const updatedCreator = await User.findOneAndUpdate(
+            { _id: req.user.id, ethereum: { $gte: setReward } },
+            { $inc: { ethereum: -setReward } },
+            { new: true, select: "firstname lastname", session }
+        );
+
+        if (!updatedCreator) {
+            await session.abortTransaction();
+            return res.status(400).json({ msg: "Insufficient ETH balance to create this task" });
+        }
+
+        const multiplier = {
+            ANGRY: 1.5,
+            CRYING: 1.3,
+            SAD: 1.2,
+            NORMAL: 1.0,
+            OKAY: 1.0,
+            HAPPY: 1.0,
+            ECSTATIC: 1.0
+        }[assignee.mood?.value || "NORMAL"] ?? 1.0;
+        const calculatedReward = Math.max(1, Math.floor(setReward * multiplier));
+
+        const [task] = await Task.create([{
+            projectId,
+            boardId,
+            title,
+            description,
+            creatorId: req.user.id,
+            assigneeId,
+            dueDate,
+            difficulty,
+            ethereum: {
+                assigned: setReward,
+                calculated: calculatedReward,
+            },
+            activity: [{
+                type: "ACTION",
+                userId: req.user.id,
+                action: "CREATED_TASK",
+                content: `${updatedCreator.firstname} ${updatedCreator.lastname} created this task`
+            }]
+        }], { session });
+
+        if (assigneeId !== req.user.id) {
+            await Notification.create([{
+                users: recipients([assigneeId]),
+                type: "TASK_ASSIGNED",
+                icon: { type: "PROJECT", refId: projectId },
+                title: `${updatedCreator.firstname} ${updatedCreator.lastname} assigned you a new task: ${title}`,
+                action: { type: "NAVIGATE", url: `/task/${task._id}` },
+            }], { session });
+        }
+
+        await session.commitTransaction();
+        res.status(201).json(task);
+    } catch (err) {
+        await session.abortTransaction();
+        res.status(500).json({ msg: err.message });
+    } finally {
+        session.endSession();
     }
 });
 

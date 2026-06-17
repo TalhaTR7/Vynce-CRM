@@ -68,6 +68,7 @@
     .brandLogo {
         height: 28px;
         user-select: none;
+        filter: invert(1);
     }
 }
 
@@ -269,7 +270,7 @@
     }
 
     &::placeholder {
-        color: var(--text-muted);
+        color: #bbb;
     }
 
     &:hover {

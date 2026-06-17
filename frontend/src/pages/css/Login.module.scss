@@ -69,6 +69,7 @@
     .brandLogo {
         height: 28px;
         user-select: none;
+        filter: invert(1);
     }
 }
 
@@ -265,7 +266,7 @@
     }
 
     &::placeholder {
-        color: var(--text-muted);
+        color: #bbb;
     }
 
     &:hover {
@@ -349,7 +350,7 @@
                     display: block;
                     width: 14px;
                     height: 14px;
-                    background-image: url("../assets/icons/check.svg");
+                    background-image: url("../../assets/icons/check.svg");
                     background-size: contain;
                     background-repeat: no-repeat;
                     background-position: center;

@@ -77,6 +77,7 @@ export function CreateTask({ onClose, project, board }) {
         if (!assignee) { toast.error("Assignee is required"); return; }
         try {
             setLoading(true);
+            console.log("above route");
             const res = await axios.post("/api/tasks/create", {
                 projectId: project._id,
                 boardId: status._id,
@@ -84,12 +85,12 @@ export function CreateTask({ onClose, project, board }) {
                 assigneeId: assignee._id,
                 dueDate, ethereum: bounty, difficulty,
             }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            console.log("below route");
             handleClose();
             navigate(`/task/${res.data._id}`);
             toast.success("Task created!");
         } catch (err) {
-            console.error(err);
-            toast.error(err.response?.data?.msg);
+            toast.error(err.response?.data?.msg || err.message);
         } finally { setLoading(false); }
     };
 
