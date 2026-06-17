@@ -232,6 +232,14 @@ router.patch("/task/archive", authMiddleware, async (req, res) => {
             }], { session });
         }
 
+        if (!task.isRewarded) {
+            await User.findByIdAndUpdate(
+                task.creatorId,
+                { $inc: { ethereum: task.ethereum.assigned } },
+                { session }
+            );
+        }
+
         task.closed = true;
         task.dueDate = null;
         task.boardId = null;
