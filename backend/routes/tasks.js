@@ -6,6 +6,7 @@ import Membership from "../models/Membership.js";
 import Board from "../models/Board.js";
 import Task from "../models/Task.js";
 import Notification from "../models/Notification.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ function formatImage(image) {
 
 
 // create a task
-router.post("/creat", authMiddleware, async (req, res) => {
+router.post("/creal", authMiddleware, async (req, res) => {
     const {
         projectId,
         boardId,
@@ -126,10 +127,7 @@ router.post("/creat", authMiddleware, async (req, res) => {
 });
 
 // create a task
-router.post("/create", (req, res, next) => {
-    console.log("hit /create before auth");
-    next();
-}, authMiddleware, async (req, res) => {
+router.post("/create", authMiddleware, async (req, res) => {
     console.log("inside route");
     const {
         projectId,
