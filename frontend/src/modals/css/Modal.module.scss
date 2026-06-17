@@ -14,7 +14,7 @@
 
     &.show {
         opacity: 1;
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.14);
     }
 }
 
@@ -26,7 +26,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    background: #111111;
+    background: var(--bg);
     border: 1px solid var(--border);
 
     transform: translateY(16px) scale(0.98);
@@ -48,8 +48,8 @@
     border-radius: 16px;
     gap: 0;
     box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.04),
-        0 24px 64px rgba(0, 0, 0, 0.75);
+        0 0 0 1px var(--border),
+        0 24px 64px rgba(0, 0, 0, 0.12);
 }
 
 /* ─── Popup — lighter, same footprint ───────────────────────────── */
@@ -58,7 +58,7 @@
     padding: 0;
     border-radius: 16px;
     gap: 0;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
 }
 
 /* ─── Popover — compact, menu-style ─────────────────────────────── */
@@ -68,8 +68,8 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.04),
-        0 12px 32px rgba(0, 0, 0, 0.55);
+        0 0 0 1px var(--border),
+        0 12px 32px rgba(0, 0, 0, 0.1);
 }
 
 /* ─── Dialogue — frosted glass, for confirmations ───────────────── */
@@ -78,11 +78,11 @@
     padding: 0;
     border-radius: 10px;
     gap: 0;
-    background: rgba(14, 14, 14, 0.88);
+    background: rgba(245, 245, 245, 0.92);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     position: relative;
     box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.06),
-        0 24px 64px rgba(0, 0, 0, 0.7);
+        0 0 0 1px var(--border),
+        0 24px 64px rgba(0, 0, 0, 0.1);
 }

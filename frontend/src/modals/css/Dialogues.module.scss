@@ -18,7 +18,7 @@
     background: var(--text-muted);
 
     &.railGreen {
-        background: #00e87a;
+        background: #00a854;
     }
 
     &.railRed {
@@ -90,7 +90,7 @@
         height: 28px;
         border-radius: 50%;
         overflow: hidden;
-        border: 2px solid #111111;
+        border: 2px solid var(--bg);
         flex-shrink: 0;
 
         &:not(:first-child) {
@@ -110,7 +110,7 @@
         height: 28px;
         border-radius: 7px;
         overflow: hidden;
-        border: 2px solid #111111;
+        border: 2px solid var(--bg);
         flex-shrink: 0;
         margin-left: -7px;
         margin-right: -7px;
@@ -145,7 +145,7 @@
     padding: 9px 11px;
     border-radius: 8px;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--surface);
 
     .inviteThumb {
         width: 28px;
@@ -194,7 +194,7 @@
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--text-secondary);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--hover);
     border: 1px solid var(--border);
     border-radius: 5px;
     padding: 1px 6px;
@@ -220,7 +220,7 @@
         width: 14px;
         height: 14px;
         min-width: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        border: 1px solid var(--text-muted);
         border-radius: 4px;
         background: transparent;
         cursor: pointer;
@@ -240,7 +240,7 @@
                 display: block;
                 width: 10px;
                 height: 10px;
-                background: url("../../../assets/icons/check.svg") no-repeat center / contain;
+                background: url("../../assets/icons/check.svg") no-repeat center / contain;
             }
         }
     }
@@ -272,7 +272,7 @@
 
     input {
         height: 32px;
-        background: rgba(255, 255, 255, 0.025);
+        background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 7px;
         padding: 0 10px;
@@ -286,12 +286,12 @@
         transition: border-color 0.14s ease, box-shadow 0.14s ease;
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.15);
+            color: var(--text-muted);
         }
 
         &:focus {
-            border-color: rgba(0, 232, 122, 0.3);
-            box-shadow: 0 0 0 2px rgba(0, 232, 122, 0.05);
+            border-color: var(--green-glow);
+            box-shadow: 0 0 0 2px var(--green-dim);
         }
     }
 }
@@ -322,7 +322,7 @@
         flex-direction: row;
         align-items: center;
         height: 32px;
-        background: rgba(255, 255, 255, 0.025);
+        background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 7px;
         padding: 0 0 0 10px;
@@ -330,8 +330,8 @@
         transition: border-color 0.14s ease, box-shadow 0.14s ease;
 
         &:focus-within {
-            border-color: rgba(0, 232, 122, 0.3);
-            box-shadow: 0 0 0 2px rgba(0, 232, 122, 0.05);
+            border-color: var(--green-glow);
+            box-shadow: 0 0 0 2px var(--green-dim);
         }
 
         input {
@@ -346,14 +346,14 @@
             letter-spacing: 0.04em;
 
             &::placeholder {
-                color: rgba(255, 255, 255, 0.15);
+                color: var(--text-muted);
                 letter-spacing: 0;
             }
 
             &:-webkit-autofill,
             &:-webkit-autofill:hover,
             &:-webkit-autofill:focus {
-                -webkit-box-shadow: 0 0 0 30px #111111 inset !important;
+                -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
                 -webkit-text-fill-color: var(--text-primary) !important;
                 caret-color: var(--text-primary) !important;
             }
@@ -434,14 +434,14 @@
         flex: 1;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--hover);
             filter: none;
         }
     }
 
     .btnGreen {
         background: var(--green);
-        color: #0a0a0a;
+        color: #ffffff;
         flex: 1.5;
     }
 
@@ -453,7 +453,7 @@
 
     .btnBlue {
         background: #4dabf7;
-        color: #0a0a0a;
+        color: #ffffff;
         flex: 1.5;
     }
 
@@ -470,7 +470,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(10, 10, 10, 0.82);
+    background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(3px);
     z-index: 20;
 

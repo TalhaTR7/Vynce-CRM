@@ -281,23 +281,23 @@ function Task() {
                     <div className={styles.actionButtons}>
                         {isCreator && <>
                             <button className={`${styles.actionButton} ${styles.actionButtonClose}`} onClick={() => openModal("CLOSE_TASK", { task })}>
-                                <img src={archive_svg} style={{ filter: "invert(1)" }} />
-                                <span style={{ color: "#111" }}>Close</span>
+                                <img src={archive_svg} style={{ filter: "invert(1) brightness(5.0)" }} />
+                                <span style={{ color: "#fff" }}>Close</span>
                             </button>
                             <button className={`${styles.actionButton} ${styles.actionButtonDelete}`} onClick={() => openModal("DELETE_TASK", { task })}>
-                                <img src={delete_svg} />
+                                <img src={delete_svg} style={{filter: "brightness(5.0)"}} />
                                 <span style={{ color: "#fff" }}>Delete</span>
                             </button>
                             {task.isSubmitted && (
                                 <button className={`${styles.actionButton} ${styles.actionButtonReturn}`} onClick={() => openModal("RETURN_TASK", { task })}>
-                                    <img src={return_svg} />
+                                    <img src={return_svg} style={{filter: "brightness(5.0)"}} />
                                     <span style={{ color: "#fff" }}>Return</span>
                                 </button>
                             )}
                         </>}
                         {(!task.isSubmitted && isAssignee) && (
                             <button className={`${styles.actionButton} ${styles.actionButtonSubmit}`} onClick={() => openModal("SUBMIT_TASK", { task })}>
-                                <img src={check_svg} style={{ filter: "invert(1)" }} />
+                                <img src={check_svg} style={{ filter: "brightness(5.0)" }} />
                                 <span style={{ color: "#fff" }}>Submit</span>
                             </button>
                         )}
@@ -456,7 +456,7 @@ function Task() {
                                     disabled={!isAssignee}
                                     onClick={task.isTimerRunning ? stopTimer : startTimer}
                                     style={{ cursor: isAssignee ? "pointer" : "default" }}>
-                                    <div className={styles.timerDot} style={{ backgroundColor: task.isTimerRunning ? "#ff4444" : "#ffffff4d" }} />
+                                    <div className={styles.timerDot} style={{ backgroundColor: task.isTimerRunning ? "#ff4444" : "#aaaaaa" }} />
                                 </button>
                                 <p>
                                     {workedHours > 0 ? `${workedHours}h ` : ""}

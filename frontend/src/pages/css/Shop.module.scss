@@ -69,7 +69,7 @@
 }
 
 .pageSubtitle {
-    font-size: 11px;
+    font-size: 12px;
     font-family: var(--font-mono);
     color: var(--text-muted);
     margin: 0;
@@ -78,35 +78,6 @@
     padding-left: 16px;
 }
 
-/* ─── Balance chip ────────────────────────────────────────────────── */
-.balanceChip {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    flex-shrink: 0;
-}
-
-.balanceCoin  { width: 16px; opacity: 0.6; }
-
-.balanceAmount {
-    font-size: 16px;
-    font-family: var(--font-wide);
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-}
-
-.balanceLabel {
-    font-size: 10px;
-    font-family: var(--font-mono);
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-}
 
 /* ─── Section divider ─────────────────────────────────────────────── */
 .sectionLabel {
@@ -125,7 +96,7 @@
 }
 
 .sectionText {
-    font-size: 9px;
+    font-size: 10px;
     font-family: var(--font-mono);
     color: var(--text-muted);
     letter-spacing: 0.16em;
@@ -160,7 +131,6 @@
 
 .sectionBadgeIcon {
     width: 10px;
-    opacity: 0.35;
 }
 
 /* ─── Secure notice ───────────────────────────────────────────────── */
@@ -170,8 +140,8 @@
     gap: 10px;
     padding: 11px 16px;
     border-radius: 9px;
-    background: rgba(0, 232, 122, 0.03);
-    border: 1px solid rgba(0, 232, 122, 0.1);
+    background: rgba(0, 232, 122, 0.07);
+    border: 1px solid rgba(0, 232, 122, 0.3);
     flex-shrink: 0;
     margin-top: -10px;
 }
@@ -185,7 +155,7 @@
 .secureText {
     font-size: 11px;
     font-family: var(--font-mono);
-    color: var(--text-muted);
+    color: var(--text-secondary);
     margin: 0;
     letter-spacing: 0.02em;
     opacity: 0.7;
@@ -210,9 +180,17 @@
 }
 
 @keyframes flashPulse {
-    0%   { box-shadow: 0 0 0 0   rgba(0, 232, 122, 0.55); }
-    50%  { box-shadow: 0 0 0 8px rgba(0, 232, 122, 0);    }
-    100% { box-shadow: 0 0 0 0   rgba(0, 232, 122, 0);    }
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 232, 122, 0.55);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(0, 232, 122, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 232, 122, 0);
+    }
 }
 
 .cardFlash {
@@ -232,13 +210,15 @@
     background: var(--surface);
     cursor: pointer;
     overflow: hidden;
+    user-select: none;
     transition:
         transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
         box-shadow 0.2s ease,
         border-color 0.2s ease;
-    user-select: none;
 
-    &:hover { transform: translateY(-5px); }
+    &:hover {
+        transform: translateY(-5px);
+    }
 
     &::before {
         content: '';
@@ -253,23 +233,28 @@
 
 .card_green {
     border-color: rgba(0, 232, 122, 0.18);
+
     &:hover {
         border-color: rgba(0, 232, 122, 0.35);
-        box-shadow: 0 14px 40px rgba(0,0,0,0.6), 0 0 32px rgba(0,232,122,0.08);
+        box-shadow: 0 14px 40px rgba(200, 200, 200, 0.6), 0 0 32px rgba(0, 232, 122, 0.08);
     }
 }
+
 .card_blue {
     border-color: rgba(47, 120, 163, 0.3);
+
     &:hover {
         border-color: rgba(47, 120, 163, 0.55);
-        box-shadow: 0 14px 40px rgba(0,0,0,0.6), 0 0 32px rgba(47,120,163,0.1);
+        box-shadow: 0 14px 40px rgba(200, 200, 200, 0.6), 0 0 32px rgba(47, 120, 163, 0.1);
     }
 }
+
 .card_gold {
     border-color: rgba(212, 175, 55, 0.22);
+
     &:hover {
         border-color: rgba(212, 175, 55, 0.45);
-        box-shadow: 0 14px 40px rgba(0,0,0,0.6), 0 0 32px rgba(212,175,55,0.08);
+        box-shadow: 0 14px 40px rgba(200, 200, 200, 0.6), 0 0 32px rgba(212, 175, 55, 0.08);
     }
 }
 
@@ -309,12 +294,14 @@
     border: 1px solid var(--green-glow);
     border-right: none;
 }
+
 .ribbon_blue {
     background: rgba(47, 120, 163, 0.15);
     color: #5ba8d4;
     border: 1px solid rgba(47, 120, 163, 0.35);
     border-right: none;
 }
+
 .ribbon_gold {
     background: rgba(212, 175, 55, 0.12);
     color: #d4af37;
@@ -340,23 +327,33 @@
 .iconWrap_green {
     background: rgba(0, 232, 122, 0.06);
     border-color: rgba(0, 232, 122, 0.18);
-    .card:hover & { box-shadow: 0 0 20px rgba(0, 232, 122, 0.12); }
+
+    .card:hover & {
+        box-shadow: 0 0 20px rgba(0, 232, 122, 0.12);
+    }
 }
+
 .iconWrap_blue {
     background: rgba(47, 120, 163, 0.08);
     border-color: rgba(47, 120, 163, 0.25);
-    .card:hover & { box-shadow: 0 0 20px rgba(47, 120, 163, 0.12); }
+
+    .card:hover & {
+        box-shadow: 0 0 20px rgba(47, 120, 163, 0.12);
+    }
 }
+
 .iconWrap_gold {
     background: rgba(212, 175, 55, 0.06);
     border-color: rgba(212, 175, 55, 0.2);
-    .card:hover & { box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
+
+    .card:hover & {
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+    }
 }
 
 .itemIcon {
     width: 22px;
     height: 22px;
-    opacity: 0.75;
     position: relative;
     z-index: 1;
 }
@@ -380,9 +377,20 @@
     user-select: none;
 }
 
-.itemLabel_green { color: var(--green); opacity: 0.7; }
-.itemLabel_blue  { color: #5ba8d4;     opacity: 0.7; }
-.itemLabel_gold  { color: #d4af37;     opacity: 0.7; }
+.itemLabel_green {
+    color: var(--green);
+    opacity: 0.7;
+}
+
+.itemLabel_blue {
+    color: #5ba8d4;
+    opacity: 0.7;
+}
+
+.itemLabel_gold {
+    color: #d4af37;
+    opacity: 0.7;
+}
 
 .itemName {
     font-size: 17px;
@@ -420,7 +428,9 @@
     gap: 5px;
 }
 
-.coinIcon { width: 14px; opacity: 0.5; }
+.coinIcon {
+    width: 14px;
+}
 
 .priceValue {
     font-size: 15px;
@@ -429,9 +439,17 @@
     letter-spacing: -0.02em;
 }
 
-.priceValue_green { color: var(--green); }
-.priceValue_blue  { color: #5ba8d4; }
-.priceValue_gold  { color: #d4af37; }
+.priceValue_green {
+    color: var(--green);
+}
+
+.priceValue_blue {
+    color: #5ba8d4;
+}
+
+.priceValue_gold {
+    color: #d4af37;
+}
 
 .priceCurrency {
     font-size: 9px;
@@ -463,19 +481,33 @@
     background: var(--green-dim);
     color: var(--green);
     border-color: var(--green-glow);
-    &:hover { background: rgba(0, 232, 122, 0.18); box-shadow: 0 0 14px rgba(0,232,122,0.2); }
+
+    &:hover {
+        background: rgba(0, 232, 122, 0.18);
+        box-shadow: 0 0 14px rgba(0, 232, 122, 0.2);
+    }
 }
+
 .buyBtn_blue {
     background: rgba(47, 120, 163, 0.12);
     color: #5ba8d4;
     border-color: rgba(47, 120, 163, 0.3);
-    &:hover { background: rgba(47, 120, 163, 0.22); box-shadow: 0 0 14px rgba(47,120,163,0.15); }
+
+    &:hover {
+        background: rgba(47, 120, 163, 0.22);
+        box-shadow: 0 0 14px rgba(47, 120, 163, 0.15);
+    }
 }
+
 .buyBtn_gold {
     background: rgba(212, 175, 55, 0.1);
     color: #d4af37;
     border-color: rgba(212, 175, 55, 0.28);
-    &:hover { background: rgba(212, 175, 55, 0.2); box-shadow: 0 0 14px rgba(212,175,55,0.12); }
+
+    &:hover {
+        background: rgba(212, 175, 55, 0.2);
+        box-shadow: 0 0 14px rgba(212, 175, 55, 0.12);
+    }
 }
 
 .buyBtnOwned {
@@ -505,9 +537,17 @@
 }
 
 @keyframes ethFlashPulse {
-    0%   { box-shadow: 0 0 0 0   rgba(0, 232, 122, 0.6); }
-    50%  { box-shadow: 0 0 0 10px rgba(0, 232, 122, 0);  }
-    100% { box-shadow: 0 0 0 0   rgba(0, 232, 122, 0);   }
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 232, 122, 0.6);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(0, 232, 122, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 232, 122, 0);
+    }
 }
 
 .ethFlash {
@@ -529,16 +569,16 @@
     background: var(--surface);
     cursor: pointer;
     overflow: hidden;
+    user-select: none;
     transition:
         transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
         box-shadow 0.2s ease,
         border-color 0.2s ease;
-    user-select: none;
 
     &:hover {
         transform: translateY(-3px);
-        border-color: rgba(0, 232, 122, 0.22);
-        box-shadow: 0 12px 36px rgba(0,0,0,0.55), 0 0 28px rgba(0,232,122,0.06);
+        border-color: rgba(0, 232, 122, 0.5);
+        box-shadow: 0 12px 36px rgba(200, 200, 200, 0.55), 0 0 28px rgba(0, 232, 122, 0.06);
     }
 
     &::before {
@@ -560,7 +600,7 @@
 
     &:hover {
         border-color: rgba(0, 232, 122, 0.5);
-        box-shadow: 0 14px 44px rgba(0,0,0,0.6), 0 0 40px rgba(0,232,122,0.12);
+        box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 232, 122, 0.12);
     }
 }
 
@@ -609,7 +649,6 @@
 
 .ethCoinBig {
     width: 20px;
-    opacity: 0.65;
     flex-shrink: 0;
 }
 
@@ -723,8 +762,8 @@
         box-shadow 0.18s ease;
 
     &:hover {
-        background: rgba(255,255,255,0.07);
-        border-color: rgba(255,255,255,0.15);
+        background: rgba(255, 255, 255, 0.07);
+        border-color: rgba(255, 255, 255, 0.15);
         color: var(--text-primary);
     }
 }

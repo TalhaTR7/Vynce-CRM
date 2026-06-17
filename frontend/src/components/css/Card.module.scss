@@ -3,8 +3,8 @@
     width: 300px;
     display: flex;
     flex-direction: column;
-    background: #111111;
-    border: 1px solid #1f1f1f;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 5px;
     box-sizing: border-box;
     position: relative;
@@ -14,8 +14,8 @@
         background 0.14s ease;
 
     &:hover {
-        border-color: #ffffff1a;
-        background: #141414;
+        border-color: var(--text-muted);
+        background: var(--hover);
     }
 
     &:active {
@@ -36,7 +36,7 @@
             font-family: var(--font-body);
             letter-spacing: 0.06em;
             color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--hover);
             border: 1px solid var(--border);
             padding: 2px 8px;
             border-radius: 5px;
@@ -51,7 +51,7 @@
             flex-direction: row;
             align-items: center;
             gap: 4px;
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--hover);
             border: 1px solid var(--border);
             padding: 2px 8px;
             border-radius: 20px;
@@ -101,7 +101,7 @@
         transition: color 0.12s ease;
 
         &:hover {
-            color: #fff;
+            color: var(--text-primary);
         }
     }
 
@@ -198,7 +198,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    background: #111111;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
     box-sizing: border-box;
@@ -206,16 +206,15 @@
     user-select: none;
     transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 
-
     &:hover {
-        border-color: rgba(255, 255, 255, 0.1);
-        background: #141414;
+        border-color: var(--text-muted);
+        background: var(--hover);
         transform: translateY(-2px);
     }
 
     &.archivedCardSelected {
-        border-color: rgba(255, 255, 255, 0.18);
-        background: #161616;
+        border-color: var(--text-secondary);
+        background: var(--hover);
     }
 }
 
@@ -355,7 +354,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    background: #111111;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
     box-sizing: border-box;
@@ -364,8 +363,8 @@
     transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 
     &:hover {
-        border-color: rgba(255, 255, 255, 0.12);
-        background: #141414;
+        border-color: var(--text-muted);
+        background: var(--hover);
         transform: translateY(-2px);
     }
 
@@ -422,7 +421,7 @@
         flex-direction: row;
         align-items: center;
         gap: 5px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--hover);
         border: 1px solid var(--border);
         border-radius: 20px;
         padding: 3px 9px;
@@ -450,7 +449,7 @@
         }
 
         &.marketCardDuePillToday {
-            border-color: rgba(0, 232, 122, 0.3);
+            border-color: rgba(0, 168, 84, 0.3);
 
             p {
                 color: var(--green);
@@ -507,7 +506,6 @@
 
         img {
             width: 12px;
-            opacity: 0.7;
             flex-shrink: 0;
         }
 

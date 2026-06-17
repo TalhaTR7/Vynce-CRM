@@ -238,11 +238,6 @@ function Shop() {
                                 Spend your Ethereum on power-ups &amp; perks
                             </p>
                         </div>
-                        <div className={styles.balanceChip}>
-                            <img src={coin_svg} alt="" className={styles.balanceCoin} />
-                            <span className={styles.balanceAmount}>—</span>
-                            <span className={styles.balanceLabel}>ETH</span>
-                        </div>
                     </div>
 
                     {/* ── section 1: items ── */}

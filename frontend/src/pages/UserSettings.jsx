@@ -128,9 +128,9 @@ function GeneralSettings({ user, setUser }) {
                 </div>
                 <button
                     className={styles.inlineActionButton}
-                    style={{ background: "var(--green)", color: "#0a0a0a" }}
+                    style={{ background: "var(--green)", color: "#f8f8f8ff" }}
                     onClick={() => openModal("CHANGE_PASSWORD")}>
-                    <img src={lock_svg} />
+                    <img src={lock_svg} style={{filter: "invert(1.0)"}} />
                     Change password
                 </button>
             </div>
@@ -145,7 +145,7 @@ function GeneralSettings({ user, setUser }) {
                     className={styles.inlineActionButton}
                     style={{ background: "var(--red)", color: "#fff" }}
                     onClick={() => openModal("DELETE_ACCOUNT", { user })}>
-                    <img src={delete_svg} />
+                    <img src={delete_svg} style={{filter: "brightness(5.0)"}} />
                     Delete account
                 </button>
             </div>
@@ -316,7 +316,7 @@ function UserSettings() {
                             <div className={styles.settingsNavDivider} />
 
                             <button className={`${styles.settingsNavButton} ${styles.settingsNavButtonLogout}`} onClick={() => openModal("LOGOUT")}>
-                                <img src={logout_svg} />
+                                <img src={logout_svg} style={{rotate: "180deg", filter: "grayscale(1.0)"}} />
                                 <p>Log out</p>
                             </button>
                         </nav>

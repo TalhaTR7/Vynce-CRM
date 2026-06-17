@@ -9,7 +9,7 @@
     justify-content: space-between;
     height: 56px;
     padding: 0 20px;
-    background: rgba(10, 10, 10, 0.8);
+    background: rgba(245, 245, 245, 0.85);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     cursor: default;
@@ -25,7 +25,7 @@
     min-width: 200px;
 }
 
-/* ─── Current Mood (centred absolutely) ─────────────────────────── */
+/* ─── Current Mood ───────────────────────────────────────────────── */
 .currentMood {
     position: absolute;
     left: 50%;
@@ -56,7 +56,7 @@
     gap: 4px;
 }
 
-/* ─── Shared pill style for Ethereum + Motivation ────────────────── */
+/* ─── Shared pill style ──────────────────────────────────────────── */
 .statPill {
     display: flex;
     flex-direction: row;
@@ -66,12 +66,10 @@
     border-radius: 8px;
     border: 1px solid transparent;
     cursor: default;
-    transition:
-        border-color 0.18s ease,
-        background 0.18s ease;
+    transition: border-color 0.18s ease, background 0.18s ease;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(0, 0, 0, 0.04);
         border-color: var(--border);
     }
 
@@ -91,7 +89,7 @@
     }
 }
 
-/* ─── Motivation level badge (icon + level badge overlay) ────────── */
+/* ─── Motivation level badge ─────────────────────────────────────── */
 .motivationWrapper {
     display: flex;
     flex-direction: row;
@@ -100,12 +98,10 @@
     padding: 5px 12px;
     border-radius: 8px;
     border: 1px solid transparent;
-    transition:
-        border-color 0.18s ease,
-        background 0.18s ease;
+    transition: border-color 0.18s ease, background 0.18s ease;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(0, 0, 0, 0.04);
         border-color: var(--border);
     }
 
@@ -165,12 +161,10 @@
     cursor: pointer;
     border: 1.5px solid var(--border);
     flex-shrink: 0;
-    transition:
-        border-color 0.18s ease,
-        transform 0.18s ease;
+    transition: border-color 0.18s ease, transform 0.18s ease;
 
     &:hover {
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: rgba(0, 0, 0, 0.2);
         transform: scale(1.05);
     }
 
@@ -193,13 +187,11 @@
     gap: 2px;
     width: 188px;
     padding: 6px;
-    background: #111111;
+    background: #f8f8f8;
     border: 1px solid var(--border);
     border-radius: 10px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
-    transition:
-        opacity 0.15s ease,
-        transform 0.15s ease;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.03);
+    transition: opacity 0.15s ease, transform 0.15s ease;
 
     .dropdownHeader {
         padding: 8px 10px 10px;

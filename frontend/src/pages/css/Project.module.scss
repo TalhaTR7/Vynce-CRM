@@ -124,10 +124,10 @@
                     gap: 2px;
                     width: 188px;
                     padding: 6px;
-                    background: #111111;
+                    background: var(--surface);
                     border: 1px solid var(--border);
                     border-radius: 10px;
-                    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
+                    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
                     transition:
                         opacity 0.15s ease,
                         transform 0.15s ease;
@@ -252,7 +252,7 @@
                             margin-top: 4px;
                             border-radius: 8px;
                             border: 1px solid var(--border);
-                            background: #ffffff05;
+                            background: var(--hover);
                             cursor: pointer;
                             transition:
                                 background 0.18s ease,
@@ -273,8 +273,8 @@
                             }
 
                             &:hover {
-                                background: var(--hover);
-                                border-color: #ffffff1f;
+                                background: var(--surface);
+                                border-color: var(--text-muted);
                                 transform: translateY(-1px);
                             }
 

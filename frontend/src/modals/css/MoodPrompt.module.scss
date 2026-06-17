@@ -122,13 +122,13 @@
 
     &:not(:disabled) {
         background-color: var(--green);
-        color: var(--primary-contrast);
+        color: #fff;
         box-shadow: var(--primary-shadow);
         cursor: pointer;
 
         &:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
             filter: brightness(1.1);
         }
 

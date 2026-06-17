@@ -388,7 +388,6 @@ export default function AuctionDetails({ taskId, onClose }) {
                                         {sorted.map((bid, i) => {
                                             const bidderId = String(bid.bidder?._id);
                                             const isSelected = isAssignee && selectedBidderId === bidderId;
-                                            console.log(bid.bidder);
                                             return (
                                                 <div
                                                     key={bid._id}

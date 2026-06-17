@@ -29,7 +29,7 @@
     align-items: center;
     padding: 7px 16px;
     border-bottom: 1px solid var(--border);
-    background: #0d0d0d;
+    background: #e0e0e0;
     flex-shrink: 0;
     gap: 14px;
 }
@@ -67,7 +67,7 @@
     width: 30px;
     height: 30px;
     border-radius: 8px;
-    background: rgba(0, 232, 122, 0.08);
+    background: rgb(0, 232, 124);
     border: 1px solid rgba(0, 232, 122, 0.2);
     display: flex;
     align-items: center;
@@ -80,6 +80,7 @@
         height: 18px;
         object-fit: contain;
         display: block;
+        filter: invert(1);
     }
 }
 
@@ -152,7 +153,7 @@
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: rgba(0, 232, 122, 0.07);
+    background: rgb(0, 232, 124);
     border: 1px solid rgba(0, 232, 122, 0.18);
     display: flex;
     align-items: center;
@@ -163,6 +164,7 @@
         width: 28px;
         height: 28px;
         object-fit: contain;
+        filter: invert(1);
     }
 }
 
@@ -178,7 +180,7 @@
 .emptySub {
     font-size: 13px;
     font-family: 'DM Sans', sans-serif;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     margin: 0;
     opacity: 0.6;
 }
@@ -238,7 +240,7 @@
     width: 28px;
     height: 28px;
     border-radius: 8px;
-    background: rgba(0, 232, 122, 0.07);
+    background: rgb(0, 232, 124);
     border: 1px solid rgba(0, 232, 122, 0.15);
     display: flex;
     align-items: center;
@@ -253,6 +255,7 @@
         height: 16px;
         object-fit: contain;
         display: block;
+        filter: invert(1);
     }
 }
 
@@ -275,14 +278,14 @@
 }
 
 .bubbleUser {
-    background: #0a2e27;
+    background: var(--green);
     border: 1px solid rgba(0, 232, 122, 0.12);
     border-bottom-right-radius: 4px;
-    color: #d4f5e8;
+    color: #ffffff;
 }
 
 .bubbleAi {
-    background: #161616;
+    background: #dddddd;
     border: 1px solid var(--border);
     border-bottom-left-radius: 4px;
     color: var(--text-primary);
@@ -364,15 +367,16 @@
     gap: 8px;
     width: 100%;
     padding: 10px 12px 10px 16px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(240, 240, 240, 0.7);
     border: 1px solid var(--border);
     border-radius: 14px;
+    box-shadow: 0 0 24px 8px #dddddd;
     transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
     &:focus-within {
         border-color: var(--text-muted);
         transform: translateY(-2px);
-        box-shadow: 0 0 24px 8px #060606;
+        box-shadow: 0 0 24px 8px #cecece;
     }
 }
 
@@ -431,7 +435,7 @@
         border-color: var(--green);
 
         img {
-            filter: invert(1) brightness(0);
+            filter: invert(1) brightness(10);
         }
 
         &:hover {

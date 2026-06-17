@@ -60,7 +60,7 @@
         &:hover {
             opacity: 1;
             filter: none;
-            background: rgba(255, 0, 0, 0.05);
+            background: var(--red-hover);
             border-color: var(--red-soft);
         }
     }
@@ -91,7 +91,7 @@
 
     input {
         height: 36px;
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 9px;
         padding: 0 12px;
@@ -109,8 +109,8 @@
         }
 
         &:focus {
-            border-color: rgba(0, 232, 122, 0.35);
-            box-shadow: 0 0 0 3px rgba(0, 232, 122, 0.06);
+            border-color: var(--green-glow);
+            box-shadow: 0 0 0 3px var(--green-dim);
         }
     }
 }
@@ -172,7 +172,7 @@
         width: 20px;
         height: 20px;
         border: 2px solid #fff;
-        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
     }
 
     :global(.react-colorful__hue) {
@@ -190,7 +190,7 @@
     padding: 8px 12px;
     border: 1px solid var(--border);
     border-radius: 9px;
-    background: #ffffff03;
+    background: var(--surface);
     margin: 4px auto 0;
 
     .colorPreviewHex {
@@ -274,7 +274,7 @@
         font-size: 14px;
         font-family: var(--font-body);
         font-weight: 700;
-        color: #0a0a0a;
+        color: #ffffff;
         cursor: pointer;
         flex-shrink: 0;
         user-select: none;
@@ -308,7 +308,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 16px;
-    background: rgba(17, 17, 17, 0.85);
+    background: rgba(255, 255, 255, 0.82);
     z-index: 10;
 
     img {

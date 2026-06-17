@@ -1,12 +1,12 @@
 /* ─────────────────────────────────────────────────────────────────
-   AuctionDetails.module.scss
+   AuctionDetails.module.scss  —  light mode
    ───────────────────────────────────────────────────────────────── */
 
 /* ─── Scrim ──────────────────────────────────────────────────────── */
 .scrim {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.18);
     backdrop-filter: blur(1px);
     z-index: 300;
     animation: scrimIn 0.2s ease both;
@@ -168,7 +168,7 @@
 
         &:hover {
             opacity: 1;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--hover);
             border-color: var(--border);
         }
     }
@@ -199,7 +199,7 @@
         &:hover {
             opacity: 1;
             filter: grayscale(0%);
-            background: rgba(255, 0, 0, 0.05);
+            background: var(--red-hover);
             border-color: var(--red-soft);
         }
     }
@@ -230,7 +230,7 @@
         padding: 3px 9px;
         border-radius: 20px;
         border: 1px solid var(--border);
-        background: var(--bg);
+        background: var(--hover);
 
         span {
             font-size: 10px;
@@ -247,8 +247,8 @@
         }
 
         &.pillTime {
-            border-color: rgba(0, 232, 122, 0.2);
-            background: rgba(0, 232, 122, 0.04);
+            border-color: var(--green-glow);
+            background: var(--green-dim);
 
             img {
                 opacity: 0.5;
@@ -261,8 +261,8 @@
         }
 
         &.pillBidding {
-            border-color: rgba(0, 232, 122, 0.2);
-            background: rgba(0, 232, 122, 0.04);
+            border-color: var(--green-glow);
+            background: var(--green-dim);
 
             img {
                 opacity: 0.5;
@@ -279,7 +279,7 @@
             background: rgba(255, 196, 0, 0.05);
 
             span {
-                color: #ffc400;
+                color: #b38a00;
                 opacity: 0.9;
             }
         }
@@ -302,7 +302,7 @@
         padding: 3px 8px;
         border-radius: 20px;
         border: 1px solid var(--border);
-        background: var(--bg);
+        background: var(--hover);
 
         img {
             width: 11px;
@@ -324,7 +324,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        background: var(--surface);
+        background: var(--border);
         border-radius: 10px;
     }
 }
@@ -442,7 +442,6 @@
 
         img {
             width: 13px;
-            opacity: 0.6;
             flex-shrink: 0;
         }
 
@@ -462,7 +461,7 @@
     justify-content: space-between;
     padding: 10px 20px;
     border-bottom: 1px solid var(--border);
-    background: rgba(0, 232, 122, 0.03);
+    background: var(--green-dim);
     border-left: 2px solid var(--green);
 
     .winnerLabel {
@@ -486,7 +485,7 @@
             border-radius: 50%;
             overflow: hidden;
             flex-shrink: 0;
-            border: 1px solid rgba(0, 232, 122, 0.3);
+            border: 1px solid var(--green-glow);
 
             img {
                 width: 100%;
@@ -592,7 +591,6 @@
 
         img {
             width: 13px;
-            opacity: 0.55;
             flex-shrink: 0;
         }
 
@@ -626,7 +624,7 @@
     font-size: 13px;
     font-family: var(--font-body);
     font-weight: 700;
-    color: #0a0a0a;
+    color: #ffffff;
     cursor: pointer;
     user-select: none;
     transition: filter 0.12s ease, transform 0.1s ease;
@@ -667,7 +665,7 @@
     &:hover {
         background: var(--red-hover);
         border-color: var(--red-soft);
-        color: #fff;
+        color: var(--red-soft);
     }
 
     &:disabled {
@@ -712,7 +710,7 @@
     font-size: 13px;
     font-family: var(--font-body);
     font-weight: 700;
-    color: #0a0a0a;
+    color: #ffffff;
     cursor: pointer;
     user-select: none;
     transition: filter 0.12s ease, transform 0.1s ease;
@@ -767,8 +765,8 @@
     }
 
     &.bidEntrySelected {
-        background: rgba(0, 232, 122, 0.05);
-        outline: 1px solid rgba(0, 232, 122, 0.2);
+        background: var(--green-dim);
+        outline: 1px solid var(--green-glow);
 
         .bidIndex {
             color: var(--green);
@@ -830,7 +828,6 @@
 
         img {
             width: 11px;
-            opacity: 0.5;
             flex-shrink: 0;
         }
 

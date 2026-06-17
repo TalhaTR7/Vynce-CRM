@@ -397,7 +397,7 @@ function Dashboard() {
                                                     if (mail.type === "PROJECT_INVITATION")
                                                         openModal("INVITE_RESPONSE", { payload: mail.payload });
                                                     if (mail.type === "OWNERSHIP_REQUEST")
-                                                        openModal("TRANSFER_OWNERSHIP", { payload: mail.payload });
+                                                        openModal("OWNERSHIP_RESPONSE", { payload: mail.payload });
                                                     await handleNotificationClick(mail._id);
                                                 }}
                                             >

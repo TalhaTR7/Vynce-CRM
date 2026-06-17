@@ -246,7 +246,7 @@ function GeneralSettings({ project, setProject }) {
                     <div className={styles.dangerZoneRow}>
                         <p>Permanently delete this project and all its data</p>
                         <button className={styles.dangerZoneButton} style={{ backgroundColor: "var(--red)" }} onClick={() => openModal("DELETE_PROJECT", { project: projectObj })}>
-                            <img src={delete_svg} alt="" />
+                            <img src={delete_svg} style={{filter: "brightness(5.0)"}} />
                             <p style={{ color: "#fff" }}>Delete project</p>
                         </button>
                     </div>
