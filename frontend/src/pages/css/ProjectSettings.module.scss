@@ -356,7 +356,8 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.45) url("../../assets/icons/edit.svg") no-repeat center / 32%;
+            background: #ffffff11 url("../../assets/icons/edit.svg") no-repeat center / 32%;
+            filter: invert(1);
             opacity: 0;
             transition: opacity 0.18s ease;
         }

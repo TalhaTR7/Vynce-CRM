@@ -311,7 +311,7 @@ function Dashboard() {
                         <h2 className={styles.panelHeading}>Weekly leaderboards</h2>
                         {projects.length === 0 ? (
                             <div className={styles.emptyState}>
-                                <img src={leaderboard_svg} className={styles.emptyStateIcon} />
+                                <img src={leaderboard_svg} className={styles.emptyStateIcon} style={{opacity: "0.3"}} />
                                 <p className={styles.emptyStateMessage}>
                                     Nothing to show here yet. Check back once you've joined a project.
                                 </p>
