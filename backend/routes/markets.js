@@ -225,7 +225,7 @@ router.patch("/task/:taskId/", authMiddleware, async (req, res) => {
     if (!amount || amount <= 0) return res.status(400).json({ msg: "Bid must be greater than 0" });
 
     try {
-        const task = await Task.findById(taskId).select("projectId assigneeId");
+        const task = await Task.findById(taskId).select("projectId assigneeId creatorId title");
         if (!task) return res.status(404).json({ msg: "Task not found" });
 
         if (task.assigneeId.equals(req.user.id))
