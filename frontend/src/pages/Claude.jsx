@@ -6,12 +6,12 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import send_svg from "../assets/icons/send.svg";
 import favicon_logo from "../assets/icons/favicon.svg";
-import styles from "./css/Gemini.module.scss";
+import styles from "./css/Claude.module.scss";
 import axios from "axios";
 
 const SYSTEM_PROMPT = `You are Vynce AI, an intelligent assistant embedded inside Vynce — a project management platform for teams. You help users with tasks, productivity, planning, writing, coding, and anything they need. Keep your tone sharp, helpful, and concise. You are not ChatGPT or any other AI — you are Vynce AI.`;
 
-export default function Gemini() {
+export default function Claude() {
     const navigate = useNavigate();
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
@@ -35,7 +35,7 @@ export default function Gemini() {
     }, [messages, loading]);
 
     const buildHistory = () => {
-        // Gemini expects alternating user/model turns
+        // Claude expects alternating user/model turns
         return messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
             parts: [{ text: m.content }]
@@ -58,7 +58,7 @@ export default function Gemini() {
                 { role: "user", parts: [{ text }] }
             ];
 
-            const res = await axios.post("/api/gemini/chat",
+            const res = await axios.post("/api/claude/chat",
                 { contents, system_instruction: { parts: [{ text: SYSTEM_PROMPT }] } },
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
             );
@@ -103,7 +103,7 @@ export default function Gemini() {
                             </div>
                             <div className={styles.chatHeaderInfo}>
                                 <p className={styles.chatHeaderName}>Vynce AI</p>
-                                <span className={styles.chatHeaderSub}>Powered by Gemini</span>
+                                <span className={styles.chatHeaderSub}>Powered by Anthropics</span>
                             </div>
                         </div>
                         <div className={styles.chatHeaderRight} />

@@ -231,10 +231,10 @@ function Sidebar() {
             </div>
 
             {/* ── Shop ──────────────────────────────────────────── */}
-            {/* <Link to="/gemini" className={styles.geminiLink}>
+            <Link to="/claude" className={styles.claudeLink}>
                 <img src={shop_svg} className={styles.shopIcon} />
-                <span className={styles.geminiLabel}>Vynce AI</span>
-            </Link> */}
+                <span className={styles.claudeLabel}>Vynce AI</span>
+            </Link>
 
             <Link to="/shop" className={styles.shopLink}>
                 <img src={shop_svg} className={styles.shopIcon} />

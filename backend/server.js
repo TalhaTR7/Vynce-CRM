@@ -14,7 +14,7 @@ import messageRoutes from "./routes/messages.js";
 import mailRoutes from "./routes/inbox.js";
 import inviteRoutes from "./routes/invitations.js";
 import leaderboardRoutes from "./routes/leaderboards.js";
-import geminiRoutes from "./routes/gemini.js";
+import claudeRoutes from "./routes/claude.js";
 import "./cron/taskDueNotifications.js";
 import "./cron/cleanupNotifications.js";
 import "./cron/resetWeeklyXP.js";
@@ -38,7 +38,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/inbox", mailRoutes);
 app.use("/api/invitations", inviteRoutes);
 app.use("/api/leaderboards", leaderboardRoutes);
-app.use("/api/gemini", geminiRoutes);
+app.use("/api/claude", claudeRoutes);
 app.use("/api/uploads", express.static("uploads"));
 
 mongoose.connect(process.env.MONGO_URI)
