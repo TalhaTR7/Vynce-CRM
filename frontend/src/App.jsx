@@ -13,7 +13,7 @@ import UserSettings from "./pages/UserSettings";
 import ProjectSettings from "./pages/ProjectSettings";
 import Leaderboards from "./pages/Leaderboards";
 import Shop from "./pages/Shop";
-import Claude from "./pages/Claude";
+import Gemini from "./pages/Gemini";
 
 import { ProtectedLayout } from "./context/ProtectedLayout";
 import { ProtectedRoute } from "./context/ProtectedRoute";
@@ -39,7 +39,7 @@ function App() {
           <Route path="/settings/project/:id/:tab?" element={<ProjectSettings />} />
           <Route path="/leaderboards" element={<Leaderboards />} />
           <Route path="/shop" element={<Shop />} />
-          <Route path="/claude" element={<Claude />} />
+          <Route path="/gemini" element={<Gemini />} />
         </Route>
       </Routes>
       <ModalRenderer />

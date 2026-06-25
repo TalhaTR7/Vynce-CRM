@@ -478,7 +478,7 @@
     }
 }
 
-.claudeLink {
+.geminiLink {
     position: absolute;
     bottom: 64px;
     left: 12px;
@@ -503,7 +503,7 @@
         transition: opacity 0.2s ease;
     }
 
-    .claudeLabel {
+    .geminiLabel {
         font-size: 14px;
         font-family: var(--font-body);
         color: var(--text-muted);
@@ -519,7 +519,7 @@
             opacity: 0.8;
         }
 
-        .claudeLabel {
+        .geminiLabel {
             color: var(--text-primary);
         }
     }
