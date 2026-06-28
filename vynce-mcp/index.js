@@ -3,7 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 const BASE = "http://localhost:5000/api";
-let AUTH_TOKEN = process.env.VYNCE_TOKEN || "";
+let AUTH_TOKEN = process.env.AUTH_TOKEN || "";
 
 const server = new McpServer({ name: "vynce-crm", version: "1.0.0" });
 
@@ -23,7 +23,12 @@ async function api(method, path, body) {
         body: body ? JSON.stringify(body) : undefined,
     });
     const data = await res.json();
-    return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    return {
+        content: [{
+            type: "text",
+            text: JSON.stringify(data, null, 2)
+        }]
+    };
 }
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────
@@ -31,7 +36,10 @@ async function api(method, path, body) {
 server.tool(
     "login",
     "Login to Vynce and store the JWT for subsequent calls",
-    { email: z.string(), password: z.string() },
+    {
+        email: z.string(),
+        password: z.string()
+    },
     async ({ email, password }) => {
         const res = await fetch(`${BASE}/auth/login`, {
             method: "POST",
@@ -40,15 +48,30 @@ server.tool(
         });
         const data = await res.json();
         if (data.token) AUTH_TOKEN = data.token;
-        return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+        return {
+            content: [{
+                type: "text",
+                text: JSON.stringify(data, null, 2)
+            }]
+        };
     }
 );
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
-server.tool("get_me", "Get the currently logged-in user", {}, async () =>
-    api("GET", "/users/user")
+server.tool(
+    "get_me",
+    "Get the currently logged-in user",
+    {},
+    async () => api("GET", "/users/user")
 );
+
+server.tool(
+    "get-user-by-id",
+    "Gets user by id",
+    { userId: z.string() },
+    async ({ userId }) => api("GET", `/user/id/${userId}`)
+)
 
 server.tool(
     "get_user_by_id",
@@ -73,8 +96,11 @@ server.tool(
 
 // ─── PROJECTS ────────────────────────────────────────────────────────────────
 
-server.tool("get_my_projects", "Get all projects the logged-in user is a member of", {}, async () =>
-    api("GET", "/projects/user")
+server.tool(
+    "get_my_projects",
+    "Get all projects the logged-in user is a member of",
+    {},
+    async () => api("GET", "/projects/user")
 );
 
 server.tool(
@@ -110,7 +136,10 @@ server.tool(
 server.tool(
     "invite_user",
     "Invite a user to a project by email",
-    { email: z.string(), projectId: z.string() },
+    {
+        email: z.string(),
+        projectId: z.string()
+    },
     async ({ email, projectId }) => api("POST", "/invitations/invite", { email, projectId })
 );
 
@@ -131,9 +160,11 @@ server.tool(
 server.tool(
     "remove_members",
     "Remove one or more members from a project",
-    { projectId: z.string(), memberIds: z.array(z.string()) },
-    async ({ projectId, memberIds }) =>
-        api("DELETE", "/memberships/remove", { projectId, memberIds })
+    {
+        projectId: z.string(),
+        memberIds: z.array(z.string())
+    },
+    async ({ projectId, memberIds }) => api("DELETE", "/memberships/remove", { projectId, memberIds })
 );
 
 server.tool(
@@ -155,17 +186,24 @@ server.tool(
 server.tool(
     "create_board",
     "Create a new board in a project",
-    { projectId: z.string(), name: z.string(), color: z.string().optional() },
-    async ({ projectId, name, color }) =>
-        api("POST", "/boards/board", { projectId, name, color })
+    {
+        projectId: z.string(),
+        name: z.string(),
+        color: z.string().optional()
+    },
+    async ({ projectId, name, color }) => api("POST", "/boards/board", { projectId, name, color })
 );
 
 server.tool(
     "edit_board",
     "Edit a board's name or color",
-    { boardId: z.string(), projectId: z.string(), name: z.string(), color: z.string().optional() },
-    async ({ boardId, projectId, name, color }) =>
-        api("PATCH", `/boards/board/${boardId}`, { projectId, name, color })
+    {
+        boardId: z.string(),
+        projectId: z.string(),
+        name: z.string(),
+        color: z.string().optional()
+    },
+    async ({ boardId, projectId, name, color }) => api("PATCH", `/boards/board/${boardId}`, { projectId, name, color })
 );
 
 server.tool(
@@ -210,56 +248,72 @@ server.tool(
 server.tool(
     "edit_task_title",
     "Edit a task's title",
-    { taskId: z.string(), title: z.string() },
+    {
+        taskId: z.string(),
+        title: z.string()
+    },
     async ({ taskId, title }) => api("PATCH", `/tasks/task/${taskId}/editTitle`, { title })
 );
 
 server.tool(
     "edit_task_description",
     "Edit a task's description",
-    { taskId: z.string(), description: z.string() },
-    async ({ taskId, description }) =>
-        api("PATCH", `/tasks/task/${taskId}/editDescription`, { description })
+    {
+        taskId: z.string(),
+        description: z.string()
+    },
+    async ({ taskId, description }) => api("PATCH", `/tasks/task/${taskId}/editDescription`, { description })
 );
 
 server.tool(
     "edit_task_due_date",
     "Set or update a task's due date (ISO string or null to remove)",
-    { taskId: z.string(), dueDate: z.string().nullable() },
-    async ({ taskId, dueDate }) =>
-        api("PATCH", `/tasks/task/${taskId}/editDueDate`, { dueDate })
+    {
+        taskId: z.string(),
+        dueDate: z.string().nullable()
+    },
+    async ({ taskId, dueDate }) => api("PATCH", `/tasks/task/${taskId}/editDueDate`, { dueDate })
 );
 
 server.tool(
     "change_task_difficulty",
     "Change a task's difficulty (1–5)",
-    { taskId: z.string(), difficulty: z.number().min(1).max(5) },
-    async ({ taskId, difficulty }) =>
-        api("PATCH", `/tasks/task/${taskId}/changeDifficulty`, { difficulty })
+    {
+        taskId: z.string(),
+        difficulty: z.number().min(1).max(5)
+    },
+    async ({ taskId, difficulty }) => api("PATCH", `/tasks/task/${taskId}/changeDifficulty`, { difficulty })
 );
 
 server.tool(
     "change_task_bounty",
     "Change a task's ETH bounty",
-    { taskId: z.string(), bounty: z.number(), mood: z.string().optional() },
-    async ({ taskId, bounty, mood }) =>
-        api("PATCH", `/tasks/task/${taskId}/changeBounty`, { bounty, mood })
+    {
+        taskId: z.string(),
+        bounty: z.number(),
+        mood: z.string().optional()
+    },
+    async ({ taskId, bounty, mood }) => api("PATCH", `/tasks/task/${taskId}/changeBounty`, { bounty, mood })
 );
 
 server.tool(
     "reassign_task",
     "Change the assignee of a task",
-    { taskId: z.string(), assigneeId: z.string() },
-    async ({ taskId, assigneeId }) =>
-        api("PATCH", `/tasks/task/${taskId}/reassign`, { assigneeId })
+    {
+        taskId: z.string(),
+        assigneeId: z.string()
+    },
+    async ({ taskId, assigneeId }) => api("PATCH", `/tasks/task/${taskId}/reassign`, { assigneeId })
 );
 
 server.tool(
     "change_task_status",
     "Move a task to a different board (change status)",
-    { taskId: z.string(), boardId: z.string() },
-    async ({ taskId, boardId }) =>
-        api("PATCH", `/tasks/task/${taskId}/changeStatus`, { boardId })
+    {
+        taskId: z.string(),
+        boardId: z.string()
+    },
+    async ({ taskId, boardId }) => api("PATCH", `/tasks/task/${taskId}/changeStatus`, { boardId })
 );
 
 server.tool(
@@ -279,9 +333,11 @@ server.tool(
 server.tool(
     "add_comment",
     "Add a comment to a task",
-    { taskId: z.string(), comment: z.string() },
-    async ({ taskId, comment }) =>
-        api("PATCH", `/tasks/task/${taskId}/addComment`, { comment })
+    {
+        taskId: z.string(),
+        comment: z.string()
+    },
+    async ({ taskId, comment }) => api("PATCH", `/tasks/task/${taskId}/addComment`, { comment })
 );
 
 server.tool(
@@ -363,14 +419,20 @@ server.tool(
 server.tool(
     "place_bid",
     "Place a bid on an auctioned task",
-    { taskId: z.string(), amount: z.number() },
+    {
+        taskId: z.string(),
+        amount: z.number()
+    },
     async ({ taskId, amount }) => api("PATCH", `/auction/task/${taskId}`, { amount })
 );
 
 // ─── INBOX ───────────────────────────────────────────────────────────────────
 
-server.tool("get_inbox", "Get all notifications for the logged-in user", {}, async () =>
-    api("GET", "/inbox/user")
+server.tool(
+    "get_inbox",
+    "Get all notifications for the logged-in user",
+    {},
+    async () => api("GET", "/inbox/user")
 );
 
 server.tool(
