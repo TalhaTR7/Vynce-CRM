@@ -83,7 +83,7 @@ export function CreateTask({ onClose, project, board }) {
                 boardId: status._id,
                 title, description,
                 assigneeId: assignee._id,
-                dueDate, ethereum: bounty, difficulty,
+                dueDate, ethereum:bounty, difficulty,
             }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
             console.log("below route");
             handleClose();

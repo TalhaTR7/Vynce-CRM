@@ -8,6 +8,7 @@ import Membership from "../models/Membership.js";
 import Notification from "../models/Notification.js";
 import fs from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import Task from "../models/Task.js";
@@ -38,7 +39,18 @@ router.post("/", authMiddleware, imageUpload.single("image"), async (req, res) =
         const project = await Project.create({ name });
 
         if (req.file) {
-            project.projectImage = { url: `/uploads/projects/${req.file.filename}` };
+            const processed = await sharp(req.file.path)
+                .resize(500, 500, { fit: "cover" })
+                .png()
+                .toBuffer();
+
+            const projectId = project._id.toString();
+            const filename = `${projectId}.png`;
+            const destImagePath = path.join(uploadsDir, filename);
+
+            await fs.writeFile(destImagePath, processed);
+            await fs.unlink(req.file.path).catch(() => { });
+            project.projectImage = { url: `/uploads/projects/${filename}` };
         } else {
             await fs.mkdir(uploadsDir, { recursive: true });
             const projectId = project._id.toString();

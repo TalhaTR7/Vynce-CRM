@@ -33,185 +33,23 @@ async function api(method, path, body) {
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 
-server.tool(
-    "login",
-    "Login to Vynce and store the JWT for subsequent calls",
-    {
-        email: z.string(),
-        password: z.string()
-    },
-    async ({ email, password }) => {
-        const res = await fetch(`${BASE}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-        });
-        const data = await res.json();
-        if (data.token) AUTH_TOKEN = data.token;
-        return {
-            content: [{
-                type: "text",
-                text: JSON.stringify(data, null, 2)
-            }]
-        };
-    }
-);
+
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
-server.tool(
-    "get_me",
-    "Get the currently logged-in user",
-    {},
-    async () => api("GET", "/users/user")
-);
 
-server.tool(
-    "get-user-by-id",
-    "Gets user by id",
-    { userId: z.string() },
-    async ({ userId }) => api("GET", `/user/id/${userId}`)
-)
-
-server.tool(
-    "get_user_by_id",
-    "Get a user by their ID",
-    { userId: z.string() },
-    async ({ userId }) => api("GET", `/users/id/${userId}`)
-);
-
-server.tool(
-    "get_user_by_email",
-    "Get a user by their email",
-    { email: z.string() },
-    async ({ email }) => api("GET", `/users/email/${email}`)
-);
-
-server.tool(
-    "update_mood",
-    "Update the logged-in user's mood (ANGRY | CRYING | SAD | NORMAL | OKAY | HAPPY | ECSTATIC)",
-    { mood: z.enum(["ANGRY", "CRYING", "SAD", "NORMAL", "OKAY", "HAPPY", "ECSTATIC"]) },
-    async ({ mood }) => api("PATCH", "/users/user/mood", { mood })
-);
 
 // ─── PROJECTS ────────────────────────────────────────────────────────────────
 
-server.tool(
-    "get_my_projects",
-    "Get all projects the logged-in user is a member of",
-    {},
-    async () => api("GET", "/projects/user")
-);
 
-server.tool(
-    "get_project",
-    "Get full project details including boards and members",
-    { projectId: z.string() },
-    async ({ projectId }) => api("GET", `/projects/project/${projectId}`)
-);
-
-server.tool(
-    "create_project",
-    "Create a new project",
-    { name: z.string() },
-    async ({ name }) => api("POST", "/projects", { name })
-);
-
-server.tool(
-    "delete_project",
-    "Delete a project (owner only, must have no other members)",
-    { projectId: z.string() },
-    async ({ projectId }) => api("DELETE", `/projects/project/${projectId}`)
-);
 
 // ─── MEMBERSHIPS ─────────────────────────────────────────────────────────────
 
-server.tool(
-    "get_project_members",
-    "Get all members of a project with their roles",
-    { projectId: z.string() },
-    async ({ projectId }) => api("GET", `/memberships/project/${projectId}`)
-);
 
-server.tool(
-    "invite_user",
-    "Invite a user to a project by email",
-    {
-        email: z.string(),
-        projectId: z.string()
-    },
-    async ({ email, projectId }) => api("POST", "/invitations/invite", { email, projectId })
-);
-
-server.tool(
-    "promote_member",
-    "Promote a member to ADMIN (owner only)",
-    { membershipId: z.string() },
-    async ({ membershipId }) => api("PATCH", "/memberships/change-role/promote", { membershipId })
-);
-
-server.tool(
-    "demote_admin",
-    "Demote an ADMIN to MEMBER (owner only)",
-    { membershipId: z.string() },
-    async ({ membershipId }) => api("PATCH", "/memberships/change-role/demote", { membershipId })
-);
-
-server.tool(
-    "remove_members",
-    "Remove one or more members from a project",
-    {
-        projectId: z.string(),
-        memberIds: z.array(z.string())
-    },
-    async ({ projectId, memberIds }) => api("DELETE", "/memberships/remove", { projectId, memberIds })
-);
-
-server.tool(
-    "leave_project",
-    "Leave a project",
-    { projectId: z.string() },
-    async ({ projectId }) => api("DELETE", "/memberships/leave", { projectId })
-);
 
 // ─── BOARDS ──────────────────────────────────────────────────────────────────
 
-server.tool(
-    "get_boards",
-    "Get all boards for a project",
-    { projectId: z.string() },
-    async ({ projectId }) => api("GET", `/boards/project/${projectId}`)
-);
 
-server.tool(
-    "create_board",
-    "Create a new board in a project",
-    {
-        projectId: z.string(),
-        name: z.string(),
-        color: z.string().optional()
-    },
-    async ({ projectId, name, color }) => api("POST", "/boards/board", { projectId, name, color })
-);
-
-server.tool(
-    "edit_board",
-    "Edit a board's name or color",
-    {
-        boardId: z.string(),
-        projectId: z.string(),
-        name: z.string(),
-        color: z.string().optional()
-    },
-    async ({ boardId, projectId, name, color }) => api("PATCH", `/boards/board/${boardId}`, { projectId, name, color })
-);
-
-server.tool(
-    "delete_board",
-    "Delete an empty board",
-    { boardId: z.string() },
-    async ({ boardId }) => api("DELETE", `/boards/board/${boardId}`)
-);
 
 // ─── TASKS ───────────────────────────────────────────────────────────────────
 

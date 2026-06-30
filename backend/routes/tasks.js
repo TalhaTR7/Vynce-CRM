@@ -21,7 +21,7 @@ function formatImage(image) {
 
 
 // create a task
-router.post("/creal", authMiddleware, async (req, res) => {
+router.post("/create", authMiddleware, async (req, res) => {
     const {
         projectId,
         boardId,

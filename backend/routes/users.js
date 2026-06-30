@@ -10,6 +10,7 @@ import Notification from "../models/Notification.js";
 import createUploader from "../middleware/multer.js";
 import fs from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 import { fileURLToPath } from "url";
 
 const router = express.Router();
@@ -83,7 +84,22 @@ router.patch("/user", authMiddleware, imageUpload.single("image"), async (req, r
     const update = {};
     if (firstname) update.firstname = firstname;
     if (lastname) update.lastname = lastname;
-    if (req.file) update["profileImage.url"] = `/uploads/users/${req.file.filename}`;
+
+    if (req.file) {
+      const filename = `${req.user.id}.png`;
+      const outputPath = path.join(path.dirname(req.file.path), filename);
+
+      await sharp(req.file.path)
+        .resize(500, 500, { fit: "cover" })
+        .png()
+        .toFile(outputPath);
+
+      if (req.file.path !== outputPath) {
+        await fs.unlink(req.file.path).catch(() => { });
+      }
+
+      update["profileImage.url"] = `/uploads/users/${filename}`;
+    }
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
@@ -94,13 +110,11 @@ router.patch("/user", authMiddleware, imageUpload.single("image"), async (req, r
     if (!user) return res.status(404).json({ msg: "User not found" });
 
     user.profileImage = formatImage(user.profileImage);
-
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 });
-
 
 // update user mood
 router.patch("/user/mood", authMiddleware, async (req, res) => {
