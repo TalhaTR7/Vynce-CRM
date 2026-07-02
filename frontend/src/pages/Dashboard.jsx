@@ -116,7 +116,7 @@ function Dashboard() {
         const fetchLeaderboard = async () => {
             try {
                 setLbLoading(true);
-                const res = await axios.get(`/api/leaderboards/project/${lbProjectId}`, {
+                const res = await axios.get(`/api/leaderboards/project/${lbProjectId}?limit=7`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
                 setLeaderboard(res.data);

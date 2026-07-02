@@ -10,21 +10,25 @@ function formatImage(image) {
     return { url: `http://localhost:${process.env.PORT}/api${url}` };
 }
 
-// GET /api/leaderboards/project/:projectId
+// get the project leaderboard
 router.get("/project/:projectId", authMiddleware, async (req, res) => {
     const { projectId } = req.params;
+    const limit = req.query.limit ? parseInt(req.query.limit) : null;
 
     try {
         const isMember = await Membership.exists({ projectId, userId: req.user.id });
         if (!isMember) return res.status(403).json({ msg: "Not a project member" });
 
-        const top5 = await Membership.find({ projectId })
+        let query = Membership.find({ projectId })
             .sort({ weeklyXP: -1 })
-            .limit(7)
             .populate({ path: "userId", select: "firstname lastname profileImage motivationScore" })
             .lean();
 
-        const response = top5.map((m, i) => ({
+        if (limit) query = query.limit(limit);
+
+        const results = await query;
+
+        const response = results.map((m, i) => ({
             rank: i + 1,
             weeklyXP: m.weeklyXP,
             isMe: m.userId._id.toString() === req.user.id,
@@ -41,5 +45,6 @@ router.get("/project/:projectId", authMiddleware, async (req, res) => {
         res.status(500).json({ msg: err.message });
     }
 });
+
 
 export default router;

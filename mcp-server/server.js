@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { BASE, authToken } from "./config.js";
-import { tools } from "./tools";
+import { tools } from "./tools.js";
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
