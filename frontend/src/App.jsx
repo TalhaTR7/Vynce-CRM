@@ -30,6 +30,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/resources/:name" element={<Resources />} />
         <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inbox" element={<Inbox />} />
@@ -41,7 +42,6 @@ function App() {
           <Route path="/leaderboards" element={<Leaderboards />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/gemini" element={<Gemini />} />
-          <Route path="/resources/:name" element={<Resources />} />
         </Route>
       </Routes>
       <ModalRenderer />
