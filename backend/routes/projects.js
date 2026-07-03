@@ -74,22 +74,6 @@ router.post("/", authMiddleware, imageUpload.single("image"), async (req, res) =
 });
 
 
-// get all projects
-router.get("/", authMiddleware, async (req, res) => {
-    try {
-        let projects = await Project.find();
-        projects = projects.map(project => {
-            const projectObj = project.toObject();
-            projectObj.projectImage = formatImage(projectObj.projectImage);
-            return projectObj;
-        });
-        res.status(200).json(projects);
-    } catch (err) {
-        res.status(500).json({ msg: err.message });
-    }
-});
-
-
 // get user projects only
 router.get("/user", authMiddleware, async (req, res) => {
     const userId = req.user.id;

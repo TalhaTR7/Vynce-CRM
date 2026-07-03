@@ -14,6 +14,7 @@ import ProjectSettings from "./pages/ProjectSettings";
 import Leaderboards from "./pages/Leaderboards";
 import Shop from "./pages/Shop";
 import Gemini from "./pages/Gemini";
+import Resources from "./pages/Resources";
 
 import { ProtectedLayout } from "./context/ProtectedLayout";
 import { ProtectedRoute } from "./context/ProtectedRoute";
@@ -40,6 +41,7 @@ function App() {
           <Route path="/leaderboards" element={<Leaderboards />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/gemini" element={<Gemini />} />
+          <Route path="/resources/:name" element={<Resources />} />
         </Route>
       </Routes>
       <ModalRenderer />

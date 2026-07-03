@@ -15,6 +15,7 @@ import mailRoutes from "./routes/inbox.js";
 import inviteRoutes from "./routes/invitations.js";
 import leaderboardRoutes from "./routes/leaderboards.js";
 import geminiRoutes from "./routes/gemini.js";
+import resourceRoute from "./routes/resources.js";
 import "./cron/taskDueNotifications.js";
 import "./cron/cleanupNotifications.js";
 import "./cron/resetWeeklyXP.js";
@@ -40,6 +41,7 @@ app.use("/api/invitations", inviteRoutes);
 app.use("/api/leaderboards", leaderboardRoutes);
 app.use("/api/gemini", geminiRoutes);
 app.use("/api/uploads", express.static("uploads"));
+app.use("/api/resources", resourceRoute);
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB connected"))

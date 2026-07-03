@@ -1,11 +1,12 @@
-import favicon from "../assets/icons/favicon.svg"
-import styles from "./css/Footer.module.scss"
-import sponsor1 from "../assets/sponsors/sponsor-1.png"
-import sponsor2 from "../assets/sponsors/sponsor-2.png"
-import sponsor3 from "../assets/sponsors/sponsor-3.png"
-import sponsor4 from "../assets/sponsors/sponsor-4.png"
-import sponsor5 from "../assets/sponsors/sponsor-5.png"
-import globe_svg from "../assets/icons/globe.svg"
+import favicon from "../assets/icons/favicon.svg";
+import styles from "./css/Footer.module.scss";
+import sponsor1 from "../assets/sponsors/sponsor-1.png";
+import sponsor2 from "../assets/sponsors/sponsor-2.png";
+import sponsor3 from "../assets/sponsors/sponsor-3.png";
+import sponsor4 from "../assets/sponsors/sponsor-4.png";
+import sponsor5 from "../assets/sponsors/sponsor-5.png";
+import globe_svg from "../assets/icons/globe.svg";
+import { Link } from "react-router-dom";
 
 
 /* ── Sponsors Strip ──────────────────────────────────────────────── */
@@ -91,12 +92,10 @@ export function Weblinks() {
                 <div className={styles.linkColumn}>
                     <h6 className={styles.linkColumnHeading}>Resources</h6>
                     <ul className={styles.linkColumnList}>
-                        <li><a className={styles.linkColumnItem}>Webinars</a></li>
-                        <li><a className={styles.linkColumnItem}>Blog</a></li>
-                        <li><a className={styles.linkColumnItem}>Research</a></li>
-                        <li><a className={styles.linkColumnItem}>Articles</a></li>
-                        <li><a className={styles.linkColumnItem}>Documents</a></li>
-                        <li><a className={styles.linkColumnItem}>Manual</a></li>
+                        <li><Link to="/resources/role-permissions">Role Permissions</Link></li>
+                        <li><Link to="/resources/auction-rules">Auction Rules</Link></li>
+                        <li><Link to="/resources/xp-and-gamification-rules">XP & Gamification</Link></li>
+                        <li><Link to="/resources/mood-values">Mood Values</Link></li>
                     </ul>
                 </div>
 

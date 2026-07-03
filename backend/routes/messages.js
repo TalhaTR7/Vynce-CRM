@@ -2,9 +2,6 @@ import express from "express";
 import authMiddleware from "../middleware/auth.js";
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
-import Notification from "../models/Notification.js";
-import User from "../models/User.js";
-import mongoose from "mongoose";
 
 const router = express.Router();
 

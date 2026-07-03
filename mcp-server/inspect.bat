@@ -1,1 +1,1 @@
-npx @modelcontextprotocol/inspector node server.js
+npx @modelcontextprotocol/inspector node mcp-server.js

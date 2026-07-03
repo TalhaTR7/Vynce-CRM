@@ -2,7 +2,7 @@
   "name": "vynce-mcp",
   "version": "1.0.0",
   "type": "module",
-  "main": "server.js",
+  "main": "mcp-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

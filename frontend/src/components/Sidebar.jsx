@@ -8,6 +8,7 @@ import team_svg from "../assets/icons/team.svg";
 import auction_svg from "../assets/icons/auction.svg";
 import archive_svg from "../assets/icons/archive.svg";
 import settings_svg from "../assets/icons/settings.svg";
+import spark_svg from "../assets/icons/spark.svg";
 import shop_svg from "../assets/icons/shop.svg";
 import styles from "./css/Sidebar.module.scss";
 import axios from "axios";
@@ -230,16 +231,20 @@ function Sidebar() {
                 </button>
             </div>
 
-            {/* ── Shop ──────────────────────────────────────────── */}
-            <Link to="/gemini" className={styles.geminiLink}>
-                <img src={shop_svg} className={styles.shopIcon} />
-                <span className={styles.geminiLabel}>Vynce AI</span>
-            </Link>
+            {/* ── Buttons ─────────────────────────────────────────── */}
+            <div className={styles.sidebarButtons}>
+                {/* Vynce AI (Gemini) button */}
+                <Link to="/gemini" className={styles.sidebarButton}>
+                    <img src={spark_svg} className={styles.sidebarButtonIcon} alt="Vynce AI" />
+                    <span className={styles.sidebarButtonLabel}>Vynce AI</span>
+                </Link>
 
-            <Link to="/shop" className={styles.shopLink}>
-                <img src={shop_svg} className={styles.shopIcon} />
-                <span className={styles.shopLabel}>Shop</span>
-            </Link>
+                {/* Shop button */}
+                <Link to="/shop" className={styles.sidebarButton}>
+                    <img src={shop_svg} className={styles.sidebarButtonIcon} alt="Shop" />
+                    <span className={styles.sidebarButtonLabel}>Shop</span>
+                </Link>
+            </div>
 
             {/* ── Portal popout (renders into document.body) ────── */}
             {openPopout && (

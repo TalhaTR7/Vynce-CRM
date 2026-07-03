@@ -32,7 +32,7 @@ async function api(method, path, body) {
     };
 }
 
-// ─── TOOLS, RESOURCES, PROMPTS ────────────────────────────────────────────────
+// ─── TOOLS ────────────────────────────────────────────────────────────────────
 
 tools(server, api);
 

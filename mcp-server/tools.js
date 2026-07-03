@@ -206,15 +206,6 @@ export function tools(server, api) {
     );
 
     server.registerTool(
-        "get-all-projects",
-        {
-            description: "Gets all the projects in the database.",
-            inputSchema: z.object({})
-        },
-        async () => api("GET", "/projects/")
-    );
-
-    server.registerTool(
         "get-user-projects",
         {
             description: "Gets the projects the current user is enrolled in.",
