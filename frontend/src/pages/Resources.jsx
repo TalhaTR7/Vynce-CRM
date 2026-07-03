@@ -17,6 +17,7 @@ export default function Resources() {
         axios.get(`/api/resources/${name}`)
             .then(res => setContent(res.data.text))
             .finally(() => setLoading(false));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [name]);
 
     useEffect(() => {
