@@ -11,10 +11,13 @@ export default function Resources() {
 
     useEffect(() => {
         axios.get(`/api/resources/${name}`)
-            .then(res => setContent(res.data.text))
+            .then(res => {
+                setContent(res.data.text);
+            })
+            .catch(err => console.error("error:", err))
             .finally(() => setLoading(false));
     }, [name]);
-
+    
     if (loading) return <div className={styles.loading}>Loading...</div>;
 
     return (

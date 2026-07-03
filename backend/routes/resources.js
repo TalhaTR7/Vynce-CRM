@@ -1,5 +1,5 @@
 import express from "express";
-import { list, read } from "../../mcp-server/client.js";
+import { list, read } from "../../mcp-server/client/index.js"; 
 
 
 const router = express.Router();

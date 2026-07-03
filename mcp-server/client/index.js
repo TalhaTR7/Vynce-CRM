@@ -1,10 +1,14 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
+import { fileURLToPath } from "url";
+import path from "path";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const transport = new StdioClientTransport({
     command: "node",
-    args: ["../mcp-server.js"]
+    args: [path.join(__dirname, "../mcp-server.js")]
 });
 
 const client = new Client({ name: "vynce-client", version: "1.0.0" });
