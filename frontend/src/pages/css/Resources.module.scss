@@ -112,7 +112,7 @@
         font-size: 2rem;
         font-weight: 500;
         margin-bottom: 8px;
-        color: #111;
+        color: var(--text-secondary);
     }
 
     h2 {
@@ -121,8 +121,8 @@
         font-weight: 600;
         margin-top: 40px;
         margin-bottom: 12px;
-        color: #111;
-        border-bottom: 1px solid #e5e5e5;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border);
         padding-bottom: 6px;
     }
 
@@ -132,13 +132,13 @@
         font-weight: 600;
         margin-top: 28px;
         margin-bottom: 8px;
-        color: #333;
+        color: var(--text-secondary);
     }
 
     p {
         font-family: var(--font-body);
         margin-bottom: 16px;
-        color: #333;
+        color: var(--text-muted);
     }
 
     ul,
@@ -149,7 +149,7 @@
 
         li {
             margin-bottom: 6px;
-            color: #333;
+            color: var(--text-muted);
         }
     }
 
@@ -159,7 +159,7 @@
         padding: 2px 6px;
         font-family: var(--font-mono);
         font-size: 0.875rem;
-        color: #c7254e;
+        color: var(--green);
     }
 
     pre {
@@ -174,7 +174,7 @@
             font-family: var(--font-mono);
             background: none;
             padding: 0;
-            color: #333;
+            color: var(--text-primary);
         }
     }
 
@@ -186,23 +186,23 @@
 
         th {
             font-family: var(--font-body);
-            background: #f0f0f0;
+            background: var(--surface);
             font-weight: 600;
             text-align: left;
             padding: 10px 14px;
-            border: 1px solid #e0e0e0;
-            color: #111;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
         }
 
         td {
             font-family: var(--font-body);
             padding: 10px 14px;
             border: 1px solid #e0e0e0;
-            color: #333;
+            color: var(--text-muted);
         }
 
         tr:nth-child(even) td {
-            background: #fafafa;
+            background: var(--bg);
         }
     }
 
@@ -215,7 +215,7 @@
 
     strong {
         font-weight: 600;
-        color: #111;
+        color: var(--text-secondary);
     }
 
     blockquote {

@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { authToken, BASE, setAuthToken } from "./config.js";
+import { read } from "./client/index.js";
+
 
 export function tools(server, api) {
 
@@ -949,5 +951,23 @@ export function tools(server, api) {
         },
         async ({ chatId }) => api("PATCH", `/messages/chat/${chatId}`)
     );
-    
+
+    // ─── RESOURCES ────────────────────────────────────────────────────────────────
+
+server.registerTool(
+    "read-resource",
+    {
+        description: "Reads a Vynce documentation resource by name. Available resources: role-permissions, xp-and-gamification-rules, mood-values, auction-rules.",
+        inputSchema: z.object({
+            name: z.enum(["role-permissions", "xp-and-gamification-rules", "mood-values", "auction-rules"])
+        })
+    },
+    async ({ name }) => {
+        const text = await read(`vynce://resources/${name}`);
+        return {
+            content: [{ type: "text", text }]
+        };
+    }
+);
+
 }

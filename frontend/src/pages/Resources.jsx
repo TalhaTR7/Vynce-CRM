@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import Footer from "../components/Footer";
+import { Copyrights, Weblinks } from "../components/Footer";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import axios from "axios";
@@ -51,7 +51,8 @@ export default function Resources() {
                     </ReactMarkdown>
                 </div>
             </div>
-            <Footer />
+            <Weblinks />
+            <Copyrights />
         </div>
     );
 }

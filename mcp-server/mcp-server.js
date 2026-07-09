@@ -3,6 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { BASE, authToken } from "./config.js";
 import { tools } from "./tools.js";
 import { resources } from "./resources.js";
+import { prompts } from "./prompts.js";
 
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -34,10 +35,11 @@ async function api(method, path, body) {
     };
 }
 
-// ─── TOOLS ────────────────────────────────────────────────────────────────────
+// ─── TOOLS, RESOURCES, PROMPTS ────────────────────────────────────────────────
 
 tools(server, api);
 resources(server);
+prompts(server);
 
 // ─── TRANSPORT ────────────────────────────────────────────────────────────────
 
