@@ -1,6 +1,6 @@
 # Vynce-CRM Progress Report
 
-11th March, 2026 — Vynce-CRM is a specialized project and task management ecosystem designed to blend productivity with gamification. It tracks progress and user engagement through mood-based rewards, motivation scoring, and a competitive marketplace for tasks.
+15th July, 2026 — Vynce-CRM is a specialized project and task management ecosystem designed to blend productivity with gamification. It tracks progress and user engagement through mood-based rewards, motivation scoring, and a competitive marketplace for tasks — now extended with an AI assistant and a full Model Context Protocol (MCP) server for programmatic/agentic access.
 
 ---
 
@@ -8,18 +8,19 @@
 
 ### 1. **Project & Workspace Management**
 *   **Dynamic Creation**: Users can create projects with custom branding (Project Images).
-*   **Role-Based Access Control**: Standardized roles (`OWNER`, `ADMIN`, `MEMBER`) governing permissions.
+*   **Role-Based Access Control**: Standardized roles (`OWNER`, `ADMIN`, `MEMBER`) governing permissions, with ownership transfer requests and admin promote/demote flows.
 *   **Board System**: Each project can host multiple Kanban boards to categorize workflows.
 *   **Project Settings**: Complete management of project metadata, board configurations, and member lists.
 
 ### 2. **Advanced Task Management**
 *   **Full CRUD**: Create, read, update, and delete tasks with ease.
 *   **Detailed Tracking**: Tasks support titles, descriptions, difficulty levels, and due dates.
-*   **Dynamic Rewards (Ethereum)**: 
+*   **Dynamic Rewards (Ethereum)**:
     *   Tasks carry "Ethereum" rewards.
     *   **Mood-Based Multipliers**: Rewards are automatically scaled based on the assignee's current mood (ANGRY, CRYING, SAD, NORMAL, OKAY, HAPPY, ECSTATIC), rewarding users for persistence during difficult states.
 *   **Precision Timer**: Integrated stopwatch to track exact `worktime` spent on tasks.
 *   **Motivation Scoring**: Automatically calculates and rewards user "Motivation" based on active work segments.
+*   **Archive & Restore**: Closed/deleted tasks are archived with support for restoration or permanent deletion (single or bulk).
 
 ### 3. **The Marketplace (Task Auctions)**
 *   **Open Bidding**: Users can put their tasks on the marketplace for others to bid on.
@@ -28,16 +29,27 @@
 *   **Fluid Reassignment**: Automated transfer of task ownership upon auction closure.
 
 ### 4. **Social & Collaboration**
-*   **Real-time Chat**: Integrated messaging system for direct communication between users.
+*   **Real-time Chat**: Integrated messaging system for direct communication between users, with per-chat hide support.
 *   **Real-time Activity Logs**: Every change (title, status, bounty, etc.) is recorded in a task-specific activity feed.
 *   **Communication**: Integrated comment system within each task for direct collaboration.
 *   **Invitation System**: Standardized invitation flow with pending, accepted, and declined states.
-*   **Notifications (Inbox)**: Personalized inbox notifying users of assignments, invitations, project changes, and more.
+*   **Notifications (Inbox)**: Personalized inbox notifying users of assignments, invitations, project changes, and more — supports single and bulk read/delete.
 
 ### 5. **Gamification & Analytics**
 *   **Weekly Leaderboards**: Competitive rankings based on `WeeklyXP`.
 *   **Automated Resets**: Scheduled worker (`node-cron`) that resets competitive stats every Sunday.
 *   **Motivation Profiles**: User profiles track overall motivation scores and mood history.
+
+### 6. **AI Assistant (Gemini)**
+*   **In-App Chat**: A dedicated backend route (`/gemini`) proxies chat requests to Google's Gemini API.
+*   **Automatic Model Fallback**: Cascades across `gemini-2.5-flash`, `gemini-2.0-flash`, and `gemini-2.0-flash-lite`, retrying the next model on a 503 before failing.
+*   **Markdown Rendering**: Frontend renders AI responses via `react-markdown` + `remark-gfm`.
+
+### 7. **MCP Server (Agentic Access)**
+*   **Standalone Server**: A separate `mcp-server/` package exposes the entire CRM as a Model Context Protocol server (`@modelcontextprotocol/sdk`), so AI agents/clients can drive Vynce-CRM directly.
+*   **~70 Tools**: Covers the full surface area of the app — auth (login/signup), user profile & mood management, projects & ownership transfer, roles (promote/demote), boards, tasks (CRUD, timer, reward/difficulty edits, comments, submit/return/close), archives, auctions/marketplace, leaderboards, inbox/notifications, and chat.
+*   **Resources & Prompts**: Also registers MCP resources and prompt templates alongside the tool set.
+*   **Transport**: Runs over stdio (`StdioServerTransport`), authenticating against the backend API with a bearer token.
 
 ---
 
@@ -49,10 +61,13 @@
 | **Database** | MongoDB & Mongoose | Data modeling and persistence |
 | **Authentication** | JWT & Bcrypt | Secure login and request authorization |
 | **File Handling** | Multer | Image uploads for projects and users |
+| **AI** | Google Gemini API | In-app AI chat assistant with model fallback |
+| **Agentic Access** | Model Context Protocol SDK | Standalone MCP server exposing CRM as ~70 tools |
 | **Frontend** | React (v19) & Vite | Fast, reactive user interface |
 | **Styling** | Sass (SCSS) | Modular and structured CSS |
 | **State** | React Context API | Global state for Modals and Moods |
 | **Interaction** | @dnd-kit | High-performance drag and drop |
+| **Markdown** | react-markdown & remark-gfm | Rendering AI chat responses |
 | **Automation** | Node-cron | Scheduled database maintenance |
 
 ---
@@ -65,3 +80,5 @@
 *   [x] Automated Notification and Inbox services.
 *   [x] Weekly competitive metrics and automated cron jobs.
 *   [x] Integrated Messaging/Chat system.
+*   [x] In-app AI chat assistant powered by Gemini, with automatic model fallback.
+*   [x] Full MCP server exposing the CRM as ~70 agent-callable tools, resources, and prompts.
