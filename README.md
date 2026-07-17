@@ -1,4 +1,4 @@
-# Vynce-CRM Progress Report
+# Vynce-CRM
 
 15th July, 2026 — Vynce-CRM is a specialized project and task management ecosystem designed to blend productivity with gamification. It tracks progress and user engagement through mood-based rewards, motivation scoring, and a competitive marketplace for tasks — now extended with an AI assistant and a full Model Context Protocol (MCP) server for programmatic/agentic access.
 
